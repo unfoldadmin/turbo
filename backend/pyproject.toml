@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = []
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.2"
+psycopg = {extras = ["binary"], version = "^3.1.9"}
+djangorestframework = "^3.14.0"
+djangorestframework-simplejwt = "^5.2.2"
+drf-spectacular = "^0.26.3"
+django-unfold = "^0.7.0"
+
+[tool.ruff]
+fix = true
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+exclude = [
+    "**/migrations"
+]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

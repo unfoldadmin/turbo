@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-python.black-formatter",
+    "charliermarsh.ruff"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start docker-compose up",
+      "type": "shell",
+      "command": "docker-compose up",
+      "isBackground": true
+    },
+    {
+      "label": "Update OpenAPI schema",
+      "type": "shell",
+      "command": "docker-compose exec web pnpm openapi:generate",
+      "isBackground": true
+    },
+    {
+      "label": "Create superuser",
+      "type": "shell",
+      "command": "docker-compose exec api poetry run python src/manage.py createsuperuser",
+      "isBackground": false
+    }
+  ]
+}
