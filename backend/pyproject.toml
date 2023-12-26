@@ -7,12 +7,12 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-django = "^4.2"
-psycopg = {extras = ["binary"], version = "^3.1.9"}
+django = "^5.0"
+psycopg = {extras = ["binary"], version = "^3.1.16"}
 djangorestframework = "^3.14.0"
-djangorestframework-simplejwt = "^5.2.2"
-drf-spectacular = "^0.26.3"
-django-unfold = "^0.7.0"
+djangorestframework-simplejwt = "^5.3.1"
+drf-spectacular = "^0.27.0"
+django-unfold = "^0.18.1"
 
 [tool.ruff]
 fix = true
@@ -24,6 +24,7 @@ select = [
     "I",  # isort
     "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
+    "UP", # pyupgrade
 ]
 ignore = [
     "E501",  # line too long, handled by black
