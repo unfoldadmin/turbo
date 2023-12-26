@@ -4,7 +4,8 @@
 /* eslint-disable */
 
 export type UserCurrentError = {
-  username?: Array<string>
-  first_name?: Array<string>
-  last_name?: Array<string>
-}
+    username?: Array<string>;
+    first_name?: Array<string>;
+    last_name?: Array<string>;
+};
+
