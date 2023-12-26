@@ -4,11 +4,10 @@
 /* eslint-disable */
 
 export type PatchedUserCurrent = {
-    /**
-     * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
-     */
-    username?: string;
-    first_name?: string;
-    last_name?: string;
-};
-
+  /**
+   * Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+   */
+  username?: string
+  first_name?: string
+  last_name?: string
+}

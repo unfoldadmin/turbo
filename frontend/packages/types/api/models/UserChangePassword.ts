@@ -4,8 +4,7 @@
 /* eslint-disable */
 
 export type UserChangePassword = {
-    password: string;
-    password_new: string;
-    password_retype: string;
-};
-
+  password: string
+  password_new: string
+  password_retype: string
+}

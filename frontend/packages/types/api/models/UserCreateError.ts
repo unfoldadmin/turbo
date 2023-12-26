@@ -4,8 +4,7 @@
 /* eslint-disable */
 
 export type UserCreateError = {
-    username?: Array<string>;
-    password?: Array<string>;
-    password_retype?: Array<string>;
-};
-
+  username?: Array<string>
+  password?: Array<string>
+  password_retype?: Array<string>
+}
