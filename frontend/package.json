@@ -8,13 +8,13 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.8.2",
-    "@types/react": "^18.2.25",
-    "@types/react-dom": "^18.2.10",
+    "@types/node": "^20.10.5",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
     "openapi-typescript-codegen": "^0.25.0",
-    "prettier": "^3.0.3",
-    "prettier-plugin-tailwindcss": "^0.5.5",
-    "typescript": "^5.2.2"
+    "prettier": "^3.1.1",
+    "prettier-plugin-tailwindcss": "^0.5.9",
+    "typescript": "^5.3.3"
   },
   "scripts": {
     "openapi:generate": "openapi -i http://api:8000/api/schema -o packages/types/api --name ApiClient"
