@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "next": "14.0.4",
-    "react": "18.2.0",
-    "react-hook-form": "^7.49.2",
-    "tailwind-merge": "^2.2.0"
+    "next": "^14.2.3",
+    "react": "^18.3.0",
+    "react-hook-form": "^7.51.3",
+    "tailwind-merge": "^2.3.0"
   }
 }

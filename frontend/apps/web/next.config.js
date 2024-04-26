@@ -2,10 +2,7 @@
 const nextConfig = {
   swcMinify: true,
   output: 'standalone',
-  transpilePackages: ['@frontend/types', '@frontend/ui'],
-  experimental: {
-    serverActions: true
-  }
+  transpilePackages: ['@frontend/types', '@frontend/ui']
 }
 
 module.exports = nextConfig
