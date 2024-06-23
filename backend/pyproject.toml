@@ -8,11 +8,11 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.11"
 django = "^5.0"
-psycopg = {extras = ["binary"], version = "^3.1.16"}
-djangorestframework = "^3.14.0"
+psycopg = { extras = ["binary"], version = "^3.1.19" }
+djangorestframework = "^3.15.2"
 djangorestframework-simplejwt = "^5.3.1"
-drf-spectacular = "^0.27.0"
-django-unfold = "^0.18.1"
+drf-spectacular = "^0.27.2 "
+django-unfold = "^0.29.0"
 
 [tool.ruff]
 fix = true
@@ -27,13 +27,11 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long, handled by black
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
-exclude = [
-    "**/migrations"
-]
+exclude = ["**/migrations"]
 
 [build-system]
 requires = ["poetry-core"]
