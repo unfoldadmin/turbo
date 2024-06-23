@@ -1,0 +1,24 @@
+{
+  "service": "web",
+  "name": "Frontend",
+  "dockerComposeFile": ["../../docker-compose.yaml"],
+  "workspaceFolder": "/app",
+  "forwardPorts": [3000],
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
+}

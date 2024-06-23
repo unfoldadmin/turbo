@@ -1,0 +1,21 @@
+{
+  "service": "api",
+  "name": "Backend",
+  "dockerComposeFile": ["../../docker-compose.yaml"],
+  "workspaceFolder": "/app",
+  "forwardPorts": [8000],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "batisteo.vscode-django",
+        "tamasfe.even-better-toml",
+        "charliermarsh.ruff"
+      ]
+    }
+  }
+}

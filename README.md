@@ -14,7 +14,7 @@ Turbo is a simple bootstrap template for Django and Next.js, combining both fram
 - **Registrations**: creation of new user accounts (activation not included)
 - **Admin theme**: Unfold admin theme with user & group management
 - **Custom user model**: extended default Django user model
-- **Visual Studio Code**: project configuration are already available with predefined tasks
+- **Visual Studio Code**: project already constains VS Code containers and tasks
 
 ## Table of contents <!-- omit from toc -->
 
@@ -35,6 +35,7 @@ Turbo is a simple bootstrap template for Django and Next.js, combining both fram
   - [Updating OpenAPI schema](#updating-openapi-schema)
   - [Swagger](#swagger)
   - [Client side requests](#client-side-requests)
+- [Developing in VS Code](#developing-in-vs-code)
 
 ## Quickstart
 
@@ -241,3 +242,8 @@ By default, Turbo includes Swagger for API schema which is available here `http:
 ### Client side requests
 
 At the moment, Turbo does not contain any examples of client side requests towards the backend. All the requests are handled by server actions. For client side requests, it is recommended to use [react-query](https://github.com/TanStack/query).
+
+
+## Developing in VS Code
+
+The project contains configuration files for devcontainers so it is possible to directly work inside the container within VS Code. When the project opens in the VS Code the popup will appear to reopen the project in container. An action **Dev Containers: Reopen in Container** is available as well. Click on the reopen button and select the container which you want to work on. When you want to switch from the frontend to the backend project run **Dev Containers: Switch container** action. In case you are done and you want to work in the parent folder run **Dev Containers: Reopen Folder Locally** action

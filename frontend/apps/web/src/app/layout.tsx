@@ -2,6 +2,7 @@ import { AuthProvider } from '@/providers/AuthProvider'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { twMerge } from 'tailwind-merge'
+
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -15,13 +16,13 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     <html lang="en">
       <body
         className={twMerge(
-          'antialiased bg-gray-50 text-gray-700 text-sm',
+          'bg-gray-50 text-sm text-gray-700 antialiased',
           inter.className
         )}
       >
         <AuthProvider>
           <div className="px-6">
-            <div className="container max-w-6xl my-12 mx-auto">{children}</div>
+            <div className="container mx-auto my-12 max-w-6xl">{children}</div>
           </div>
         </AuthProvider>
       </body>
