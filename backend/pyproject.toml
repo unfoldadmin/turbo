@@ -8,11 +8,11 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.11"
 django = "^5.0"
-psycopg = { extras = ["binary"], version = "^3.1.19" }
-djangorestframework = "^3.15.2"
-djangorestframework-simplejwt = "^5.3.1"
-drf-spectacular = "^0.27.2 "
-django-unfold = "^0.29.0"
+psycopg = { extras = ["binary"], version = "^3.2" }
+djangorestframework = "^3.15"
+djangorestframework-simplejwt = "^5.3"
+drf-spectacular = "^0.27"
+django-unfold = "^0.32"
 
 [tool.ruff]
 fix = true
