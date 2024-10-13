@@ -1,11 +1,11 @@
 'use server'
 
-import { z } from 'zod'
+import { getApiClient } from '@/lib/api'
+import { authOptions } from '@/lib/auth'
 import { profileFormSchema } from '@/lib/validation'
 import { ApiError, UserCurrentError } from '@frontend/types/api'
-import { getApiClient } from '@/lib/api'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { z } from 'zod'
 
 export type ProfileFormSchema = z.infer<typeof profileFormSchema>
 
@@ -19,7 +19,7 @@ const profileAction: ProfileAction = async (data) => {
   try {
     const apiClient = await getApiClient(session)
 
-    apiClient.users.usersMePartialUpdate({
+    await apiClient.users.usersMePartialUpdate({
       first_name: data.firstName,
       last_name: data.lastName
     })
