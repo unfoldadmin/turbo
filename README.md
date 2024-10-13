@@ -8,7 +8,7 @@ Turbo is a simple bootstrap template for Django and Next.js, combining both fram
 - **API typesafety**: exported types from backend stored in shared front end package
 - **Server actions**: handling form submissions in server part of Next project
 - **Tailwind CSS**: built-in support for all front end packages and sites
-- **Docker Compose**: start both front end and backend by running `docker-compose up`
+- **Docker Compose**: start both front end and backend by running `docker compose up`
 - **Auth system**: incorporated user authentication based on JWT tokens
 - **Profile management**: update profile information from the front end
 - **Registrations**: creation of new user accounts (activation not included)
@@ -20,7 +20,7 @@ Turbo is a simple bootstrap template for Django and Next.js, combining both fram
 
 - [Quickstart](#quickstart)
   - [Environment files configuration](#environment-files-configuration)
-  - [Running docker-compose](#running-docker-compose)
+  - [Running docker compose](#running-docker-compose)
 - [Included dependencies](#included-dependencies)
   - [Backend dependencies](#backend-dependencies)
   - [Front end dependencies](#front-end-dependencies)
@@ -39,7 +39,7 @@ Turbo is a simple bootstrap template for Django and Next.js, combining both fram
 
 ## Quickstart
 
-To start using Turbo, it is needed to clone the repository to your local machine and then run docker-compose, which will take care about the installation process. The only prerequisite for starting Turbo template is to have docker-compose installed and preconfiguring files with environment variables.
+To start using Turbo, it is needed to clone the repository to your local machine and then run `docker compose`, which will take care about the installation process. The only prerequisite for starting Turbo template is to have `docker compose` installed and preconfiguring files with environment variables.
 
 ```bash
 git clone https://github.com/unfoldadmin/turbo.git
@@ -48,7 +48,7 @@ cd turbo
 
 ### Environment files configuration
 
-Before you can run `docker-compose up`, you have to set up two files with environment variables. Both files are loaded via docker-compose and variables are available within docker containers.
+Before you can run `docker compose up`, you have to set up two files with environment variables. Both files are loaded via `docker compose` and variables are available within docker containers.
 
 ```bash
 cp .env.backend.template .env.backend # set SECRET_KEY and DEBUG=1 for debug mode on
@@ -59,10 +59,10 @@ For more advanced environment variables configuration for the front end, it is r
 
 On the backend it is possible to use third party libraries for loading environment variables. In case that loading variables through `os.environ` is not fulfilling the requriements, we recommend using [django-environ](https://github.com/joke2k/django-environ) application.
 
-### Running docker-compose
+### Running docker compose
 
 ```bash
-docker-compose up
+docker compose up
 ```
 
 After successful installation, it will be possible to access both front end (http://localhost:3000) and backend (http://localhost:8000) part of the system from the browsers.
@@ -75,7 +75,7 @@ The general rule when it comes to dependencies is to have minimum of third party
 
 ### Backend dependencies
 
-For dependency management in Django application we are using Poetry. When starting the project through the docker-compose command, it is checked for new dependencies as well. In the case they are not installed, docker will install them before running development server.
+For dependency management in Django application we are using Poetry. When starting the project through the `docker compose` command, it is checked for new dependencies as well. In the case they are not installed, docker will install them before running development server.
 
 - **[djangorestframework](https://github.com/encode/django-rest-framework)** - REST API support
 - **[djangorestframework-simplejwt](https://github.com/jazzband/djangorestframework-simplejwt)** - JWT auth for REST API
@@ -85,7 +85,7 @@ For dependency management in Django application we are using Poetry. When starti
 Below, you can find a command to install new dependency into backend project.
 
 ```bash
-docker-compose exec api poetry add djangorestframework
+docker compose exec api poetry add djangorestframework
 ```
 
 ### Front end dependencies
@@ -100,13 +100,13 @@ For the frontend project, it is bit more complicated to maintain fron end depend
 To install a global dependency for all packages and apps, use `-w` parameter. In case of development package, add `-D` argument to install it into development dependencies.
 
 ```bash
-docker-compose exec web pnpm add react-hook-form -w
+docker compose exec web pnpm add react-hook-form -w
 ```
 
 To install a dependency for specific app or package, use `--filter` to specify particular package.
 
 ```bash
-docker-compose exec web pnpm --filter web add react-hook-form
+docker compose exec web pnpm --filter web add react-hook-form
 ```
 
 ## Front end project structure
@@ -125,7 +125,7 @@ frontend
 The general rule here is, if you want to have some shared code, create new package under packages/ folder. After adding new package and making it available for your website, it is needed to install the new package into website project by running a command below.
 
 ```bash
-docker-compose exec web pnpm --filter web add @frontend/ui
+docker compose exec web pnpm --filter web add @frontend/ui
 ```
 
 ### Adding microsite to docker-compose.yaml
@@ -168,7 +168,7 @@ openssl rand -base64 32
 There are two ways how to create new user account in the backend. First option is to run managed command responsible for creating superuser. It is more or less required, if you want to have an access to the Django admin. After running the command below, it will be possible to log in on the front end part of the application.
 
 ```bash
-docker-compose exec api poetry run python src/manage.py createsuperuser
+docker compose exec api poetry run python src/manage.py createsuperuser
 ```
 
 The second option how to create new user account is to register it on the front end. Turbo provides simple registration form. After account registration, it will be not possible to log in because account is inactive. Superuser needs to access Django admin and activate an account. This is a default behavior provided by Turbo, implementation of special way of account activation is currently out the scope of the project.
@@ -232,7 +232,7 @@ The query between server action and Django backend is handled by using an API cl
 After changes on the backend, for example adding new fields into serializers, it is required to update typescript schema on the frontend. The schema can be updated by running command below. In VS Code, there is prepared task which will update definition.
 
 ```bash
-docker-compose exec web pnpm openapi:generate
+docker compose exec web pnpm openapi:generate
 ```
 
 ### Swagger
