@@ -4,13 +4,13 @@
     {
       "label": "Update OpenAPI schema",
       "type": "shell",
-      "command": "docker-compose exec web pnpm openapi:generate",
+      "command": "docker compose exec web pnpm openapi:generate",
       "isBackground": true
     },
     {
       "label": "Create superuser",
       "type": "shell",
-      "command": "docker-compose exec api poetry run python src/manage.py createsuperuser",
+      "command": "docker compose exec api poetry run python src/manage.py createsuperuser",
       "isBackground": false
     }
   ]
