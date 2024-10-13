@@ -6,7 +6,7 @@ authors = []
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.13"
 django = "^5.1"
 psycopg = { extras = ["binary"], version = "^3.2" }
 djangorestframework = "^3.15"
