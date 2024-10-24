@@ -1,7 +1,11 @@
 'use client'
 
-import React from 'react'
-import { UseFormRegisterReturn, FormState } from 'react-hook-form'
+import type React from 'react'
+import type {
+  FieldValues,
+  FormState,
+  UseFormRegisterReturn
+} from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
 
 type TextFieldProps = {
@@ -9,7 +13,7 @@ type TextFieldProps = {
   label: string
   placeholder?: string
   register: UseFormRegisterReturn
-  formState: FormState<any>
+  formState: FormState<FieldValues>
 }
 
 const TextField: React.FC<TextFieldProps> = ({

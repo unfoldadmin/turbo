@@ -2,10 +2,10 @@
 
 import { getApiClient } from '@/lib/api'
 import { authOptions } from '@/lib/auth'
-import { deleteAccountFormSchema } from '@/lib/validation'
+import type { deleteAccountFormSchema } from '@/lib/validation'
 import { ApiError } from '@frontend/types/api'
 import { getServerSession } from 'next-auth'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 export type DeleteAccountFormSchema = z.infer<typeof deleteAccountFormSchema>
 

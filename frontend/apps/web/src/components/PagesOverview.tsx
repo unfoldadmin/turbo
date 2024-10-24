@@ -5,23 +5,25 @@ import Link from 'next/link'
 
 const SignInLink: React.FC = () => {
   return (
-    <a
+    <button
+      type="button"
       onClick={() => signIn()}
       className="cursor-pointer text-purple-600 underline"
     >
       Login
-    </a>
+    </button>
   )
 }
 
 const SignOutLink: React.FC = () => {
   return (
-    <a
+    <button
+      type="button"
       onClick={() => signOut()}
       className="cursor-pointer text-purple-600 underline"
     >
       Logout
-    </a>
+    </button>
   )
 }
 

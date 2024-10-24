@@ -1,6 +1,6 @@
 import { changePasswordAction } from '@/actions/changePasswordAction'
 import ChangePaswordForm from '@/components/forms/ChangePasswordForm'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Change password - Turbo'

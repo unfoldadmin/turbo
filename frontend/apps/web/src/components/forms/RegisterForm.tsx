@@ -1,12 +1,15 @@
 'use client'
 
-import { RegisterFormSchema, RegisterAction } from '@/actions/registerAction'
+import type {
+  RegisterAction,
+  RegisterFormSchema
+} from '@/actions/registerAction'
 import { fieldApiError } from '@/lib/forms'
 import { registerFormSchema } from '@/lib/validation'
+import FormFooter from '@frontend/ui/forms/FormFooter'
+import FormHeader from '@frontend/ui/forms/FormHeader'
 import SubmitField from '@frontend/ui/forms/SubmitField'
 import TextField from '@frontend/ui/forms/TextField'
-import FormHeader from '@frontend/ui/forms/FormHeader'
-import FormFooter from '@frontend/ui/forms/FormFooter'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'

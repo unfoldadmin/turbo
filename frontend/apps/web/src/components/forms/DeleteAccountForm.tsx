@@ -1,6 +1,6 @@
 'use client'
 
-import {
+import type {
   DeleteAccountAction,
   DeleteAccountFormSchema
 } from '@/actions/deleteAccountAction'

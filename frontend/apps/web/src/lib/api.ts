@@ -1,5 +1,5 @@
 import { ApiClient } from '@frontend/types/api'
-import { Session } from 'next-auth'
+import type { Session } from 'next-auth'
 
 const getApiClient = async (session?: Session | null) => {
   return new ApiClient({
