@@ -1,9 +1,9 @@
 'use server'
 
-import { z } from 'zod'
+import { getApiClient } from '@/lib/api'
 import { registerFormSchema } from '@/lib/validation'
 import { ApiError, UserCreateError } from '@frontend/types/api'
-import { getApiClient } from '@/lib/api'
+import { z } from 'zod'
 
 export type RegisterFormSchema = z.infer<typeof registerFormSchema>
 
@@ -15,7 +15,7 @@ const registerAction: RegisterAction = async (data) => {
   try {
     const apiClient = await getApiClient()
 
-    apiClient.users.usersCreate({
+    await apiClient.users.usersCreate({
       username: data.username,
       password: data.password,
       password_retype: data.passwordRetype

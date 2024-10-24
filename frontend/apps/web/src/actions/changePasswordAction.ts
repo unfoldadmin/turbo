@@ -1,11 +1,11 @@
 'use server'
 
-import { z } from 'zod'
+import { getApiClient } from '@/lib/api'
+import { authOptions } from '@/lib/auth'
 import { changePasswordFormSchema } from '@/lib/validation'
 import { ApiError, UserChangePasswordError } from '@frontend/types/api'
-import { getApiClient } from '@/lib/api'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { z } from 'zod'
 
 export type ChangePasswordFormSchema = z.infer<typeof changePasswordFormSchema>
 
