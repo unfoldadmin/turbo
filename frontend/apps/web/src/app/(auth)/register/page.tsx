@@ -1,6 +1,6 @@
 import { registerAction } from '@/actions/registerAction'
 import RegisterForm from '@/components/forms/RegisterForm'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Register - Turbo'

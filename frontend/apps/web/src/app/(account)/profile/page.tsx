@@ -2,7 +2,7 @@ import { profileAction } from '@/actions/profileAction'
 import ProfileForm from '@/components/forms/ProfileForm'
 import { getApiClient } from '@/lib/api'
 import { authOptions } from '@/lib/auth'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { getServerSession } from 'next-auth'
 
 export const metadata: Metadata = {

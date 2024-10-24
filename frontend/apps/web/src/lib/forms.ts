@@ -1,4 +1,4 @@
-import { FieldValues, Path, UseFormSetError } from 'react-hook-form'
+import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
 
 /**
  * Helper function processing error messages from API server
@@ -19,11 +19,11 @@ const fieldApiError = <TFieldValues extends FieldValues>(
   setError: UseFormSetError<TFieldValues>
 ) => {
   if (typeof response !== 'boolean' && fieldName in response) {
-    response[fieldName].forEach((error: string) => {
+    for (const error of response[fieldName]) {
       setError(fieldPath, {
         message: error
       })
-    })
+    }
   }
 }
 
