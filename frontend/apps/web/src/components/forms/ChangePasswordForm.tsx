@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangePasswordAction } from '@/actions/changePasswordAction'
+import type { ChangePasswordAction } from '@/actions/changePasswordAction'
 import { fieldApiError } from '@/lib/forms'
 import { changePasswordFormSchema } from '@/lib/validation'
 import FormHeader from '@frontend/ui/forms/FormHeader'
@@ -10,7 +10,7 @@ import SuccessMessage from '@frontend/ui/messages/SuccessMessage'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import type { z } from 'zod'
 
 export type ChangePasswordFormSchema = z.infer<typeof changePasswordFormSchema>
 

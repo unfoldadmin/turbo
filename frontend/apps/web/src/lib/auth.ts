@@ -1,6 +1,6 @@
-import { AuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
 import { ApiError } from '@frontend/types/api'
+import type { AuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
 import { getApiClient } from './api'
 
 const decodeToken = (

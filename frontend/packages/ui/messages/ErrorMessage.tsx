@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
-import { PropsWithChildren } from 'react'
+import type React from 'react'
+import type { PropsWithChildren } from 'react'
 
 const ErrorMessage: React.FC<PropsWithChildren> = ({ children }) => {
   return (

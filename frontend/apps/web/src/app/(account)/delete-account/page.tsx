@@ -1,6 +1,6 @@
 import { deleteAccountAction } from '@/actions/deleteAccountAction'
 import DeleteAccountForm from '@/components/forms/DeleteAccountForm'
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Delete account - Turbo'
