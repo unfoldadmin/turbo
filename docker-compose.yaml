@@ -16,7 +16,7 @@ services:
       timeout: 2s
       retries: 10
   api:
-    command: bash -c "poetry install && poetry run python src/manage.py migrate && poetry run python src/manage.py runserver 0.0.0.0:8000"
+    command: bash -c "uv sync && uv run -- python src/manage.py migrate && uv run -- python src/manage.py runserver 0.0.0.0:8000"
     build:
       context: backend
     expose:

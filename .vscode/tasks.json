@@ -10,7 +10,7 @@
     {
       "label": "Create superuser",
       "type": "shell",
-      "command": "docker compose exec api poetry run python src/manage.py createsuperuser",
+      "command": "docker compose exec api uv run -- python src/manage.py createsuperuser",
       "isBackground": false
     }
   ]
