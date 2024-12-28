@@ -75,7 +75,7 @@ The general rule when it comes to dependencies is to have minimum of third party
 
 ### Backend dependencies
 
-For dependency management in Django application we are using Poetry. When starting the project through the `docker compose` command, it is checked for new dependencies as well. In the case they are not installed, docker will install them before running development server.
+For dependency management in Django application we are using `uv`. When starting the project through the `docker compose` command, it is checked for new dependencies as well. In the case they are not installed, docker will install them before running development server.
 
 - **[djangorestframework](https://github.com/encode/django-rest-framework)** - REST API support
 - **[djangorestframework-simplejwt](https://github.com/jazzband/djangorestframework-simplejwt)** - JWT auth for REST API
@@ -85,7 +85,7 @@ For dependency management in Django application we are using Poetry. When starti
 Below, you can find a command to install new dependency into backend project.
 
 ```bash
-docker compose exec api poetry add djangorestframework
+docker compose exec api uv add djangorestframework
 ```
 
 ### Front end dependencies
@@ -168,7 +168,7 @@ openssl rand -base64 32
 There are two ways how to create new user account in the backend. First option is to run managed command responsible for creating superuser. It is more or less required, if you want to have an access to the Django admin. After running the command below, it will be possible to log in on the front end part of the application.
 
 ```bash
-docker compose exec api poetry run python src/manage.py createsuperuser
+docker compose exec api uv run -- python src/manage.py createsuperuser
 ```
 
 The second option how to create new user account is to register it on the front end. Turbo provides simple registration form. After account registration, it will be not possible to log in because account is inactive. Superuser needs to access Django admin and activate an account. This is a default behavior provided by Turbo, implementation of special way of account activation is currently out the scope of the project.
