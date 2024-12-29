@@ -168,7 +168,7 @@ openssl rand -base64 32
 There are two ways how to create new user account in the backend. First option is to run managed command responsible for creating superuser. It is more or less required, if you want to have an access to the Django admin. After running the command below, it will be possible to log in on the front end part of the application.
 
 ```bash
-docker compose exec api uv run -- python src/manage.py createsuperuser
+docker compose exec api uv run -- python manage.py createsuperuser
 ```
 
 The second option how to create new user account is to register it on the front end. Turbo provides simple registration form. After account registration, it will be not possible to log in because account is inactive. Superuser needs to access Django admin and activate an account. This is a default behavior provided by Turbo, implementation of special way of account activation is currently out the scope of the project.

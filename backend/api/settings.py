@@ -16,9 +16,9 @@ DEBUG = environ.get("DEBUG", "") == "1"
 
 ALLOWED_HOSTS = ["localhost", "api"]
 
-WSGI_APPLICATION = "backend.wsgi.application"
+WSGI_APPLICATION = "api.wsgi.application"
 
-ROOT_URLCONF = "backend.urls"
+ROOT_URLCONF = "api.urls"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
-    "backend",
+    "api",
 ]
 
 ######################################################################
@@ -91,7 +91,7 @@ DATABASES = {
 ######################################################################
 # Authentication
 ######################################################################
-AUTH_USER_MODEL = "backend.User"
+AUTH_USER_MODEL = "api.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -157,7 +157,7 @@ UNFOLD = {
                     {
                         "title": _("Users"),
                         "icon": "person",
-                        "link": reverse_lazy("admin:backend_user_changelist"),
+                        "link": reverse_lazy("admin:api_user_changelist"),
                     },
                     {
                         "title": _("Groups"),
