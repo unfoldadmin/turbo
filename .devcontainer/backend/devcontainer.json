@@ -7,7 +7,10 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        }
       },
       "extensions": [
         "ms-python.python",

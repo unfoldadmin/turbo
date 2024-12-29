@@ -12,12 +12,19 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "quickfix.biome": "explicit",
+          "source.organizeImports.biome": "explicit"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        }
       },
-      "extensions": [
-        "biomejs.biome",
-        "bradlc.vscode-tailwindcss"
-      ]
+      "extensions": ["biomejs.biome", "bradlc.vscode-tailwindcss"]
     }
   }
 }
