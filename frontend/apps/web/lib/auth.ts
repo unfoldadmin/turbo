@@ -3,15 +3,13 @@ import type { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { getApiClient } from './api'
 
-const decodeToken = (
-  token: string
-): {
+function decodeToken(token: string): {
   token_type: string
   exp: number
   iat: number
   jti: string
   user_id: number
-} => {
+} {
   return JSON.parse(atob(token.split('.')[1]))
 }
 

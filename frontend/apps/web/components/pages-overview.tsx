@@ -3,7 +3,7 @@
 import { signIn, signOut } from 'next-auth/react'
 import Link from 'next/link'
 
-const SignInLink: React.FC = () => {
+export function SignInLink() {
   return (
     <button
       type="button"
@@ -15,7 +15,7 @@ const SignInLink: React.FC = () => {
   )
 }
 
-const SignOutLink: React.FC = () => {
+export function SignOutLink() {
   return (
     <button
       type="button"
@@ -27,7 +27,7 @@ const SignOutLink: React.FC = () => {
   )
 }
 
-const PagesOverview: React.FC = () => {
+export function PagesOverview() {
   return (
     <ul className="flex flex-col gap-6">
       <li className="flex flex-col gap-4 lg:flex-row lg:items-center">
@@ -76,5 +76,3 @@ const PagesOverview: React.FC = () => {
     </ul>
   )
 }
-
-export default PagesOverview

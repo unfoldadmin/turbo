@@ -8,21 +8,19 @@ import type {
 } from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
 
-type TextFieldProps = {
-  type: 'text' | 'password' | 'number'
-  label: string
-  placeholder?: string
-  register: UseFormRegisterReturn
-  formState: FormState<FieldValues>
-}
-
-const TextField: React.FC<TextFieldProps> = ({
+export function TextField({
   type,
   label,
   placeholder,
   register,
   formState
-}) => {
+}: {
+  type: 'text' | 'password' | 'number'
+  label: string
+  placeholder?: string
+  register: UseFormRegisterReturn
+  formState: FormState<FieldValues>
+}): React.ReactElement {
   const hasError = formState.errors[register.name]
 
   return (
@@ -47,5 +45,3 @@ const TextField: React.FC<TextFieldProps> = ({
     </label>
   )
 }
-
-export default TextField

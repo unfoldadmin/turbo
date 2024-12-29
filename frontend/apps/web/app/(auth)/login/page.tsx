@@ -1,12 +1,10 @@
-import LoginForm from '@/components/forms/login-form'
+import { LoginForm } from '@/components/forms/login-form'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Login - Turbo'
 }
 
-const Login = async () => {
+export default function Login() {
   return <LoginForm />
 }
-
-export default Login

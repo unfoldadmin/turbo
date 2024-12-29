@@ -1,7 +1,7 @@
-import PagesOverview from '@/components/pages-overview'
-import UserSession from '@/components/user-session'
+import { PagesOverview } from '@/components/pages-overview'
+import { UserSession } from '@/components/user-session'
 
-const Home = async () => {
+export default function Home() {
   return (
     <>
       <h1 className="text-xl font-semibold tracking-tight text-gray-900">
@@ -30,5 +30,3 @@ const Home = async () => {
     </>
   )
 }
-
-export default Home

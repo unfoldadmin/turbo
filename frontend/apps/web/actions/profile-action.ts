@@ -9,11 +9,9 @@ import type { z } from 'zod'
 
 export type ProfileFormSchema = z.infer<typeof profileFormSchema>
 
-export type ProfileAction = (
+export async function profileAction(
   data: ProfileFormSchema
-) => Promise<boolean | UserCurrentError>
-
-const profileAction: ProfileAction = async (data) => {
+): Promise<boolean | UserCurrentError> {
   const session = await getServerSession(authOptions)
 
   try {
@@ -33,5 +31,3 @@ const profileAction: ProfileAction = async (data) => {
 
   return false
 }
-
-export { profileAction }

@@ -1,5 +1,5 @@
 import { profileAction } from '@/actions/profile-action'
-import ProfileForm from '@/components/forms/profile-form'
+import { ProfileForm } from '@/components/forms/profile-form'
 import { getApiClient } from '@/lib/api'
 import { authOptions } from '@/lib/auth'
 import type { Metadata } from 'next'
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   title: 'Profile - Turbo'
 }
 
-const Profile = async () => {
+export default async function Profile() {
   const session = await getServerSession(authOptions)
   const apiClient = await getApiClient(session)
 
@@ -20,5 +20,3 @@ const Profile = async () => {
     />
   )
 }
-
-export default Profile

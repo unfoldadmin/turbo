@@ -1,13 +1,13 @@
 'use client'
 
-import type { ProfileAction } from '@/actions/profile-action'
+import type { profileAction } from '@/actions/profile-action'
 import { fieldApiError } from '@/lib/forms'
 import { profileFormSchema } from '@/lib/validation'
 import type { UserCurrent } from '@frontend/types/api'
-import FormHeader from '@frontend/ui/forms/form-header'
-import SubmitField from '@frontend/ui/forms/submit-field'
-import TextField from '@frontend/ui/forms/text-field'
-import SuccessMessage from '@frontend/ui/messages/success-message'
+import { FormHeader } from '@frontend/ui/forms/form-header'
+import { SubmitField } from '@frontend/ui/forms/submit-field'
+import { TextField } from '@frontend/ui/forms/text-field'
+import { SuccessMessage } from '@frontend/ui/messages/success-message'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -15,15 +15,13 @@ import type { z } from 'zod'
 
 export type ProfileFormSchema = z.infer<typeof profileFormSchema>
 
-type ProfileFormProps = {
-  currentUser: Promise<UserCurrent>
-  onSubmitHandler: ProfileAction
-}
-
-const ProfileForm: React.FC<ProfileFormProps> = ({
+export function ProfileForm({
   currentUser,
   onSubmitHandler
-}) => {
+}: {
+  currentUser: Promise<UserCurrent>
+  onSubmitHandler: typeof profileAction
+}) {
   const [success, setSuccess] = useState<boolean>(false)
 
   const { formState, handleSubmit, register, setError } =
@@ -86,5 +84,3 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     </>
   )
 }
-
-export default ProfileForm

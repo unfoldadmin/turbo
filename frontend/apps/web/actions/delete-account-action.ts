@@ -9,11 +9,9 @@ import type { z } from 'zod'
 
 export type DeleteAccountFormSchema = z.infer<typeof deleteAccountFormSchema>
 
-export type DeleteAccountAction = (
+export async function deleteAccountAction(
   data: DeleteAccountFormSchema
-) => Promise<boolean>
-
-const deleteAccountAction = async () => {
+): Promise<boolean> {
   const session = await getServerSession(authOptions)
 
   try {
@@ -32,5 +30,3 @@ const deleteAccountAction = async () => {
 
   return false
 }
-
-export { deleteAccountAction }

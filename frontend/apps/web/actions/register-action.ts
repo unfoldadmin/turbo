@@ -7,11 +7,9 @@ import type { z } from 'zod'
 
 export type RegisterFormSchema = z.infer<typeof registerFormSchema>
 
-export type RegisterAction = (
+export async function registerAction(
   data: RegisterFormSchema
-) => Promise<UserCreateError | boolean>
-
-const registerAction: RegisterAction = async (data) => {
+): Promise<UserCreateError | boolean> {
   try {
     const apiClient = await getApiClient()
 
@@ -30,5 +28,3 @@ const registerAction: RegisterAction = async (data) => {
 
   return false
 }
-
-export { registerAction }

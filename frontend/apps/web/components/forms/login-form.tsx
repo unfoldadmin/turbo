@@ -1,11 +1,11 @@
 'use client'
 
 import { loginFormSchema } from '@/lib/validation'
-import FormFooter from '@frontend/ui/forms/form-footer'
-import FormHeader from '@frontend/ui/forms/form-header'
-import SubmitField from '@frontend/ui/forms/submit-field'
-import TextField from '@frontend/ui/forms/text-field'
-import ErrorMessage from '@frontend/ui/messages/error-message'
+import { FormFooter } from '@frontend/ui/forms/form-footer'
+import { FormHeader } from '@frontend/ui/forms/form-header'
+import { SubmitField } from '@frontend/ui/forms/submit-field'
+import { TextField } from '@frontend/ui/forms/text-field'
+import { ErrorMessage } from '@frontend/ui/messages/error-message'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
@@ -14,7 +14,7 @@ import type { z } from 'zod'
 
 type LoginFormSchema = z.infer<typeof loginFormSchema>
 
-const LoginForm: React.FC = () => {
+export function LoginForm() {
   const search = useSearchParams()
 
   const { register, handleSubmit, formState } = useForm<LoginFormSchema>({
@@ -72,5 +72,3 @@ const LoginForm: React.FC = () => {
     </>
   )
 }
-
-export default LoginForm
