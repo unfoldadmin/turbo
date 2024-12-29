@@ -5,9 +5,9 @@ import type {
   DeleteAccountFormSchema
 } from '@/actions/deleteAccountAction'
 import { deleteAccountFormSchema } from '@/lib/validation'
-import FormHeader from '@frontend/ui/forms/FormHeader'
-import SubmitField from '@frontend/ui/forms/SubmitField'
-import TextField from '@frontend/ui/forms/TextField'
+import FormHeader from '@frontend/ui/forms/form-header'
+import SubmitField from '@frontend/ui/forms/submit-field'
+import TextField from '@frontend/ui/forms/text-field'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signOut, useSession } from 'next-auth/react'
 import { useEffect } from 'react'

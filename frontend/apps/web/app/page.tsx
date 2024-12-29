@@ -1,5 +1,5 @@
-import PagesOverview from '@/components/PagesOverview'
-import UserSession from '@/components/UserSession'
+import PagesOverview from '@/components/pages-overview'
+import UserSession from '@/components/user-session'
 
 const Home = async () => {
   return (

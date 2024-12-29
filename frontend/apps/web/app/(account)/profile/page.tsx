@@ -1,5 +1,5 @@
-import { profileAction } from '@/actions/profileAction'
-import ProfileForm from '@/components/forms/ProfileForm'
+import { profileAction } from '@/actions/profile-action'
+import ProfileForm from '@/components/forms/profile-form'
 import { getApiClient } from '@/lib/api'
 import { authOptions } from '@/lib/auth'
 import type { Metadata } from 'next'

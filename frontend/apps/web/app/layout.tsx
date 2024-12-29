@@ -1,4 +1,4 @@
-import { AuthProvider } from '@/providers/AuthProvider'
+import { AuthProvider } from '@/providers/auth-provider'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { twMerge } from 'tailwind-merge'

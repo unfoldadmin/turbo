@@ -1,5 +1,5 @@
-import { deleteAccountAction } from '@/actions/deleteAccountAction'
-import DeleteAccountForm from '@/components/forms/DeleteAccountForm'
+import { deleteAccountAction } from '@/actions/delete-account-action'
+import DeleteAccountForm from '@/components/forms/delete-account-form'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
