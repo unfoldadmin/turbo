@@ -1,7 +1,1 @@
-/** @type {import('postcss-load-config').Config} */
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {}
-  }
-}
+module.exports = require('@frontend/ui/postcss.config')
