@@ -1,25 +1,21 @@
 'use client'
 
 import type {
-  DeleteAccountAction,
-  DeleteAccountFormSchema
-} from '@/actions/deleteAccountAction'
+  DeleteAccountFormSchema,
+  deleteAccountAction
+} from '@/actions/delete-account-action'
 import { deleteAccountFormSchema } from '@/lib/validation'
-import FormHeader from '@frontend/ui/forms/form-header'
-import SubmitField from '@frontend/ui/forms/submit-field'
-import TextField from '@frontend/ui/forms/text-field'
+import { FormHeader } from '@frontend/ui/forms/form-header'
+import { SubmitField } from '@frontend/ui/forms/submit-field'
+import { TextField } from '@frontend/ui/forms/text-field'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signOut, useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-type DeleteAccountProps = {
-  onSubmitHandler: DeleteAccountAction
-}
-
-const DeleteAccountForm: React.FC<DeleteAccountProps> = ({
+export function DeleteAccountForm({
   onSubmitHandler
-}) => {
+}: { onSubmitHandler: typeof deleteAccountAction }) {
   const session = useSession()
 
   const { formState, handleSubmit, register, reset, setValue } =
@@ -63,5 +59,3 @@ const DeleteAccountForm: React.FC<DeleteAccountProps> = ({
     </>
   )
 }
-
-export default DeleteAccountForm

@@ -1,22 +1,22 @@
 'use client'
 
 import type {
-  RegisterAction,
-  RegisterFormSchema
-} from '@/actions/registerAction'
+  RegisterFormSchema,
+  registerAction
+} from '@/actions/register-action'
 import { fieldApiError } from '@/lib/forms'
 import { registerFormSchema } from '@/lib/validation'
-import FormFooter from '@frontend/ui/forms/form-footer'
-import FormHeader from '@frontend/ui/forms/form-header'
-import SubmitField from '@frontend/ui/forms/submit-field'
-import TextField from '@frontend/ui/forms/text-field'
+import { FormFooter } from '@frontend/ui/forms/form-footer'
+import { FormHeader } from '@frontend/ui/forms/form-header'
+import { SubmitField } from '@frontend/ui/forms/submit-field'
+import { TextField } from '@frontend/ui/forms/text-field'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 
-const RegisterForm: React.FC<{
-  onSubmitHandler: RegisterAction
-}> = ({ onSubmitHandler }) => {
+export function RegisterForm({
+  onSubmitHandler
+}: { onSubmitHandler: typeof registerAction }) {
   const { formState, handleSubmit, register, setError } =
     useForm<RegisterFormSchema>({
       resolver: zodResolver(registerFormSchema)
@@ -78,5 +78,3 @@ const RegisterForm: React.FC<{
     </>
   )
 }
-
-export default RegisterForm

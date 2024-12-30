@@ -2,7 +2,11 @@ import { authOptions } from '@/lib/auth'
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation'
 
-const AccountLayout = async ({ children }: { children: React.ReactNode }) => {
+export default async function AccountLayout({
+  children
+}: {
+  children: React.ReactNode
+}) {
   const session = await getServerSession(authOptions)
 
   if (session === null) {
@@ -15,5 +19,3 @@ const AccountLayout = async ({ children }: { children: React.ReactNode }) => {
     </div>
   )
 }
-
-export default AccountLayout

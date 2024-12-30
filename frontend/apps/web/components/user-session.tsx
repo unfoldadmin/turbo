@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { twMerge } from 'tailwind-merge'
 
-const UserSession: React.FC = () => {
+export function UserSession() {
   const session = useSession()
 
   return (
@@ -30,5 +30,3 @@ const UserSession: React.FC = () => {
     </ul>
   )
 }
-
-export default UserSession

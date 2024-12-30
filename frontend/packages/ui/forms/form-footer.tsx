@@ -3,13 +3,15 @@
 import Link from 'next/link'
 import type React from 'react'
 
-type FormFooterProps = {
+export function FormFooter({
+  cta,
+  link,
+  title
+}: {
   cta: string
   link: string
   title: string
-}
-
-const FormFooter: React.FC<FormFooterProps> = ({ cta, link, title }) => {
+}) {
   const actionLink = (
     <Link
       href={link}
@@ -25,5 +27,3 @@ const FormFooter: React.FC<FormFooterProps> = ({ cta, link, title }) => {
     </p>
   )
 }
-
-export default FormFooter

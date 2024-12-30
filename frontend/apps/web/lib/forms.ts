@@ -12,12 +12,12 @@ import type { FieldValues, Path, UseFormSetError } from 'react-hook-form'
  *   ]
  * }
  */
-const fieldApiError = <TFieldValues extends FieldValues>(
+export function fieldApiError<TFieldValues extends FieldValues>(
   fieldName: string,
   fieldPath: Path<TFieldValues>,
   response: { [key: string]: string[] },
   setError: UseFormSetError<TFieldValues>
-) => {
+) {
   if (typeof response !== 'boolean' && fieldName in response) {
     for (const error of response[fieldName]) {
       setError(fieldPath, {
@@ -26,5 +26,3 @@ const fieldApiError = <TFieldValues extends FieldValues>(
     }
   }
 }
-
-export { fieldApiError }

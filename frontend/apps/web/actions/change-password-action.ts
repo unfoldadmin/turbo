@@ -9,11 +9,9 @@ import type { z } from 'zod'
 
 export type ChangePasswordFormSchema = z.infer<typeof changePasswordFormSchema>
 
-export type ChangePasswordAction = (
+export async function changePasswordAction(
   data: ChangePasswordFormSchema
-) => Promise<UserChangePasswordError | boolean>
-
-const changePasswordAction: ChangePasswordAction = async (data) => {
+): Promise<UserChangePasswordError | boolean> {
   const session = await getServerSession(authOptions)
 
   try {
@@ -34,5 +32,3 @@ const changePasswordAction: ChangePasswordAction = async (data) => {
 
   return false
 }
-
-export { changePasswordAction }

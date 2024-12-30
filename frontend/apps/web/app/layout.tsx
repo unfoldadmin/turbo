@@ -11,7 +11,9 @@ export const metadata: Metadata = {
   title: 'Turbo - Django & Next.js Bootstrap Template'
 }
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
+export default function RootLayout({
+  children
+}: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body
@@ -29,5 +31,3 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
     </html>
   )
 }
-
-export default RootLayout

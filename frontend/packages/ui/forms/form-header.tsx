@@ -2,12 +2,13 @@
 
 import type React from 'react'
 
-type FormHeaderProps = {
+export function FormHeader({
+  title,
+  description
+}: {
   title: string
   description?: string
-}
-
-const FormHeader: React.FC<FormHeaderProps> = ({ title, description }) => {
+}) {
   return (
     <>
       <h1 className="text-xl font-medium text-gray-700">{title}</h1>
@@ -18,5 +19,3 @@ const FormHeader: React.FC<FormHeaderProps> = ({ title, description }) => {
     </>
   )
 }
-
-export default FormHeader

@@ -3,14 +3,12 @@
 import type React from 'react'
 import { twMerge } from 'tailwind-merge'
 
-type SubmitFieldProps = {
-  isLoading?: boolean
-}
-
-const SubmitField: React.FC<React.PropsWithChildren<SubmitFieldProps>> = ({
+export function SubmitField({
   children,
   isLoading
-}) => {
+}: React.PropsWithChildren<{
+  isLoading?: boolean
+}>) {
   return (
     <button
       type="submit"
@@ -24,5 +22,3 @@ const SubmitField: React.FC<React.PropsWithChildren<SubmitFieldProps>> = ({
     </button>
   )
 }
-
-export default SubmitField
