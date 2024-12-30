@@ -13,8 +13,10 @@
     "@types/node": "^20.17.10",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
     "openapi-typescript-codegen": "^0.29.0",
-    "typescript": "^5.7.2"
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17"
   },
   "scripts": {
     "openapi:generate": "openapi -i http://api:8000/api/schema -o packages/types/api --name ApiClient"
