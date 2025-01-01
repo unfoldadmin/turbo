@@ -35,6 +35,7 @@ Turbo is a simple bootstrap template for Django and Next.js, combining both fram
   - [Updating OpenAPI schema](#updating-openapi-schema)
   - [Swagger](#swagger)
   - [Client side requests](#client-side-requests)
+- [Test suite](#test-suite)
 - [Developing in VS Code](#developing-in-vs-code)
 
 ## Quickstart
@@ -243,6 +244,36 @@ By default, Turbo includes Swagger for API schema which is available here `http:
 
 At the moment, Turbo does not contain any examples of client side requests towards the backend. All the requests are handled by server actions. For client side requests, it is recommended to use [react-query](https://github.com/TanStack/query).
 
+## Test suite
+
+Project contains test suite for backend part. For testing it was used library called [pytest](https://docs.pytest.org/en/latest/) along with some additinal libraries extending functionality of pytest:
+
+- [pytest-django](https://pytest-django.readthedocs.io/en/latest/) - for testing django applications
+- [pytest-factoryboy](https://pytest-factoryboy.readthedocs.io/en/latest/) - for creating test data
+
+All these libraries mentioned above are already preconfigured in `backend/api/tests` directory.
+
+- `conftest.py` - for configuring pytest
+- `factories.py` - for generating reusable test objects using factory_boy, which creates model instances with default values that can be customized as needed
+- `fixtures.py` - for creating pytest fixtures that provide test data or resources that can be shared and reused across multiple tests
+
+To run tests, use the command below which will collect all the tests available in backend/api/tests folder:
+
+```bash
+docker compose exec api uv run -- pytest .
+```
+
+Tu run tests available only in one specific file run:
+
+```bash
+docker compose exec api uv run -- pytest api/tests/test_api.py
+```
+
+To run one specific test, use the command below:
+
+```bash
+docker compose exec api uv run -- pytest api/tests/test_api.py -k "test_api_users_me_authorized"
+```
 
 ## Developing in VS Code
 
