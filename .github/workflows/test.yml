@@ -11,9 +11,9 @@ jobs:
         ports:
           - 5432:5432
         env:
-          POSTGRES_DB: db
+          POSTGRES_DB: postgres
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: change-password
+          POSTGRES_PASSWORD: postgres
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,4 +29,7 @@ jobs:
       - name: Run tests
         env:
           DATABASE_HOST: localhost
-        run: uv run -- pytest .
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: postgres
+        run: cd backend && uv run -- pytest .
