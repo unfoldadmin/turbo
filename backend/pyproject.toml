@@ -11,6 +11,13 @@ dependencies = [
     "django-unfold>=0.43.0",
 ]
 
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "pytest-django>=4.9.0",
+    "pytest-factoryboy>=2.7.0",
+]
+
 [tool.ruff]
 fix = true
 line-length = 88
@@ -30,3 +37,7 @@ ignore = [
     "B008", # do not perform function calls in argument defaults
     "C901", # too complex
 ]
+
+[tool.pytest.ini_options]
+filterwarnings = "ignore"
+addopts = "--strict-config --strict-markers --ds=api.settings"
