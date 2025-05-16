@@ -91,7 +91,7 @@ docker compose exec api uv add djangorestframework
 
 ### Front end dependencies
 
-For the frontend project, it is bit more complicated to maintain fron end dependencies than in backend part. Dependencies, can be split into two parts. First part are general dependencies available for all projects under packages and apps folders. The second part are dependencies, which are project specific.
+For the frontend project, it is bit more complicated to maintain front end dependencies than in backend part. Dependencies, can be split into two parts. First part are general dependencies available for all projects under packages and apps folders. The second part are dependencies, which are project specific.
 
 - **[next-auth](https://github.com/nextauthjs/next-auth)** - Next.js authentication
 - **[react-hook-form](https://github.com/react-hook-form/react-hook-form)** - Handling of React forms
