@@ -54,6 +54,7 @@ Before you can run `docker compose up`, you have to set up two files with enviro
 ```bash
 cp .env.backend.template .env.backend # set SECRET_KEY and DEBUG=1 for debug mode on
 cp .env.frontend.template .env.frontend # set NEXTAUTH_SECRET to a value "openssl rand -base64 32"
+cp .env.proxy.template .env.proxy # set Caddy
 ```
 
 For more advanced environment variables configuration for the front end, it is recommended to read official [Next.js documentation](https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables) about environment variables where it is possible to configure specific variables for each microsite.

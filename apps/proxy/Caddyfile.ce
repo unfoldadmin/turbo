@@ -12,8 +12,8 @@
 }
 
 {   
-    # Автовыпуск сертификатов; плагинов не нужно
-	{$CERT_EMAIL}
+	# Автовыпуск сертификатов; плагинов не нужно
+	email {$CERT_EMAIL}
 	acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory} 
 	servers {
 		max_header_size 25MB

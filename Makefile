@@ -35,7 +35,7 @@ help: ## Показать это сообщение помощи
 
 # Базовые операции с docker compose
 up: ## Поднять все сервисы (в фоне)
-	$(COMPOSE) up -d
+	$(COMPOSE) up --build
 
 down: ## Остановить и удалить контейнеры
 	$(COMPOSE) down
