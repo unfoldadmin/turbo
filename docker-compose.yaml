@@ -15,32 +15,49 @@ services:
       interval: 2s
       timeout: 2s
       retries: 10
+
   api:
     command: bash -c "uv sync && uv run -- python manage.py migrate && uv run -- python manage.py runserver 0.0.0.0:8000"
     build:
-      context: backend
+      context: ./apps/backend
     expose:
       - "8000"
-    ports:
-      - "8000:8000"
     volumes:
       - ./backend:/app
     env_file:
-      - .env.backend
+      - .env.proxy
     depends_on:
       db:
         condition: service_healthy
+
   web:
     command: bash -c "pnpm install -r && pnpm --filter web dev"
     build:
-      context: frontend
+      context: ./apps/frontend
     volumes:
       - ./frontend:/app
     expose:
       - "3000"
-    ports:
-      - "3000:3000"
     env_file:
       - .env.frontend
     depends_on:
       - api
+
+  proxy:
+    container_name: proxy
+    build:
+      context: ./apps/proxy
+      dockerfile: Dockerfile.ce
+    restart: always
+    ports:
+      - ${LISTEN_HTTP_PORT}:80
+      - ${LISTEN_HTTPS_PORT}:443
+    env_file:
+      - .env.backend
+    environment:
+      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
+      BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
+    depends_on:
+      - web
+      - api
+

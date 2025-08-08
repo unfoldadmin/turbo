@@ -1,0 +1,27 @@
+(rueliq_proxy) {
+	request_body {
+		max_size {$FILE_SIZE_LIMIT}
+	}
+
+	# Backend API
+	reverse_proxy /api/*  api:8000
+	reverse_proxy /auth/* api:8000
+
+	# Frontend (Next.js)
+	reverse_proxy /*      web:3000
+}
+
+{   
+    # Автовыпуск сертификатов; плагинов не нужно
+	{$CERT_EMAIL}
+	acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory} 
+	servers {
+		max_header_size 25MB
+		client_ip_headers X-Forwarded-For X-Real-IP
+		trusted_proxies static {$TRUSTED_PROXIES:0.0.0.0/0}
+	}
+}
+
+{$SITE_ADDRESS} {
+	import rueliq_proxy
+}
