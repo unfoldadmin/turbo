@@ -6,6 +6,7 @@
 	# Backend API
 	reverse_proxy /api/*  api:8000
 	reverse_proxy /auth/* api:8000
+	reverse_proxy /admin/* api:8000
 
 	# Frontend (Next.js)
 	reverse_proxy /*      web:3000
