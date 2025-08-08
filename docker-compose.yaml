@@ -51,13 +51,17 @@ services:
     restart: always
     env_file:
       - .env.proxy
-    environment:
-      FILE_SIZE_LIMIT: ${FILE_SIZE_LIMIT:-5242880}
-      BUCKET_NAME: ${AWS_S3_BUCKET_NAME:-uploads}
     depends_on:
       - web
       - api
     ports:
+      - "80:80"
       - "443:443"
-    
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+      - 8.8.8.8
+    volumes:
+      - ./apps/proxy/data:/data
+      - ./apps/proxy/config:/config
 

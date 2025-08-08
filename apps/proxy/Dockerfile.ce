@@ -1,8 +1,15 @@
 # apps/proxy/Dockerfile.ce
 FROM caddy:2.10.0-alpine
 
-# Опционально: доп. утилиты, как и раньше
+# Опционально: доп. утилиты
 RUN apk add --no-cache nss-tools bash curl
 
-# Конфиг Caddy
-COPY Caddyfile.ce /etc/caddy/Caddyfile
+# Кладём оба варианта конфигурации
+COPY Caddyfile.ce /etc/caddy/Caddyfile.ce
+COPY Caddyfile.self /etc/caddy/Caddyfile.self
+
+# Точка входа выбирает конфиг в зависимости от SELF_SSL
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

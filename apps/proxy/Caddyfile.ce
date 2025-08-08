@@ -1,6 +1,6 @@
 (rueliq_proxy) {
 	request_body {
-		max_size {$FILE_SIZE_LIMIT}
+		max_size {$FILE_SIZE_LIMIT:25MB}
 	}
 
 	# Backend API
@@ -12,14 +12,30 @@
 }
 
 {   
-	# Автовыпуск сертификатов; плагинов не нужно
-	email {$CERT_EMAIL}
-	acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory} 
-	servers {
-		max_header_size 25MB
-		client_ip_headers X-Forwarded-For X-Real-IP
-		trusted_proxies static {$TRUSTED_PROXIES:0.0.0.0/0}
-	}
+    # Автовыпуск сертификатов; плагинов не нужно
+    email {$CERT_EMAIL}
+    # Старый способ через один CA (Let’s Encrypt) оставлен закомментированным:
+    # acme_ca {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
+
+    # Новый способ: несколько бесплатных ACME-источников. Попытки идут по порядку.
+    # 1) ZeroSSL (бесплатно через ACME, требуется EAB)
+    #cert_issuer acme {
+    #    dir https://acme.zerossl.com/v2/DV90
+    #    eab key_id {$ZEROSSL_EAB_KID} mac_key {$ZEROSSL_EAB_HMAC}
+    #}
+    # 2) Buypass (бесплатный, без EAB) как резерв
+    cert_issuer acme {
+        dir https://api.buypass.com/acme/directory
+    }
+    # 3) Let’s Encrypt (можно включить при необходимости) — оставлено отключенным
+    # cert_issuer acme {
+    # 	dir {$CERT_ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
+    # }
+    servers {
+        max_header_size 25MB
+        client_ip_headers X-Forwarded-For X-Real-IP
+        trusted_proxies static {$TRUSTED_PROXIES:0.0.0.0/0}
+    }
 }
 
 {$SITE_ADDRESS} {
