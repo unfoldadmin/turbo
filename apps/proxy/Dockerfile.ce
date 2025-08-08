@@ -1,3 +1,10 @@
+FROM caddy:2.10.0-builder-alpine AS caddy-builder
+RUN xcaddy build \
+  --with github.com/greenpau/caddy-security \ 
+  --with github.com/mohammed90/caddy-otel
+# + сюда нужные вам плагины (rate limit, s3-proxy и т. п.)
+
 FROM caddy:2.10.0-alpine
 RUN apk add --no-cache nss-tools bash curl
+COPY --from=caddy-builder /usr/bin/caddy /usr/bin/caddy
 COPY Caddyfile.ce /etc/caddy/Caddyfile
