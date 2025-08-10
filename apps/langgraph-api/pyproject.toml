@@ -16,6 +16,8 @@ langchain-openai = "^0.2.8"
 langgraph = "^0.2.46"
 python-dotenv = "^1.0.1"
 assistant-stream = "^0.0.28"
+duckduckgo-search = "^6.3.7"
+lxml = "^6.0.0"
 
 
 [tool.poetry.group.dev.dependencies]

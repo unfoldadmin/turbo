@@ -14,6 +14,7 @@ import { AgentActivityBar } from "./AgentActivityBar";
 import { ToolLogPanel } from "./ToolLogPanel";
 import { Thread } from "@assistant-ui/react";
 import { MetalPriceToolUI } from "./MetalPriceToolUI";
+import { DuckSearchToolUI } from "./DuckSearchToolUI";
 
 const MarkdownText = makeMarkdownText();
 
@@ -42,7 +43,7 @@ const SubmitFormTool = makeAssistantTool({
 });
 
 function AssistantUI() {
-  useAssistantInstructions("Your name is assistant-ui.");
+  useAssistantInstructions("Ты — полезный русскоязычный ассистент. Отвечай кратко и по делу. Когда попросят все RFQ, пройдись по всем страницам и собери.");
 
   return (
     <>
@@ -85,6 +86,7 @@ export function MyAssistant() {
             </div>
             <StockPriceToolUI />
             <MetalPriceToolUI />
+            <DuckSearchToolUI />
           </div>
         </section>
       </div>

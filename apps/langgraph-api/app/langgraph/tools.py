@@ -8,6 +8,7 @@ import urllib.parse
 import csv
 import io
 import os
+from duckduckgo_search import DDGS
 
 
 def _stooq_variants(symbol: str) -> List[str]:
@@ -304,4 +305,90 @@ def create_rfq(partnumber: str, brand: str, qty: int, target_price: Optional[flo
         return {"error": str(e)}
 
 
-tools = [get_stock_price, get_metal_price, get_rfqs, create_rfq]
+# --- DuckDuckGo Web Search ---
+@tool(return_direct=True)
+def search_duckduckgo(
+    query: str,
+    max_results: int = 5,
+    safesearch: str = "moderate",
+    timelimit: Optional[str] = None,
+    region: str = "wt-wt",
+    backend: Optional[str] = None,
+):
+    """Веб-поиск в DuckDuckGo.
+
+    Параметры:
+    - query: поисковый запрос
+    - max_results: число результатов (1..50)
+    - safesearch: уровень фильтрации (off|moderate|strict)
+    - timelimit: ограничение по времени (например: d, w, m, y)
+    - region: регион поиска (по умолчанию wt-wt)
+
+    Возвращает: {query, results: [{title, href, body}]}
+    """
+    q = (query or "").strip()
+    if not q:
+        raise ValueError("Укажите поисковый запрос")
+
+    try:
+        limit = max(1, min(int(max_results), 50))
+    except Exception:
+        limit = 5
+
+    safesearch_norm = str(safesearch or "moderate").lower().strip()
+    if safesearch_norm not in {"off", "moderate", "strict"}:
+        safesearch_norm = "moderate"
+
+    region_norm = (region or "wt-wt").strip() or "wt-wt"
+    timelimit_norm = (timelimit or None)
+
+    def _do_search(selected_backend: str):
+        with DDGS() as ddgs:
+            results_iter = ddgs.text(
+                q,
+                max_results=limit,
+                region=region_norm,
+                safesearch=safesearch_norm,
+                timelimit=timelimit_norm,
+                backend=selected_backend,
+            )
+            results_list = []
+            for item in results_iter:
+                if not item:
+                    continue
+                title = str(item.get("title", "")).strip()
+                href = str(item.get("href", "")).strip()
+                body = str(item.get("body", "")).strip()
+                if href:
+                    results_list.append({"title": title, "href": href, "body": body})
+            return results_list
+
+    backends_to_try: List[str] = []
+    if backend and backend.strip():
+        backends_to_try = [backend.strip()]
+    else:
+        # Порядок: сначала быстрый API, затем более устойчивые HTML/Lite
+        backends_to_try = ["api", "html", "lite"]
+
+    last_error: Optional[str] = None
+    for be in backends_to_try:
+        try:
+            results_list = _do_search(be)
+            if results_list:
+                return {"query": q, "results": results_list, "backend": be}
+            # если пусто, пробуем следующий backend
+        except Exception as e:
+            err_text = str(e)
+            last_error = err_text
+            # Если явно рателимит/202, не задерживаемся, просто пробуем следующий backend
+            continue
+
+    # Не удалось получить результаты
+    return {
+        "error": last_error or "Не удалось получить результаты поиска (все бэкенды исчерпаны)",
+        "query": q,
+        "tried_backends": backends_to_try,
+    }
+
+
+tools = [get_stock_price, get_metal_price, get_rfqs, create_rfq, search_duckduckgo]
