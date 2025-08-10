@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --app-bg: 244 245 247;
+    /* slate-50-ish */
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    background-color: rgb(var(--app-bg));
+}

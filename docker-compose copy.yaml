@@ -1,0 +1,128 @@
+services:
+  db:
+    image: postgres
+    expose:
+      - "5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    env_file:
+      - .env.backend
+    #environment:
+    #  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    #  POSTGRES_DB: ${POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+  api:
+    command: bash -c "uv sync && uv run -- python manage.py migrate && uv run -- python manage.py runserver 0.0.0.0:8000"
+    build:
+      context: ./apps/backend
+    expose:
+      - "8000"
+    volumes:
+      - ./apps/backend:/app
+    env_file:
+      - .env.backend
+    depends_on:
+      db:
+        condition: service_healthy
+
+#  agno-api:
+#    build:
+#      context: ./apps/agno-api
+#    expose:
+#      - "8100"
+#    env_file:
+#      - .env.agno
+#    environment:
+#      - PORT=8100
+#    depends_on:
+#      - api
+
+  pgvector:
+    image: agnohq/pgvector:16
+    restart: unless-stopped
+    expose:
+      - "5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env.agno
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ai}"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+  agent-api:
+    build:
+      context: ./apps/agent-api
+      dockerfile: Dockerfile
+    image: ${IMAGE_NAME:-agent-api}:${IMAGE_TAG:-latest}
+    command: bash -c "/app/scripts/entrypoint.sh && uvicorn api.main:app --host 0.0.0.0 --port 7777 --reload"
+    restart: unless-stopped
+    expose:
+      - "7777"
+    volumes:
+      - ./apps/agent-api:/app
+    env_file:
+      - .env.agno
+    depends_on:
+      pgvector:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  agent-ui:
+    build:
+      context: ./apps/agent-ui
+      dockerfile: Dockerfile
+    container_name: agent-ui
+    env_file:
+      - .env.agno
+    expose:
+      - "4050"
+    depends_on:
+      - agent-api
+
+  web:
+    command: bash -c "pnpm install -r && pnpm --filter web dev"
+    build:
+      context: ./apps/frontend
+    volumes:
+      - ./apps/frontend:/app
+    expose:
+      - "3000"
+    env_file:
+      - .env.frontend
+    depends_on:
+      - api
+      - agent-api
+
+  proxy:
+    container_name: proxy
+    build:
+      context: ./apps/proxy
+      dockerfile: Dockerfile.ce
+    restart: always
+    env_file:
+      - .env.proxy
+    depends_on:
+      - web
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    dns:
+      - 1.1.1.1
+      - 1.0.0.1
+      - 8.8.8.8
+    volumes:
+      - ./apps/proxy/data:/data
+      - ./apps/proxy/config:/config
+
+volumes:
+  pgdata:

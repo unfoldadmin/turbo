@@ -30,18 +30,78 @@ services:
       db:
         condition: service_healthy
 
-  web:
-    command: bash -c "pnpm install -r && pnpm --filter web dev"
+  langgraph-api:
     build:
-      context: ./apps/frontend
+      context: ./apps/langgraph-api
+    expose:
+      - "8080"
+    env_file:
+      - .env.agno
+    environment:
+      - PORT=8080
+    depends_on:
+      - api
+
+  #pgvector:
+  #  image: agnohq/pgvector:16
+  #  restart: unless-stopped
+  #  expose:
+  #    - "5432"
+  #  volumes:
+  #    - pgdata:/var/lib/postgresql/data
+  #  env_file:
+  #    - .env.agno
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ai}"]
+  #    interval: 2s
+  #    timeout: 2s
+  #    retries: 10
+#
+  #with-agno:
+  #  build:
+  #    context: ./apps/with-agno
+  #  expose:
+  #    - "3000"  # Next.js UI
+  #    - "8000"  # Python Agent
+  #  volumes:
+  #    - ./apps/with-agno:/app
+  #  env_file:
+  #    - .env.agno
+  #  environment:
+  #    - RUNTIME_ENV=dev
+  #    - NODE_ENV=development
+  #  command: bash -c "npm install && npm run dev"
+  #  depends_on:
+  #    pgvector:
+  #      condition: service_healthy
+
+#  web:
+#    command: bash -c "pnpm install -r && pnpm --filter web dev"
+#    build:
+#      context: ./apps/frontend
+#    volumes:
+#      - ./apps/frontend:/app
+#    expose:
+#      - "3000"
+#    env_file:
+#      - .env.frontend
+#    depends_on:
+#      - api
+
+
+  web:
+    build:
+      context: ./apps/ai-frontend
     volumes:
-      - ./apps/frontend:/app
+      - ./apps/ai-frontend:/app
     expose:
       - "3000"
     env_file:
-      - .env.frontend
+      - .env.agno
     depends_on:
+      - langgraph-api
       - api
+  
 
   proxy:
     container_name: proxy
@@ -54,6 +114,7 @@ services:
     depends_on:
       - web
       - api
+      - langgraph-api
     ports:
       - "80:80"
       - "443:443"
@@ -65,3 +126,5 @@ services:
       - ./apps/proxy/data:/data
       - ./apps/proxy/config:/config
 
+volumes:
+  pgdata:

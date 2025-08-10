@@ -7,6 +7,7 @@ TODO.md
 .env.backend
 .env.frontend
 .env.proxy
+.env.agno
 data
 .pnp
 .pnp.js

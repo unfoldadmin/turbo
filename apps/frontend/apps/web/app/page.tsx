@@ -27,6 +27,10 @@ export default function Home() {
       <hr className="my-8" />
 
       <PagesOverview />
+
+      <div className="mt-8">
+        <a href="/ai" className="underline text-purple-600">Перейти в AI чат</a>
+      </div>
     </>
   )
 }

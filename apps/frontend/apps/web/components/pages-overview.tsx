@@ -71,6 +71,12 @@ export function PagesOverview() {
           <li>
             <SignOutLink />
           </li>
+
+          <li>
+            <Link href="/ai" className="text-purple-600 underline">
+              AI Chat
+            </Link>
+          </li>
         </ul>
       </li>
     </ul>

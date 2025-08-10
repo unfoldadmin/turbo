@@ -5,6 +5,8 @@ from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from rest_framework import exceptions, serializers
 
+from .models import RFQ
+
 User = get_user_model()
 
 
@@ -121,3 +123,17 @@ class UserCreateErrorSerializer(serializers.Serializer):
     password_retype = serializers.ListSerializer(
         child=serializers.CharField(), required=False
     )
+
+
+class RFQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RFQ
+        fields = [
+            "id",
+            "partnumber",
+            "brand",
+            "qty",
+            "target_price",
+            "created_at",
+            "modified_at",
+        ]

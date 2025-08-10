@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google'
 import { twMerge } from 'tailwind-merge'
 
 import '@frontend/ui/styles/globals.css'
+import '@copilotkit/react-ui/styles.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
