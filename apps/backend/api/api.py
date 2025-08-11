@@ -12,9 +12,7 @@ from .serializers import (
     UserCreateSerializer,
     UserCurrentErrorSerializer,
     UserCurrentSerializer,
-    RFQSerializer,
 )
-from .models import RFQ
 
 User = get_user_model()
 
@@ -101,23 +99,3 @@ class UserViewSet(
     def delete_account(self, request, *args, **kwargs):
         self.request.user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class RFQViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
-    queryset = RFQ.objects.all()
-    serializer_class = RFQSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        partnumber = self.request.query_params.get("partnumber")
-        brand = self.request.query_params.get("brand")
-        if partnumber:
-            qs = qs.filter(partnumber__icontains=partnumber)
-        if brand:
-            qs = qs.filter(brand__icontains=brand)
-        return qs

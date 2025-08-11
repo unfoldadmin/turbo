@@ -247,6 +247,8 @@ def get_metal_price(metal: str, currency: str = "USD"):
 
 BACKEND_API_BASE_URL = os.getenv("BACKEND_API_BASE_URL", "http://api:8000")
 
+# (FINAM-интеграция удалена)
+
 
 @tool(return_direct=True)
 def get_rfqs(partnumber: Optional[str] = None, brand: Optional[str] = None, page: int = 1):
@@ -391,4 +393,10 @@ def search_duckduckgo(
     }
 
 
-tools = [get_stock_price, get_metal_price, get_rfqs, create_rfq, search_duckduckgo]
+tools = [
+    get_stock_price,
+    get_metal_price,
+    get_rfqs,
+    create_rfq,
+    search_duckduckgo,
+]
