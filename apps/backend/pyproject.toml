@@ -10,6 +10,12 @@ dependencies = [
     "drf-spectacular>=0.28",
     "django-unfold>=0.43.0",
     "django-soft-delete>=1.0.19",
+    "django-celery-beat>=2.8.1",
+    "django-redis>=6.0.0",
+    "gunicorn>=23.0.0",
+    "uvicorn[standard]>=0.35",
+    "python-json-logger>=3.3.0",
+    "mysql-connector-python>=9.4.0",
 ]
 
 [dependency-groups]

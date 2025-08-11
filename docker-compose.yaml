@@ -7,9 +7,6 @@ services:
       - ./data:/var/lib/postgresql/data
     env_file:
       - .env.backend
-    #environment:
-    #  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    #  POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 2s
@@ -17,7 +14,8 @@ services:
       retries: 10
 
   api:
-    command: bash -c "uv sync && uv run -- python manage.py migrate && uv run -- python manage.py runserver 0.0.0.0:8000"
+    #command: bash -c "uv sync && uv run -- python manage.py migrate && uv run -- python manage.py runserver 0.0.0.0:8000"
+    command: ./bin/docker-entrypoint-api.sh
     build:
       context: ./apps/backend
     expose:
@@ -29,6 +27,32 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  worker:
+    container_name: bgworker
+    build:
+      context: ./apps/backend
+    restart: always
+    command: ./bin/docker-entrypoint-worker.sh
+    env_file:
+      - .env.backend
+    depends_on:
+      - api
+      - db
+      - redis
+
+  beat-worker:
+    container_name: beatworker
+    build:
+      context: ./apps/backend
+    restart: always
+    command: ./bin/docker-entrypoint-beat.sh
+    env_file:
+      - .env.backend
+    depends_on:
+      - api
+      - db
+      - redis
 
   langgraph-api:
     build:
@@ -56,24 +80,6 @@ services:
   #    interval: 2s
   #    timeout: 2s
   #    retries: 10
-#
-  #with-agno:
-  #  build:
-  #    context: ./apps/with-agno
-  #  expose:
-  #    - "3000"  # Next.js UI
-  #    - "8000"  # Python Agent
-  #  volumes:
-  #    - ./apps/with-agno:/app
-  #  env_file:
-  #    - .env.agno
-  #  environment:
-  #    - RUNTIME_ENV=dev
-  #    - NODE_ENV=development
-  #  command: bash -c "npm install && npm run dev"
-  #  depends_on:
-  #    pgvector:
-  #      condition: service_healthy
 
 #  web:
 #    command: bash -c "pnpm install -r && pnpm --filter web dev"
@@ -88,6 +94,23 @@ services:
 #    depends_on:
 #      - api
 
+
+  redis:
+    container_name: redis
+    image: valkey/valkey:7.2.5-alpine
+    restart: always
+    volumes:
+      - redisdata:/data
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.13.6-management-alpine
+    restart: always
+    env_file:
+      - .env.backend
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+  
 
   web:
     build:
@@ -118,13 +141,15 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    dns:
-      - 1.1.1.1
-      - 1.0.0.1
-      - 8.8.8.8
+    #dns:
+    #  - 1.1.1.1
+    #  - 1.0.0.1
+    #  - 8.8.8.8
     volumes:
       - ./apps/proxy/data:/data
       - ./apps/proxy/config:/config
 
 volumes:
   pgdata:
+  redisdata:
+  rabbitmq_data:

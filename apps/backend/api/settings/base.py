@@ -1,3 +1,4 @@
+#import os
 from os import environ
 from pathlib import Path
 
@@ -17,6 +18,7 @@ DEBUG = environ.get("DEBUG", "") == "1"
 ALLOWED_HOSTS = [h.strip() for h in environ.get("ALLOWED_HOSTS", "localhost,api").split(",") if h.strip()]
 
 WSGI_APPLICATION = "api.wsgi.application"
+ASGI_APPLICATION = "api.asgi.application"
 
 ROOT_URLCONF = "api.urls"
 
@@ -33,9 +35,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # 3rd party
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "django_celery_beat",
     # apps
     "api",
     "goods",
@@ -44,6 +48,7 @@ INSTALLED_APPS = [
     "persons",
     "sales",
     "rfqs",
+    "db",
 ]
 
 ######################################################################
@@ -115,6 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 ######################################################################
 # Internationalization
 ######################################################################
@@ -145,14 +151,26 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "30/min",
+        "user": "120/min",
+    },
+}
+
+SPECTACULAR_SETTINGS = {
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAdminUser"],
 }
 
 ######################################################################
 # Unfold
 ######################################################################
 UNFOLD = {
-    "SITE_HEADER": _("Turbo Admin"),
-    "SITE_TITLE": _("Turbo Admin"),
+    "SITE_HEADER": _("RUELIQ Admin"),
+    "SITE_TITLE": _("RUELIQ Admin"),
     "SIDEBAR": {
         "show_search": True,
         "show_all_applications": True,
@@ -176,3 +194,63 @@ UNFOLD = {
         ],
     },
 }
+
+
+# RabbitMQ connection settings
+RABBITMQ_HOST = environ.get("RABBITMQ_HOST", "rabbitmq")
+RABBITMQ_PORT = environ.get("RABBITMQ_PORT", "5672")
+RABBITMQ_USER = environ.get("RABBITMQ_USER", "guest")
+RABBITMQ_PASSWORD = environ.get("RABBITMQ_PASSWORD", "guest")
+RABBITMQ_VHOST = environ.get("RABBITMQ_VHOST", "/")
+AMQP_URL = environ.get("AMQP_URL")
+
+# Celery Configuration
+if AMQP_URL:
+    CELERY_BROKER_URL = AMQP_URL
+else:
+    CELERY_BROKER_URL = f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/{RABBITMQ_VHOST}"
+
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+
+
+CELERY_IMPORTS = (
+    # scheduled tasks
+    #"plane.bgtasks.issue_automation_task",
+    #"plane.bgtasks.exporter_expired_task",
+    #"plane.bgtasks.file_asset_task",
+    #"plane.bgtasks.email_notification_task",
+    #"plane.bgtasks.api_logs_task",
+    #"plane.license.bgtasks.tracer",
+    # management tasks
+    #"plane.bgtasks.dummy_data_task",
+    # issue version tasks
+    #"plane.bgtasks.issue_version_sync",
+    #"plane.bgtasks.issue_description_version_sync",
+)
+
+# Redis Config
+REDIS_URL = environ.get("REDIS_URL")
+REDIS_SSL = REDIS_URL and "rediss" in REDIS_URL
+
+if REDIS_SSL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {"ssl_cert_reqs": False},
+            },
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        }
+    }
