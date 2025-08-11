@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from user.models import User
+from api.models import User
 from core.mixins import ExtIdMixin
 from django_softdelete.models import SoftDeleteModel
 
