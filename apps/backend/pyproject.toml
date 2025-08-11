@@ -16,6 +16,8 @@ dependencies = [
     "uvicorn[standard]>=0.35",
     "python-json-logger>=3.3.0",
     "mysql-connector-python>=9.4.0",
+    "django-meilisearch-indexer>=1.0.3",
+    "meilisearch>=0.36.0"
 ]
 
 [dependency-groups]

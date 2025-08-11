@@ -110,7 +110,17 @@ services:
       - .env.backend
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-  
+
+  meilisearch:
+    container_name: meilisearch
+    image: getmeili/meilisearch:v1.16.0
+    restart: always
+    env_file:
+      - .env.backend
+    volumes:
+      - meilisearch_data:/data
+    ports:
+      - "7700:7700"
 
   web:
     build:
@@ -153,3 +163,4 @@ volumes:
   pgdata:
   redisdata:
   rabbitmq_data:
+  meilisearch_data:
