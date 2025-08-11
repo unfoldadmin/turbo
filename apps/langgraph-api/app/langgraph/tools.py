@@ -250,6 +250,80 @@ BACKEND_API_BASE_URL = os.getenv("BACKEND_API_BASE_URL", "http://api:8000")
 # (FINAM-интеграция удалена)
 
 
+MEILISEARCH_URL = os.getenv("MEILISEARCH_URL", os.getenv("MEILI_URL", "http://meilisearch:7700"))
+MEILISEARCH_API_KEY = os.getenv("MEILISEARCH_API_KEY", os.getenv("MEILI_MASTER_KEY"))
+
+
+@tool(return_direct=True)
+def search_products_meilisearch(
+    query: Optional[str] = None,
+    filters: Optional[str] = None,
+    limit: int = 10,
+    offset: int = 0,
+    sort: Optional[List[str]] = None,
+    attributes_to_retrieve: Optional[List[str]] = None,
+    highlight: bool = True,
+):
+    """Поиск товаров в Meilisearch (индекс "products").
+
+    Параметры:
+    - query: поисковый запрос (строка). Можно указывать часть названия, бренда, группы и т.д.
+    - filters: строка фильтра Meilisearch (например: "brand_name = 'Apple' AND subgroup_id = 12")
+    - limit: количество результатов
+    - offset: смещение (для пагинации)
+    - sort: список правил сортировки, например ["name:asc", "brand_name:desc"]
+    - attributes_to_retrieve: список полей, которые нужно вернуть; по умолчанию используются displayedAttributes индекса
+    - highlight: включить подсветку совпадений
+
+    Возвращает: {hits, limit, offset, estimatedTotalHits, processingTimeMs, query}
+    """
+    q = (query or "").strip()
+    if not q and not filters:
+        raise ValueError("Укажите хотя бы query или filters")
+
+    url = f"{MEILISEARCH_URL.rstrip('/')}/indexes/products/search"
+    body: Dict[str, object] = {"q": q, "limit": max(1, int(limit)), "offset": max(0, int(offset))}
+
+    if filters:
+        body["filter"] = filters
+    if sort:
+        body["sort"] = [str(s) for s in sort if str(s).strip()]
+    if attributes_to_retrieve:
+        body["attributesToRetrieve"] = [str(a) for a in attributes_to_retrieve if str(a).strip()]
+    if highlight:
+        body["attributesToHighlight"] = ["*"]
+        body["highlightPreTag"] = "<em>"
+        body["highlightPostTag"] = "</em>"
+
+    req = urllib.request.Request(url, data=json.dumps(body).encode("utf-8"), method="POST")
+    req.add_header("Content-Type", "application/json")
+    # Поддержим оба варианта заголовков ключа API
+    if MEILISEARCH_API_KEY:
+        req.add_header("Authorization", f"Bearer {MEILISEARCH_API_KEY}")
+        req.add_header("X-Meilisearch-API-Key", MEILISEARCH_API_KEY)
+
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8", errors="ignore"))
+        # Нормализуем ответ
+        return {
+            "hits": data.get("hits", []),
+            "limit": data.get("limit"),
+            "offset": data.get("offset"),
+            "estimatedTotalHits": data.get("estimatedTotalHits"),
+            "processingTimeMs": data.get("processingTimeMs"),
+            "query": data.get("query", q),
+        }
+    except urllib.error.HTTPError as e:
+        try:
+            detail = e.read().decode("utf-8", errors="ignore")
+        except Exception:
+            detail = ""
+        return {"error": f"HTTP {e.code}", "detail": detail}
+    except Exception as e:
+        return {"error": str(e)}
+
+
 @tool(return_direct=True)
 def get_rfqs(partnumber: Optional[str] = None, brand: Optional[str] = None, page: int = 1):
     """Получить список RFQ из Django.
@@ -396,6 +470,7 @@ def search_duckduckgo(
 tools = [
     get_stock_price,
     get_metal_price,
+    search_products_meilisearch,
     get_rfqs,
     create_rfq,
     search_duckduckgo,
