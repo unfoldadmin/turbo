@@ -1,6 +1,6 @@
-import { ApiService } from './api-client'
 import type { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import { ApiService } from './api-client'
 
 function decodeToken(token: string): {
   token_type: string
@@ -57,7 +57,7 @@ const authOptions: AuthOptions = {
       // 后续请求时，检查 access token 是否过期并刷新
       if (token.access && token.refresh) {
         const decoded = decodeToken(token.access)
-        
+
         // 如果 access token 过期，尝试刷新
         if (Date.now() / 1000 > decoded.exp) {
           try {

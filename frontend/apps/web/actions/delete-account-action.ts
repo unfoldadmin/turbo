@@ -2,9 +2,9 @@
 
 import { apiClient } from '@/lib/api-client'
 import { authOptions } from '@/lib/auth'
+import type { deleteAccountFormSchema } from '@/lib/validation'
 import { getServerSession } from 'next-auth'
 import type { z } from 'zod'
-import { deleteAccountFormSchema } from '@/lib/validation'
 
 export type DeleteAccountFormSchema = z.infer<typeof deleteAccountFormSchema>
 
@@ -14,7 +14,7 @@ export async function deleteAccountAction(
   try {
     // 获取当前用户的会话以获取 token
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.accessToken) {
       return false
     }
@@ -30,4 +30,3 @@ export async function deleteAccountAction(
     return false
   }
 }
-

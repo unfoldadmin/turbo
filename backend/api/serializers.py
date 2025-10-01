@@ -89,7 +89,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["username", "email", "first_name", "last_name", "password", "password_retype"]
+        fields = [
+            "username",
+            "email",
+            "first_name",
+            "last_name",
+            "password",
+            "password_retype",
+        ]
 
     def validate(self, attrs):
         password_retype = attrs.pop("password_retype")
@@ -117,8 +124,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
 class UserCreateErrorSerializer(serializers.Serializer):
     username = serializers.ListSerializer(child=serializers.CharField(), required=False)
     email = serializers.ListSerializer(child=serializers.CharField(), required=False)
-    first_name = serializers.ListSerializer(child=serializers.CharField(), required=False)
-    last_name = serializers.ListSerializer(child=serializers.CharField(), required=False)
+    first_name = serializers.ListSerializer(
+        child=serializers.CharField(), required=False
+    )
+    last_name = serializers.ListSerializer(
+        child=serializers.CharField(), required=False
+    )
     password = serializers.ListSerializer(child=serializers.CharField(), required=False)
     password_retype = serializers.ListSerializer(
         child=serializers.CharField(), required=False

@@ -2,9 +2,9 @@
 
 import { apiClient } from '@/lib/api-client'
 import { authOptions } from '@/lib/auth'
+import type { changePasswordFormSchema } from '@/lib/validation'
 import { getServerSession } from 'next-auth'
 import type { z } from 'zod'
-import { changePasswordFormSchema } from '@/lib/validation'
 
 export type ChangePasswordFormSchema = z.infer<typeof changePasswordFormSchema>
 
@@ -14,7 +14,7 @@ export async function changePasswordAction(
   try {
     // 获取当前用户的会话以获取 token
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.accessToken) {
       return {
         password: ['Authentication required']
@@ -40,10 +40,9 @@ export async function changePasswordAction(
     if (error.data && typeof error.data === 'object') {
       return error.data
     }
-    
+
     return {
       password: ['Failed to change password']
     }
   }
 }
-
