@@ -43,6 +43,7 @@ export function LoginForm() {
       <form
         method='post'
         action='/api/auth/callback/credentials'
+        noValidate
         onSubmit={onSubmitHandler}
       >
         <TextField
@@ -51,14 +52,16 @@ export function LoginForm() {
           formState={formState}
           label='Username'
           placeholder='Enter your username'
+          autoComplete='username'
         />
 
         <TextField
           type='password'
-          register={register("password", { required: true })}
+          register={register("password")}
           formState={formState}
           label='Password'
           placeholder='Enter your password'
+          autoComplete='current-password'
         />
 
         <SubmitField>Sign in</SubmitField>

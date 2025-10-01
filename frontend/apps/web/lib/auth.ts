@@ -21,6 +21,11 @@ const authOptions: AuthOptions = {
   },
   callbacks: {
     session: async ({ session, token }) => {
+      // 检查 token 是否有必要的字段
+      if (!token.access || !token.refresh) {
+        return session
+      }
+
       const access = decodeToken(token.access)
       const refresh = decodeToken(token.refresh)
 
@@ -40,18 +45,32 @@ const authOptions: AuthOptions = {
 
       return session
     },
-    jwt: async ({ token, user }) => {
-      if (user?.username) {
-        return { ...token, ...user }
+    jwt: async ({ token, user, trigger }) => {
+      // 首次登录时，user 对象包含从 authorize 返回的数据
+      if (user) {
+        token.username = user.username
+        token.access = (user as any).access
+        token.refresh = (user as any).refresh
+        return token
       }
 
-      // Refresh token
-      if (Date.now() / 1000 > decodeToken(token.access).exp) {
-        const res = await ApiService.refreshToken(token.refresh)
-        token.access = res.access
+      // 后续请求时，检查 access token 是否过期并刷新
+      if (token.access && token.refresh) {
+        const decoded = decodeToken(token.access)
+        
+        // 如果 access token 过期，尝试刷新
+        if (Date.now() / 1000 > decoded.exp) {
+          try {
+            const res = await ApiService.refreshToken(token.refresh)
+            token.access = res.access
+          } catch (error) {
+            // 刷新失败，返回原 token（session callback 会处理过期）
+            console.error('Failed to refresh token:', error)
+          }
+        }
       }
 
-      return { ...token, ...user }
+      return token
     }
   },
   providers: [
