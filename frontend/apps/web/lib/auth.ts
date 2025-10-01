@@ -1,7 +1,6 @@
-import { ApiError } from '@frontend/types/api'
+import { ApiService } from './api-client'
 import type { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { getApiClient } from './api'
 
 function decodeToken(token: string): {
   token_type: string
@@ -48,12 +47,7 @@ const authOptions: AuthOptions = {
 
       // Refresh token
       if (Date.now() / 1000 > decodeToken(token.access).exp) {
-        const apiClient = await getApiClient()
-        const res = await apiClient.token.tokenRefreshCreate({
-          access: token.access,
-          refresh: token.refresh
-        })
-
+        const res = await ApiService.refreshToken(token.refresh)
         token.access = res.access
       }
 
@@ -76,12 +70,9 @@ const authOptions: AuthOptions = {
         }
 
         try {
-          const apiClient = await getApiClient()
-          const res = await apiClient.token.tokenCreate({
+          const res = await ApiService.login({
             username: credentials.username,
-            password: credentials.password,
-            access: '',
-            refresh: ''
+            password: credentials.password
           })
 
           return {
@@ -91,12 +82,8 @@ const authOptions: AuthOptions = {
             refresh: res.refresh
           }
         } catch (error) {
-          if (error instanceof ApiError) {
-            return null
-          }
+          return null
         }
-
-        return null
       }
     })
   ]

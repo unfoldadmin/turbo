@@ -8,6 +8,9 @@ const loginFormSchema = z.object({
 const registerFormSchema = z
   .object({
     username: z.string().min(6),
+    email: z.string().email('Invalid email address'),
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
     password: z.string().min(6),
     passwordRetype: z.string().min(6)
   })
