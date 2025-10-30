@@ -16,7 +16,8 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@frontend/ui/*": ["./*"]
+      "@frontend/ui/*": ["./*"],
+      "@/*": ["./*"]
     }
   },
   "include": ["."],

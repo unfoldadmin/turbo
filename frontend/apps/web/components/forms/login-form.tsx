@@ -1,16 +1,18 @@
 'use client'
 
 import { loginFormSchema } from '@/lib/validation'
-import { FormFooter } from '@frontend/ui/forms/form-footer'
-import { FormHeader } from '@frontend/ui/forms/form-header'
-import { SubmitField } from '@frontend/ui/forms/submit-field'
-import { TextField } from '@frontend/ui/forms/text-field'
 import { ErrorMessage } from '@frontend/ui/messages/error-message'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
+import { Button } from '@frontend/ui/components/ui/button'
+import { Input } from '@frontend/ui/components/ui/input'
+import { Label } from '@frontend/ui/components/ui/label'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@frontend/ui/components/ui/card'
+import { Plane } from 'lucide-react'
+import Link from 'next/link'
 
 type LoginFormSchema = z.infer<typeof loginFormSchema>
 
@@ -30,45 +32,77 @@ export function LoginForm() {
   })
 
   return (
-    <>
-      <FormHeader
-        title="Welcome back to Turbo"
-        description="Get an access to internal application"
-      />
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md bg-card border-border">
+        <CardHeader className="space-y-1 text-center">
+          <div className="flex justify-center mb-4">
+            <div className="p-3 bg-primary rounded-full">
+              <Plane className="w-8 h-8 text-primary-foreground" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl font-bold text-card-foreground">Welcome Back</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Sign in to access your flight operations dashboard
+          </CardDescription>
+        </CardHeader>
 
-      {search.has('error') && search.get('error') === 'CredentialsSignin' && (
-        <ErrorMessage>Provided account does not exists.</ErrorMessage>
-      )}
+        {search.has('error') && search.get('error') === 'CredentialsSignin' && (
+          <div className="px-6">
+            <ErrorMessage>Provided account does not exist.</ErrorMessage>
+          </div>
+        )}
 
-      <form
-        method="post"
-        action="/api/auth/callback/credentials"
-        onSubmit={onSubmitHandler}
-      >
-        <TextField
-          type="text"
-          register={register('username')}
-          formState={formState}
-          label="Username"
-          placeholder="Email address or username"
-        />
-
-        <TextField
-          type="password"
-          register={register('password', { required: true })}
-          formState={formState}
-          label="Password"
-          placeholder="Enter your password"
-        />
-
-        <SubmitField>Sign in</SubmitField>
-      </form>
-
-      <FormFooter
-        cta="Don't have an account?"
-        link="/register"
-        title="Sign up"
-      />
-    </>
+        <form onSubmit={onSubmitHandler}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username" className="text-card-foreground">
+                Username
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Email address or username"
+                {...register('username')}
+                className="bg-background border-border text-foreground"
+              />
+              {formState.errors.username && (
+                <p className="text-sm text-destructive">{formState.errors.username.message}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" className="text-card-foreground">
+                  Password
+                </Label>
+                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                {...register('password')}
+                className="bg-background border-border text-foreground"
+              />
+              {formState.errors.password && (
+                <p className="text-sm text-destructive">{formState.errors.password.message}</p>
+              )}
+            </div>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4 pt-6">
+            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+              Sign In
+            </Button>
+            <p className="text-sm text-center text-muted-foreground">
+              Don't have an account?{" "}
+              <Link href="/register" className="text-primary hover:underline font-medium">
+                Sign up
+              </Link>
+            </p>
+          </CardFooter>
+        </form>
+      </Card>
+    </div>
   )
 }
