@@ -4,17 +4,13 @@
 /* eslint-disable */
 /**
  * * `scheduled` - Scheduled
- * * `arrived` - Arrived
- * * `departed` - Departed
+ * * `in_progress` - In Progress
+ * * `completed` - Completed
  * * `cancelled` - Cancelled
- * * `delayed` - Delayed
- * * `planned` - Planned
  */
-export enum FlightStatusEnum {
+export enum LineScheduleStatusEnum {
     SCHEDULED = 'scheduled',
-    ARRIVED = 'arrived',
-    DEPARTED = 'departed',
+    IN_PROGRESS = 'in_progress',
+    COMPLETED = 'completed',
     CANCELLED = 'cancelled',
-    DELAYED = 'delayed',
-    PLANNED = 'planned',
 }

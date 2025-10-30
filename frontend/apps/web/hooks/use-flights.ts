@@ -20,26 +20,46 @@ export function useFlights(params?: {
   const [error, setError] = useState<Error | null>(null)
 
   const fetchFlights = useCallback(async () => {
-    if (!session) return
+    if (!session) {
+      setLoading(false)
+      return
+    }
 
     try {
       setLoading(true)
       setError(null)
       const client = await getApiClient(session)
 
-      const response = await client.flights.flightsList()
+      // Build query params for date filtering
+      let queryParams: Record<string, string> = {}
+
+      if (params?.startDate || params?.endDate) {
+        if (params.startDate) queryParams.start_date = params.startDate
+        if (params.endDate) queryParams.end_date = params.endDate
+      }
+      // If no params, don't add any date filtering - will return all flights
+
+      // Use the raw HTTP request to support custom date filtering
+      const response = await (client.flights as any).httpRequest.request({
+        method: 'GET',
+        url: '/api/flights/',
+        query: Object.keys(queryParams).length > 0 ? queryParams : undefined,
+      })
       const convertedFlights = (response.results || []).map(apiFlightToComponentFlight)
       setFlights(convertedFlights)
     } catch (err) {
+      console.error("Failed to fetch flights:", err)
       setError(err instanceof Error ? err : new Error("Failed to fetch flights"))
     } finally {
       setLoading(false)
     }
-  }, [params?.today, params?.startDate, params?.endDate])
+  }, [session, params?.startDate, params?.endDate])
 
   useEffect(() => {
     if (session) {
       fetchFlights()
+    } else {
+      setLoading(false)
     }
   }, [session, fetchFlights])
 

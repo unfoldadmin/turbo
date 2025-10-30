@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { FuelerTraining } from './FuelerTraining';
-import type { StatusEnum } from './StatusEnum';
+import type { StatusA3eEnum } from './StatusA3eEnum';
 import type { UserList } from './UserList';
 /**
  * Fueler with all certifications for detail view
@@ -17,7 +17,7 @@ export type FuelerWithCertifications = {
      * Name used on handheld devices
      */
     handheld_name?: string;
-    status?: StatusEnum;
+    status?: StatusA3eEnum;
     readonly certifications: Array<FuelerTraining>;
     readonly expired_certifications_count: string;
     readonly created_at: string;

@@ -22,6 +22,8 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
   const [weekOffset, setWeekOffset] = useState(0) // 0 = current week, -1 = last week, 1 = next week, etc.
+  const MIN_WEEK_OFFSET = -2 // Can go back 2 weeks
+  const MAX_WEEK_OFFSET = 2  // Can go forward 2 weeks
 
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [editingFlight, setEditingFlight] = useState<Flight | null>(null)
@@ -386,20 +388,34 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
             variant="ghost"
             size="sm"
             className="gap-2 text-muted-foreground"
-            onClick={() => setWeekOffset(weekOffset - 1)}
+            onClick={() => setWeekOffset(Math.max(MIN_WEEK_OFFSET, weekOffset - 1))}
+            disabled={weekOffset <= MIN_WEEK_OFFSET}
           >
             <ChevronLeft className="w-4 h-4" />
             Previous Week
           </Button>
-          <h3 className="text-lg font-semibold text-foreground">
-            {weekDays[0].toLocaleDateString("en-US", { month: "long", day: "numeric" })} -{" "}
-            {weekDays[6].toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-          </h3>
+          <div className="flex flex-col items-center">
+            <h3 className="text-lg font-semibold text-foreground">
+              {weekDays[0].toLocaleDateString("en-US", { month: "long", day: "numeric" })} -{" "}
+              {weekDays[6].toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+            </h3>
+            {weekOffset !== 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-primary"
+                onClick={() => setWeekOffset(0)}
+              >
+                Back to Current Week
+              </Button>
+            )}
+          </div>
           <Button
             variant="ghost"
             size="sm"
             className="gap-2 text-muted-foreground"
-            onClick={() => setWeekOffset(weekOffset + 1)}
+            onClick={() => setWeekOffset(Math.min(MAX_WEEK_OFFSET, weekOffset + 1))}
+            disabled={weekOffset >= MAX_WEEK_OFFSET}
           >
             Next Week
             <ChevronRight className="w-4 h-4" />

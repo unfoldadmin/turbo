@@ -7,9 +7,23 @@ interface FlightListProps {
   theme: "dark" | "light"
   onEditFlight: (flight: Flight) => void
   onDeleteFlight: (id: string) => void
+  linkedFlightIds?: Set<string>
+  flightLinkColors?: Map<string, string>
+  hoveredFlightId?: string | null
+  onFlightHover?: (id: string | null) => void
 }
 
-export function FlightList({ flights, type, theme, onEditFlight, onDeleteFlight }: FlightListProps) {
+export function FlightList({
+  flights,
+  type,
+  theme,
+  onEditFlight,
+  onDeleteFlight,
+  linkedFlightIds,
+  flightLinkColors,
+  hoveredFlightId,
+  onFlightHover
+}: FlightListProps) {
   if (flights.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
@@ -20,9 +34,25 @@ export function FlightList({ flights, type, theme, onEditFlight, onDeleteFlight 
 
   return (
     <div className="space-y-3">
-      {flights.map((flight) => (
-        <FlightCard key={flight.id} flight={flight} theme={theme} onEdit={onEditFlight} onDelete={onDeleteFlight} />
-      ))}
+      {flights.map((flight) => {
+        const isLinked = linkedFlightIds?.has(flight.id) || false
+        const linkColor = flightLinkColors?.get(flight.id)
+        const isHovered = hoveredFlightId === flight.id
+
+        return (
+          <FlightCard
+            key={flight.id}
+            flight={flight}
+            theme={theme}
+            onEdit={onEditFlight}
+            onDelete={onDeleteFlight}
+            isLinked={isLinked}
+            linkColor={linkColor}
+            isHovered={isHovered}
+            onHover={onFlightHover}
+          />
+        )
+      })}
     </div>
   )
 }

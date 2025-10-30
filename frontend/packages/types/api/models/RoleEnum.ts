@@ -4,9 +4,11 @@
 /* eslint-disable */
 /**
  * * `admin` - Admin
- * * `user` - User
+ * * `line` - Line Department
+ * * `frontdesk` - Front Desk
  */
 export enum RoleEnum {
     ADMIN = 'admin',
-    USER = 'user',
+    LINE = 'line',
+    FRONTDESK = 'frontdesk',
 }

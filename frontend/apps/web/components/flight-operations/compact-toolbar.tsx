@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { Button } from "@frontend/ui/components/ui/button"
 import { Input } from "@frontend/ui/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@frontend/ui/components/ui/select"
@@ -36,6 +37,22 @@ export function CompactToolbar({
   onAddFlight,
   theme,
 }: CompactToolbarProps) {
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  // Add keyboard shortcut: "/" to focus search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only trigger if not already focused on an input/textarea
+      if (e.key === "/" && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
+
   const toggleService = (service: string) => {
     const newServices = filters.services.includes(service)
       ? filters.services.filter((s) => s !== service)
@@ -103,11 +120,15 @@ export function CompactToolbar({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <Input
+            ref={searchInputRef}
             placeholder="Search flights..."
             value={filters.search}
             onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
-            className="pl-9 h-9 bg-background border-border text-foreground"
+            className="pl-9 pr-10 h-9 bg-background border-border text-foreground"
           />
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none hidden sm:inline-flex items-center justify-center h-5 px-1.5 rounded border border-border bg-muted/50 text-[10px] font-medium text-muted-foreground">
+            /
+          </kbd>
         </div>
 
         <Popover>

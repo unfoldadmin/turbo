@@ -11,6 +11,8 @@ import { Textarea } from "@frontend/ui/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@frontend/ui/components/ui/select"
 import { Checkbox } from "@frontend/ui/components/ui/checkbox"
 import type { Flight } from "./types"
+import { TailNumberAutocomplete } from "./tail-number-autocomplete"
+import { useAircraft } from "@/hooks/use-aircraft"
 
 function calculateGroundTime(arrivalTime: string, departureTime: string): string {
   if (!arrivalTime || !departureTime) return "N/A"
@@ -43,15 +45,17 @@ interface FlightFormDialogProps {
 }
 
 export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, theme }: FlightFormDialogProps) {
+  const { aircraft, createAircraft, updateAircraft, loading: aircraftLoading } = useAircraft()
   const [formData, setFormData] = useState<Partial<Flight>>({
     type: "arrival",
     status: "scheduled",
     services: [],
-    source: "manual",
+    source: "line-department",
     scheduledDate: new Date().toISOString().split('T')[0], // Default to today
   })
   const [arrivalTime, setArrivalTime] = useState("")
   const [departureTime, setDepartureTime] = useState("")
+  const [isEditingAircraftType, setIsEditingAircraftType] = useState(false)
 
   useEffect(() => {
     if (initialData) {
@@ -71,13 +75,49 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
         type: "arrival",
         status: "scheduled",
         services: [],
-        source: "manual",
+        source: "line-department",
         scheduledDate: new Date().toISOString().split('T')[0],
       })
       setArrivalTime("")
       setDepartureTime("")
     }
   }, [initialData, open])
+
+  const handleTailNumberChange = (tailNumber: string, aircraftType?: string) => {
+    setFormData({
+      ...formData,
+      tailNumber,
+      aircraftType: aircraftType || formData.aircraftType
+    })
+  }
+
+  const handleCreateNewAircraft = async (tailNumber: string) => {
+    try {
+      const newAircraft = await createAircraft(tailNumber, "Unknown")
+      setFormData({
+        ...formData,
+        tailNumber: newAircraft.tail_number,
+        aircraftType: (newAircraft as any).aircraft_type_display || "Unknown"
+      })
+      setIsEditingAircraftType(true)
+    } catch (error) {
+      console.error("Failed to create aircraft:", error)
+      alert("Failed to create new aircraft. Please try again.")
+    }
+  }
+
+  const handleAircraftTypeChange = async (newType: string) => {
+    setFormData({ ...formData, aircraftType: newType })
+
+    // If we have a tail number, update the aircraft record
+    if (formData.tailNumber) {
+      try {
+        await updateAircraft(formData.tailNumber, newType)
+      } catch (error) {
+        console.error("Failed to update aircraft type:", error)
+      }
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -101,10 +141,11 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
       actualTime: formData.actualTime,
       origin: formData.origin,
       destination: formData.destination,
-      pilot: formData.pilot,
+      contactName: formData.contactName,
+      contactNotes: formData.contactNotes,
       services: formData.services || [],
       notes: formData.notes,
-      source: "manual",
+      source: formData.source || "line-department",
       createdAt: initialData?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -126,13 +167,16 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
               <Label htmlFor="tailNumber" className="text-card-foreground">
                 Tail Number *
               </Label>
-              <Input
-                id="tailNumber"
+              <TailNumberAutocomplete
                 value={formData.tailNumber || ""}
-                onChange={(e) => setFormData({ ...formData, tailNumber: e.target.value })}
-                required
-                className="bg-background border-border text-foreground"
+                onChange={handleTailNumberChange}
+                aircraft={aircraft}
+                onCreateNew={handleCreateNewAircraft}
+                disabled={aircraftLoading}
               />
+              <p className="text-xs text-muted-foreground">
+                Start typing to search existing aircraft or create new
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -142,10 +186,17 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
               <Input
                 id="aircraftType"
                 value={formData.aircraftType || ""}
-                onChange={(e) => setFormData({ ...formData, aircraftType: e.target.value })}
+                onChange={(e) => handleAircraftTypeChange(e.target.value)}
+                onFocus={() => setIsEditingAircraftType(true)}
                 required
                 className="bg-background border-border text-foreground"
+                placeholder="e.g., Boeing 737, Citation X"
               />
+              {isEditingAircraftType && formData.tailNumber && (
+                <p className="text-xs text-blue-500">
+                  ✓ This will update the aircraft type for {formData.tailNumber}
+                </p>
+              )}
             </div>
           </div>
 
@@ -279,14 +330,29 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="pilot" className="text-card-foreground">
-              Pilot
+            <Label htmlFor="contactName" className="text-card-foreground">
+              Contact Name
             </Label>
             <Input
-              id="pilot"
-              value={formData.pilot || ""}
-              onChange={(e) => setFormData({ ...formData, pilot: e.target.value })}
+              id="contactName"
+              value={formData.contactName || ""}
+              onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
               className="bg-background border-border text-foreground"
+              placeholder="Pilot or contact person"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="contactNotes" className="text-card-foreground">
+              Contact Notes
+            </Label>
+            <Textarea
+              id="contactNotes"
+              value={formData.contactNotes || ""}
+              onChange={(e) => setFormData({ ...formData, contactNotes: e.target.value })}
+              rows={2}
+              className="bg-background border-border text-foreground"
+              placeholder="Additional contact information or notes"
             />
           </div>
 

@@ -6,7 +6,7 @@
  * * `active` - Active
  * * `inactive` - Inactive
  */
-export enum StatusEnum {
+export enum StatusA3eEnum {
     ACTIVE = 'active',
     INACTIVE = 'inactive',
 }

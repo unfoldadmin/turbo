@@ -15,8 +15,22 @@ import { ErrorMessage } from "@frontend/ui/messages/error-message"
 export default function FlightOperationsPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const { flights, loading, error, createFlight, updateFlight, deleteFlight } = useFlights({ today: true })
   const [view, setView] = useState<"split" | "calendar" | "arrivals" | "departures">("split")
+
+  // Calculate date range based on view
+  const dateParams = view === "calendar" ? (() => {
+    const today = new Date()
+    const startDate = new Date(today)
+    startDate.setDate(today.getDate() - 14) // 2 weeks back
+    const endDate = new Date(today)
+    endDate.setDate(today.getDate() + 14) // 2 weeks forward
+    return {
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0]
+    }
+  })() : undefined // Don't filter by date for split view - show all flights
+
+  const { flights, loading, error, createFlight, updateFlight, deleteFlight } = useFlights(dateParams)
   const { theme } = useTheme()
   const [filters, setFilters] = useState<FlightFilters>({
     search: "",

@@ -7,15 +7,21 @@ import { useTheme } from "@/components/navigation-wrapper"
 import { Button } from "@frontend/ui/components/ui/button"
 import { Card } from "@frontend/ui/components/ui/card"
 import { Badge } from "@frontend/ui/components/ui/badge"
+import { useCertifications } from "@/hooks/use-certifications"
+import { CertificationFormDialog } from "@/components/training/certification-form-dialog"
+import type { FuelerTraining, FuelerTrainingRequest } from "@frontend/types/api"
+import { SuccessMessage } from "@frontend/ui/messages/success-message"
+import { ErrorMessage } from "@frontend/ui/messages/error-message"
 
 export default function TrainingPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { theme } = useTheme()
-  const [certifications, setCertifications] = useState([])
-  const [fuelers, setFuelers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { certifications, loading, error, createCertification, updateCertification, deleteCertification, refetch } = useCertifications()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingCertification, setEditingCertification] = useState<FuelerTraining | null>(null)
+  const [successMessage, setSuccessMessage] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -23,24 +29,52 @@ export default function TrainingPage() {
     }
   }, [status, router])
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchData()
-    }
-  }, [status])
-
-  const fetchData = async () => {
+  const handleCreateCertification = async (data: FuelerTrainingRequest) => {
     try {
-      setLoading(true)
-      // TODO: Implement API calls
-      setCertifications([])
-      setFuelers([])
+      await createCertification(data)
+      setSuccessMessage("Certification created successfully")
+      setTimeout(() => setSuccessMessage(""), 3000)
     } catch (err) {
-      console.error("Failed to fetch training data:", err)
-      setError(err)
-    } finally {
-      setLoading(false)
+      setErrorMessage("Failed to create certification")
+      setTimeout(() => setErrorMessage(""), 3000)
+      throw err
     }
+  }
+
+  const handleEditCertification = (certification: FuelerTraining) => {
+    setEditingCertification(certification)
+    setDialogOpen(true)
+  }
+
+  const handleUpdateCertification = async (data: FuelerTrainingRequest) => {
+    if (!editingCertification) return
+    try {
+      await updateCertification(editingCertification.id, data)
+      setSuccessMessage("Certification updated successfully")
+      setTimeout(() => setSuccessMessage(""), 3000)
+      setEditingCertification(null)
+    } catch (err) {
+      setErrorMessage("Failed to update certification")
+      setTimeout(() => setErrorMessage(""), 3000)
+      throw err
+    }
+  }
+
+  const handleDeleteCertification = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this certification?")) return
+    try {
+      await deleteCertification(id)
+      setSuccessMessage("Certification deleted successfully")
+      setTimeout(() => setSuccessMessage(""), 3000)
+    } catch (err) {
+      setErrorMessage("Failed to delete certification")
+      setTimeout(() => setErrorMessage(""), 3000)
+    }
+  }
+
+  const handleOpenDialog = () => {
+    setEditingCertification(null)
+    setDialogOpen(true)
   }
 
   if (status === 'loading' || loading) {
@@ -94,16 +128,28 @@ export default function TrainingPage() {
             Track fueler certifications and training status
           </p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={handleOpenDialog}
+        >
           Add Certification
         </Button>
       </div>
 
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {errorMessage && <ErrorMessage message={errorMessage} />}
       {error && (
         <Card className="bg-destructive/10 border-destructive/20 p-4">
           <p className="text-sm text-destructive">Failed to load training data</p>
         </Card>
       )}
+
+      <CertificationFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        certification={editingCertification}
+        onSubmit={editingCertification ? handleUpdateCertification : handleCreateCertification}
+      />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-4">
         <Card className="p-6 bg-destructive/10 border-destructive/20">
@@ -201,9 +247,22 @@ export default function TrainingPage() {
                     </Badge>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{cert.certified_by_name || 'N/A'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-                      Renew
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-primary hover:text-primary/80"
+                      onClick={() => handleEditCertification(cert)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive/80"
+                      onClick={() => handleDeleteCertification(cert.id)}
+                    >
+                      Delete
                     </Button>
                   </td>
                 </tr>

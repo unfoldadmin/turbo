@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { FlightList } from "./flight-list"
 import type { Flight, FlightFilters as FilterType } from "./types"
 
@@ -15,6 +15,8 @@ interface FlightBoardProps {
 }
 
 export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight, filters }: FlightBoardProps) {
+  const [hoveredFlightId, setHoveredFlightId] = useState<string | null>(null)
+
   const filteredFlights = useMemo(() => {
     return flights.filter((flight) => {
       // Filter by search
@@ -54,6 +56,41 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
     f.type === "departure" || f.type === "quick_turn" || f.type === "overnight" || f.type === "long_term"
   )
 
+  // Identify linked flights (appear in both arrivals and departures)
+  const linkedFlightIds = useMemo(() => {
+    const arrivalIds = new Set(arrivals.map(f => f.id))
+    const departureIds = new Set(departures.map(f => f.id))
+    const linked = new Set<string>()
+
+    arrivalIds.forEach(id => {
+      if (departureIds.has(id)) {
+        linked.add(id)
+      }
+    })
+
+    return linked
+  }, [arrivals, departures])
+
+  // Assign colors to linked flights (rotating through a palette)
+  const linkColors = [
+    "border-l-emerald-500/60", // emerald
+    "border-l-sky-500/60",     // sky blue
+    "border-l-violet-500/60",  // violet
+    "border-l-rose-500/60",    // rose
+    "border-l-amber-500/60",   // amber
+    "border-l-cyan-500/60",    // cyan
+    "border-l-pink-500/60",    // pink
+    "border-l-lime-500/60",    // lime
+  ]
+
+  const flightLinkColors = useMemo(() => {
+    const colorMap = new Map<string, string>()
+    Array.from(linkedFlightIds).forEach((id, index) => {
+      colorMap.set(id, linkColors[index % linkColors.length])
+    })
+    return colorMap
+  }, [linkedFlightIds])
+
   return (
     <div className="space-y-6">
       {mode === "split" ? (
@@ -70,6 +107,10 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
               theme={theme}
               onEditFlight={onEditFlight}
               onDeleteFlight={onDeleteFlight}
+              linkedFlightIds={linkedFlightIds}
+              flightLinkColors={flightLinkColors}
+              hoveredFlightId={hoveredFlightId}
+              onFlightHover={setHoveredFlightId}
             />
           </div>
 
@@ -85,6 +126,10 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
               theme={theme}
               onEditFlight={onEditFlight}
               onDeleteFlight={onDeleteFlight}
+              linkedFlightIds={linkedFlightIds}
+              flightLinkColors={flightLinkColors}
+              hoveredFlightId={hoveredFlightId}
+              onFlightHover={setHoveredFlightId}
             />
           </div>
         </div>
@@ -101,6 +146,10 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
             theme={theme}
             onEditFlight={onEditFlight}
             onDeleteFlight={onDeleteFlight}
+            linkedFlightIds={linkedFlightIds}
+            flightLinkColors={flightLinkColors}
+            hoveredFlightId={hoveredFlightId}
+            onFlightHover={setHoveredFlightId}
           />
         </div>
       ) : (
@@ -116,6 +165,10 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
             theme={theme}
             onEditFlight={onEditFlight}
             onDeleteFlight={onDeleteFlight}
+            linkedFlightIds={linkedFlightIds}
+            flightLinkColors={flightLinkColors}
+            hoveredFlightId={hoveredFlightId}
+            onFlightHover={setHoveredFlightId}
           />
         </div>
       )}

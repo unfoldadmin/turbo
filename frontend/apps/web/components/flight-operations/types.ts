@@ -6,27 +6,53 @@ export type FlightType = "arrival" | "departure" | "quick_turn" | "overnight" | 
 
 export type FlightStatus = "scheduled" | "en-route" | "arrived" | "departed" | "delayed" | "cancelled"
 
-export type FlightSource = "qt" | "calendar" | "manual"
+export type FlightSource = "qt" | "front-desk" | "line-department" | "google-calendar"
 
+// Flight interface - fields ordered to match database schema
 export interface Flight {
+  // Core identification
   id: string
-  type: FlightType
-  tailNumber: string
-  aircraftType: string
-  origin?: string
-  destination?: string
-  scheduledTime: string
-  scheduledDate?: string // ISO date string (YYYY-MM-DD)
-  duration?: number // Duration in minutes
-  actualTime?: string
-  status: FlightStatus
-  pilot?: string
-  passengers?: number
-  services: string[]
-  notes?: string
-  source: FlightSource
-  createdAt: string
-  updatedAt: string
+  tailNumber: string // aircraft_id (FK to aircraft.tail_number)
+  aircraftType: string // derived from aircraft table
+  callSign?: string // call_sign
+
+  // Timing
+  arrivalTime?: string // arrival_time
+  departureTime?: string // departure_time
+  scheduledTime: string // computed from arrival_time or departure_time based on type
+  scheduledDate?: string // ISO date string (YYYY-MM-DD), extracted from times
+  actualTime?: string // not yet in backend
+
+  // Flight details
+  type: FlightType // derived from arrival_time and departure_time presence
+  status: FlightStatus // flight_status
+  origin?: string // origin
+  destination?: string // destination
+
+  // Contact information
+  contactName?: string // contact_name
+  contactNotes?: string // contact_notes
+
+  // Services and logistics
+  services: string[] // services (jsonb)
+  fuelOrderNotes?: string // fuel_order_notes
+  passengers?: number // passenger_count
+  notes?: string // notes
+
+  // Location and metadata
+  locationId?: number // location_id
+
+  // Source tracking (always present, defaults to line-department and admin user)
+  source: FlightSource // created_by_source (NOT NULL, default: 'line-department')
+  createdBy: { // derived from created_by_id (NOT NULL, default: 1 = admin)
+    initials: string
+    name: string
+    department: string
+  }
+
+  // Timestamps
+  createdAt: string // created_at
+  updatedAt: string // modified_at
 }
 
 export interface FlightFilters {
@@ -81,25 +107,37 @@ export function apiFlightToComponentFlight(apiFlight: FlightList): Flight {
   const scheduledDate = scheduledTimeStr ? new Date(scheduledTimeStr).toISOString().split("T")[0] : undefined
   const scheduledTime = scheduledTimeStr ? new Date(scheduledTimeStr).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }) : ""
 
+  // Extract creator info (always present, defaults to admin if not provided)
+  const createdByInitials = (apiFlight as any).created_by_initials || "ADM"
+  const createdByName = (apiFlight as any).created_by_name || "Admin"
+  const createdByDept = (apiFlight as any).created_by_department || "System"
+
+  const createdBy = {
+    initials: createdByInitials,
+    name: createdByName,
+    department: createdByDept
+  }
+
   return {
     id: String(apiFlight.id),
     type,
-    tailNumber: apiFlight.aircraft_display || apiFlight.aircraft || "",
-    aircraftType: apiFlight.aircraft_display || apiFlight.aircraft || "",
-    origin: hasArrival ? apiFlight.destination : undefined,
-    destination: hasDeparture ? apiFlight.destination : undefined,
+    tailNumber: apiFlight.aircraft || "",
+    aircraftType: (apiFlight as any).aircraft_type_display || "",
+    origin: apiFlight.origin || (hasArrival ? apiFlight.destination : undefined),
+    destination: apiFlight.destination,
     scheduledTime,
     scheduledDate,
-    duration: undefined, // Not provided by backend
     actualTime: undefined, // Could be added to backend model
     status: mapFlightStatus(apiFlight.flight_status),
-    pilot: undefined, // Not provided by backend
-    passengers: undefined, // Not provided by backend
-    services: [], // Not provided by backend - would need to add relation
-    notes: undefined, // Not provided by backend
-    source: "qt", // Default to qt for now
+    contactName: (apiFlight as any).contact_name || undefined,
+    contactNotes: (apiFlight as any).contact_notes || undefined,
+    passengers: (apiFlight as any).passenger_count || undefined,
+    services: (apiFlight as any).services || [],
+    notes: (apiFlight as any).notes || undefined,
+    source: ((apiFlight as any).created_by_source as FlightSource) || "qt",
+    createdBy,
     createdAt: apiFlight.created_at,
-    updatedAt: apiFlight.created_at, // Backend doesn't have updated_at
+    updatedAt: (apiFlight as any).modified_at || apiFlight.created_at,
   }
 }
 
@@ -113,16 +151,11 @@ export function componentFlightToApiRequest(flight: Partial<Flight>): Record<str
     datetime = `${flight.scheduledDate}T${flight.scheduledTime}:00`
   }
 
-  // Only include fields that are actually set
-  // Note: flight.tailNumber is the aircraft tail number, not flight_number
-  // For updates, we typically don't change flight_number, so only set it for creates
+  // IMPORTANT: Don't modify flight_number or aircraft on updates
+  // Only include these for creates, and use tailNumber as aircraft FK
   if (flight.tailNumber !== undefined) {
-    result.flight_number = flight.tailNumber
-  }
-
-  // Aircraft field - set to null since we don't have aircraft ID mapping yet
-  if ('tailNumber' in flight) {
-    result.aircraft = null
+    // For backend, aircraft field expects tail_number as FK
+    result.aircraft = flight.tailNumber
   }
 
   if (flight.destination !== undefined) {
@@ -148,9 +181,8 @@ export function componentFlightToApiRequest(flight: Partial<Flight>): Record<str
       case "overnight":
       case "long_term":
         // For these types, both times should be set
-        // For now, use the scheduled time as arrival and calculate departure
+        // Use the scheduled time as arrival and departure (can be edited separately)
         result.arrival_time = datetime
-        // TODO: Calculate departure time based on duration or user input
         result.departure_time = datetime
         break
     }
@@ -159,6 +191,44 @@ export function componentFlightToApiRequest(flight: Partial<Flight>): Record<str
   if (flight.status !== undefined) {
     result.flight_status = mapStatusToBackend(flight.status)
   }
+
+  if (flight.contactName !== undefined) {
+    result.contact_name = flight.contactName
+  }
+
+  if (flight.contactNotes !== undefined) {
+    result.contact_notes = flight.contactNotes
+  }
+
+  if (flight.passengers !== undefined) {
+    result.passenger_count = flight.passengers
+  }
+
+  if (flight.services !== undefined) {
+    result.services = flight.services
+  }
+
+  if (flight.notes !== undefined) {
+    result.notes = flight.notes
+  }
+
+  if (flight.source !== undefined) {
+    result.created_by_source = flight.source
+  }
+
+  // Only include call_sign if explicitly provided (for creates)
+  // Don't send it on updates as it might conflict with existing data
+  if (flight.id && flight.id.startsWith('manual-')) {
+    // This is a new flight, set call_sign
+    result.call_sign = `MAN-${Date.now()}`
+  }
+
+  // Filter out any undefined/null values
+  Object.keys(result).forEach(key => {
+    if (result[key] === undefined || result[key] === null) {
+      delete result[key]
+    }
+  })
 
   return result
 }

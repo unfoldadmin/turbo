@@ -7,15 +7,23 @@ import { useTheme } from "@/components/navigation-wrapper"
 import { Button } from "@frontend/ui/components/ui/button"
 import { Card } from "@frontend/ui/components/ui/card"
 import { Badge } from "@frontend/ui/components/ui/badge"
+import { useTransactions } from "@/hooks/use-transactions"
+import { TransactionFormDialog } from "@/components/fuel-dispatch/transaction-form-dialog"
+import type { FuelTransactionDetail, FuelTransactionCreateRequest } from "@frontend/types/api"
+import { SuccessMessage } from "@frontend/ui/messages/success-message"
+import { ErrorMessage } from "@frontend/ui/messages/error-message"
+import { getApiClient } from "@/lib/api"
 
 export default function FuelDispatchPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { theme } = useTheme()
-  const [transactions, setTransactions] = useState([])
+  const { transactions, loading, error, createTransaction, updateTransaction, deleteTransaction, refetch } = useTransactions()
   const [fuelers, setFuelers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingTransaction, setEditingTransaction] = useState<FuelTransactionDetail | null>(null)
+  const [successMessage, setSuccessMessage] = useState("")
+  const [errorMessage, setErrorMessage] = useState("")
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -25,22 +33,66 @@ export default function FuelDispatchPage() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      fetchData()
+      fetchFuelers()
     }
   }, [status])
 
-  const fetchData = async () => {
+  const fetchFuelers = async () => {
     try {
-      setLoading(true)
-      // TODO: Implement API calls
-      setTransactions([])
-      setFuelers([])
+      const client = await getApiClient(session)
+      const response = await client.fuelers.fuelersList()
+      setFuelers(response.results || [])
     } catch (err) {
-      console.error("Failed to fetch dispatch data:", err)
-      setError(err)
-    } finally {
-      setLoading(false)
+      console.error("Failed to fetch fuelers:", err)
     }
+  }
+
+  const handleCreateTransaction = async (data: FuelTransactionCreateRequest) => {
+    try {
+      await createTransaction(data)
+      setSuccessMessage("Transaction created successfully")
+      setTimeout(() => setSuccessMessage(""), 3000)
+    } catch (err) {
+      setErrorMessage("Failed to create transaction")
+      setTimeout(() => setErrorMessage(""), 3000)
+      throw err
+    }
+  }
+
+  const handleEditTransaction = (transaction: FuelTransactionDetail) => {
+    setEditingTransaction(transaction)
+    setDialogOpen(true)
+  }
+
+  const handleUpdateTransaction = async (data: FuelTransactionCreateRequest) => {
+    if (!editingTransaction) return
+    try {
+      await updateTransaction(editingTransaction.id, data)
+      setSuccessMessage("Transaction updated successfully")
+      setTimeout(() => setSuccessMessage(""), 3000)
+      setEditingTransaction(null)
+    } catch (err) {
+      setErrorMessage("Failed to update transaction")
+      setTimeout(() => setErrorMessage(""), 3000)
+      throw err
+    }
+  }
+
+  const handleDeleteTransaction = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this transaction?")) return
+    try {
+      await deleteTransaction(id)
+      setSuccessMessage("Transaction deleted successfully")
+      setTimeout(() => setSuccessMessage(""), 3000)
+    } catch (err) {
+      setErrorMessage("Failed to delete transaction")
+      setTimeout(() => setErrorMessage(""), 3000)
+    }
+  }
+
+  const handleOpenDialog = () => {
+    setEditingTransaction(null)
+    setDialogOpen(true)
   }
 
   if (status === 'loading' || loading) {
@@ -55,7 +107,7 @@ export default function FuelDispatchPage() {
     return null
   }
 
-  const unassignedTx = transactions.filter((t: any) => t.assigned_fuelers?.length === 0)
+  const unassignedTx = transactions.filter((t: any) => !t.fueler_assignments || t.fueler_assignments.length === 0)
   const inProgressTx = transactions.filter((t: any) => t.progress === 'in_progress')
   const completedTx = transactions.filter((t: any) => t.progress === 'completed')
 
@@ -94,16 +146,28 @@ export default function FuelDispatchPage() {
             Manage fuel transactions and fueler assignments
           </p>
         </div>
-        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
+          onClick={handleOpenDialog}
+        >
           New Transaction
         </Button>
       </div>
 
+      {successMessage && <SuccessMessage message={successMessage} />}
+      {errorMessage && <ErrorMessage message={errorMessage} />}
       {error && (
         <Card className="bg-destructive/10 border-destructive/20 p-4">
           <p className="text-sm text-destructive">Failed to load dispatch data</p>
         </Card>
       )}
+
+      <TransactionFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        transaction={editingTransaction}
+        onSubmit={editingTransaction ? handleUpdateTransaction : handleCreateTransaction}
+      />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <Card className="p-6 bg-card border-border">
@@ -186,21 +250,21 @@ export default function FuelDispatchPage() {
                     {transaction.ticket_number}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                    {transaction.flight_number || 'N/A'}
+                    {transaction.flight_details?.callsign || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                    {transaction.quantity_gallons?.toLocaleString()} gal
+                    {parseFloat(transaction.quantity_gallons).toLocaleString()} gal
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Badge className={getProgressBadge(transaction.progress)}>
-                      {transaction.progress.replace('_', ' ')}
+                      {transaction.progress?.replace('_', ' ') || 'started'}
                     </Badge>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                    {transaction.assigned_fuelers?.length > 0 ? (
+                    {transaction.fueler_assignments?.length > 0 ? (
                       <div className="flex flex-col space-y-1">
-                        {transaction.assigned_fuelers.map((name: string, idx: number) => (
-                          <span key={idx} className="text-xs">{name}</span>
+                        {transaction.fueler_assignments.map((assignment: any, idx: number) => (
+                          <span key={idx} className="text-xs">{assignment.fueler_name || 'Unknown'}</span>
                         ))}
                       </div>
                     ) : (
@@ -209,12 +273,25 @@ export default function FuelDispatchPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Badge className={getSyncBadge(transaction.qt_sync_status)}>
-                      {transaction.qt_sync_status}
+                      {transaction.qt_sync_status || 'pending'}
                     </Badge>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <Button variant="ghost" size="sm" className="text-primary hover:text-primary/80">
-                      Assign
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-primary hover:text-primary/80"
+                      onClick={() => handleEditTransaction(transaction)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive/80"
+                      onClick={() => handleDeleteTransaction(transaction.id)}
+                    >
+                      Delete
                     </Button>
                   </td>
                 </tr>

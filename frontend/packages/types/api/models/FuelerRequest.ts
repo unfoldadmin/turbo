@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { StatusEnum } from './StatusEnum';
+import type { StatusA3eEnum } from './StatusA3eEnum';
 export type FuelerRequest = {
     user: number;
     fueler_name: string;
@@ -10,6 +10,6 @@ export type FuelerRequest = {
      * Name used on handheld devices
      */
     handheld_name?: string;
-    status?: StatusEnum;
+    status?: StatusA3eEnum;
 };
 
