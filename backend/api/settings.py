@@ -74,17 +74,27 @@ TEMPLATES = [
 ######################################################################
 # Database
 ######################################################################
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "USER": environ.get("DATABASE_USER", "postgres"),
+#         "PASSWORD": environ.get("DATABASE_PASSWORD", "change-password"),
+#         "NAME": environ.get("DATABASE_NAME", "db"),
+#         "HOST": environ.get("DATABASE_HOST", "db"),
+#         "PORT": "5432",
+#         "TEST": {
+#             "NAME": "test",
+#         },
+#     }
+# }
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "USER": environ.get("DATABASE_USER", "postgres"),
-        "PASSWORD": environ.get("DATABASE_PASSWORD", "change-password"),
-        "NAME": environ.get("DATABASE_NAME", "db"),
-        "HOST": environ.get("DATABASE_HOST", "db"),
-        "PORT": "5432",
-        "TEST": {
-            "NAME": "test",
-        },
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': environ.get('SUPABASE_DB_NAME', 'postgres'),
+        'USER': environ.get('SUPABASE_DB_USER', 'postgres'),
+        'PASSWORD': environ.get('SUPABASE_DB_PASSWORD'),
+        'HOST': environ.get('SUPABASE_DB_HOST'),
+        'PORT': environ.get('SUPABASE_DB_PORT', '5432'),
     }
 }
 
@@ -138,6 +148,22 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
+}
+
+######################################################################
+# DRF Spectacular (OpenAPI/Swagger)
+######################################################################
+SPECTACULAR_SETTINGS = {
+    "TITLE": "FBO Manager API",
+    "DESCRIPTION": "API for managing FBO operations including flights, fuel dispatch, and training",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_SETTINGS": {
+        "deepLinking": True,
+        "persistAuthorization": True,
+        "displayOperationId": True,
+    },
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 ######################################################################
