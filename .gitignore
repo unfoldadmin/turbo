@@ -23,3 +23,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .ruff_cache
+.claude/settings.local.json
+.claude/preferences.md
+flight-board-ui/

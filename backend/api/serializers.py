@@ -17,6 +17,7 @@ from .models import (
     FuelerAssignment,
     FuelerTraining,
     LineSchedule,
+    ParkingLocation,
     TankLevelReading,
     TerminalGate,
     Training,
@@ -288,7 +289,8 @@ class AircraftSerializer(serializers.ModelSerializer):
         model = Aircraft
         fields = [
             "tail_number",
-            "aircraft_type",
+            "aircraft_type_icao",
+            "aircraft_type_display",
             "airline_icao",
             "fleet_id",
             "created_at",
@@ -319,6 +321,24 @@ class TerminalGateSerializer(serializers.ModelSerializer):
         return f"Terminal {obj.terminal_num} - Gate {obj.gate_number}"
 
 
+class ParkingLocationSerializer(serializers.ModelSerializer):
+    """Serializer for parking locations (hangars, terminal, ramps, tie-downs)"""
+
+    class Meta:
+        model = ParkingLocation
+        fields = [
+            "id",
+            "location_name",
+            "location_type",
+            "display_order",
+            "is_active",
+            "notes",
+            "created_at",
+            "modified_at",
+        ]
+        read_only_fields = ["id", "created_at", "modified_at"]
+
+
 # ============================================================================
 # Flight Serializers
 # ============================================================================
@@ -327,29 +347,46 @@ class TerminalGateSerializer(serializers.ModelSerializer):
 class FlightListSerializer(serializers.ModelSerializer):
     """Serializer for flight list view with nested data"""
 
-    aircraft_display = serializers.CharField(source="aircraft.tail_number", read_only=True)
-    gate_display = serializers.SerializerMethodField()
+    aircraft_type_icao = serializers.CharField(source="aircraft.aircraft_type_icao", read_only=True)
+    aircraft_type_display = serializers.CharField(source="aircraft.aircraft_type_display", read_only=True)
+    location_display = serializers.SerializerMethodField()
+    created_by_initials = serializers.CharField(source="created_by.get_initials", read_only=True)
+    created_by_name = serializers.CharField(source="created_by.get_full_name", read_only=True)
+    created_by_department = serializers.CharField(source="created_by.get_department", read_only=True)
 
     class Meta:
         model = Flight
         fields = [
             "id",
-            "flight_number",
+            "call_sign",
             "aircraft",
-            "aircraft_display",
-            "gate",
-            "gate_display",
+            "aircraft_type_icao",
+            "aircraft_type_display",
+            "origin",
+            "destination",
             "arrival_time",
             "departure_time",
             "flight_status",
-            "destination",
+            "location",
+            "location_display",
+            "services",
+            "fuel_order_notes",
+            "passenger_count",
+            "notes",
+            "contact_name",
+            "contact_notes",
+            "created_by_source",
+            "created_by_initials",
+            "created_by_name",
+            "created_by_department",
             "created_at",
+            "modified_at",
         ]
-        read_only_fields = ["id", "created_at", "aircraft_display", "gate_display"]
+        read_only_fields = ["id", "created_at", "modified_at", "aircraft_type_icao", "aircraft_type_display", "location_display", "created_by_initials", "created_by_name", "created_by_department"]
 
-    def get_gate_display(self, obj):
-        if obj.gate:
-            return f"T{obj.gate.terminal_num}-G{obj.gate.gate_number}"
+    def get_location_display(self, obj):
+        if obj.location:
+            return obj.location.location_name
         return None
 
 
@@ -357,22 +394,33 @@ class FlightDetailSerializer(serializers.ModelSerializer):
     """Detailed flight serializer with full nested objects"""
 
     aircraft_details = AircraftSerializer(source="aircraft", read_only=True)
-    gate_details = TerminalGateSerializer(source="gate", read_only=True)
+    location_details = ParkingLocationSerializer(source="location", read_only=True)
+    created_by_details = UserCurrentSerializer(source="created_by", read_only=True)
     fuel_transactions_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Flight
         fields = [
             "id",
-            "flight_number",
+            "call_sign",
             "aircraft",
             "aircraft_details",
-            "gate",
-            "gate_details",
+            "origin",
+            "destination",
             "arrival_time",
             "departure_time",
             "flight_status",
-            "destination",
+            "location",
+            "location_details",
+            "services",
+            "fuel_order_notes",
+            "passenger_count",
+            "notes",
+            "contact_name",
+            "contact_notes",
+            "created_by",
+            "created_by_details",
+            "created_by_source",
             "fuel_transactions_count",
             "created_at",
             "modified_at",
@@ -382,7 +430,7 @@ class FlightDetailSerializer(serializers.ModelSerializer):
             "created_at",
             "modified_at",
             "aircraft_details",
-            "gate_details",
+            "location_details",
             "fuel_transactions_count",
         ]
 

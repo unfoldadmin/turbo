@@ -82,9 +82,9 @@ class TankLevelReadingAdmin(ModelAdmin):
 
 @admin.register(Aircraft)
 class AircraftAdmin(ModelAdmin):
-    list_display = ["tail_number", "aircraft_type", "airline_icao", "fleet_id"]
-    list_filter = ["aircraft_type", "airline_icao"]
-    search_fields = ["tail_number", "aircraft_type", "airline_icao"]
+    list_display = ["tail_number", "aircraft_type_display", "aircraft_type_icao", "airline_icao", "fleet_id"]
+    list_filter = ["aircraft_type_icao", "airline_icao"]
+    search_fields = ["tail_number", "aircraft_type_display", "aircraft_type_icao", "airline_icao"]
 
 
 @admin.register(TerminalGate)
@@ -104,17 +104,17 @@ class TerminalGateAdmin(ModelAdmin):
 @admin.register(Flight)
 class FlightAdmin(ModelAdmin):
     list_display = [
-        "flight_number",
+        "call_sign",
         "aircraft",
-        "gate",
+        "location",
         "departure_time",
         "arrival_time",
         "flight_status",
         "destination",
     ]
     list_filter = ["flight_status", "departure_time"]
-    search_fields = ["flight_number", "destination"]
-    raw_id_fields = ["aircraft", "gate"]
+    search_fields = ["call_sign", "destination"]
+    raw_id_fields = ["aircraft", "location"]
 
 
 @admin.register(Fueler)
@@ -162,7 +162,7 @@ class FuelTransactionAdmin(ModelAdmin):
         "created_at",
     ]
     list_filter = ["progress", "qt_sync_status", "created_at"]
-    search_fields = ["ticket_number", "flight__flight_number"]
+    search_fields = ["ticket_number", "flight__call_sign"]
     raw_id_fields = ["flight"]
 
 

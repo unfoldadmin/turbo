@@ -16,6 +16,31 @@ interface CalendarWeekViewProps {
   filters: FilterType
 }
 
+// Helper to get the primary timestamp for a flight (arrival for arrivals, departure for departures)
+function getPrimaryTimestamp(flight: Flight): string {
+  if (flight.type === "departure") {
+    return flight.departureTime
+  }
+  return flight.arrivalTime || flight.departureTime
+}
+
+// Helper to extract date from timestamp in YYYY-MM-DD format (local timezone)
+function getDateFromTimestamp(timestamp: string): string {
+  const date = new Date(timestamp)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+// Helper to extract time from timestamp in HH:mm format (local timezone)
+function getTimeFromTimestamp(timestamp: string): string {
+  const date = new Date(timestamp)
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
 export function CalendarWeekView({ theme, flights, onEditFlight, filters }: CalendarWeekViewProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -36,12 +61,7 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
   const [tempDragTime, setTempDragTime] = useState("")
   const [tempDragDate, setTempDragDate] = useState("")
 
-  const [resizingFlight, setResizingFlight] = useState<{ flight: Flight; handle: "top" | "bottom" } | null>(null)
-  const [resizeStartY, setResizeStartY] = useState(0)
-  const [resizeStartDuration, setResizeStartDuration] = useState(0)
-  const [resizeStartTime, setResizeStartTime] = useState("")
-  const [tempResizeDuration, setTempResizeDuration] = useState(0)
-  const [tempResizeTime, setTempResizeTime] = useState("")
+  // Removed resize functionality since we no longer have duration field
 
   const [hoveredSlot, setHoveredSlot] = useState<{ day: string; time: string } | null>(null)
   const [showAddButton, setShowAddButton] = useState(false)
@@ -107,7 +127,7 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
           flight.aircraftType.toLowerCase().includes(searchLower) ||
           flight.origin?.toLowerCase().includes(searchLower) ||
           flight.destination?.toLowerCase().includes(searchLower) ||
-          flight.pilot?.toLowerCase().includes(searchLower)
+          flight.contactName?.toLowerCase().includes(searchLower)
 
         if (!matchesSearch) return false
       }
@@ -186,10 +206,16 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
     setDraggedFlight(flight)
     setDragStartY(e.clientY)
     setDragStartX(e.clientX)
-    setDragStartTime(flight.scheduledTime)
-    setDragStartDate(flight.scheduledDate || new Date().toISOString().split("T")[0])
-    setTempDragTime(flight.scheduledTime)
-    setTempDragDate(flight.scheduledDate || new Date().toISOString().split("T")[0])
+
+    // Extract time and date from the primary timestamp
+    const primaryTimestamp = getPrimaryTimestamp(flight)
+    const startTime = getTimeFromTimestamp(primaryTimestamp)
+    const startDate = getDateFromTimestamp(primaryTimestamp)
+
+    setDragStartTime(startTime)
+    setDragStartDate(startDate)
+    setTempDragTime(startTime)
+    setTempDragDate(startDate)
   }
 
   const handleFlightDragMove = (e: React.MouseEvent) => {
@@ -227,11 +253,21 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
 
     if (draggedFlight && (tempDragTime !== dragStartTime || tempDragDate !== dragStartDate)) {
       // Only save to DB if position actually changed
+      // Construct new timestamp from date and time
+      const newTimestamp = `${tempDragDate}T${tempDragTime}:00`
+
       const updatedFlight = {
         ...draggedFlight,
-        scheduledTime: tempDragTime,
-        scheduledDate: tempDragDate,
       }
+
+      // Update the appropriate timestamp based on flight type
+      if (draggedFlight.type === "arrival" || draggedFlight.type === "quick_turn") {
+        updatedFlight.arrivalTime = newTimestamp
+      }
+      if (draggedFlight.type === "departure" || draggedFlight.type === "quick_turn") {
+        updatedFlight.departureTime = newTimestamp
+      }
+
       console.log("Calling onEditFlight with:", updatedFlight)
       console.log("onEditFlight function:", onEditFlight)
 
@@ -247,68 +283,7 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
     setTempDragDate("")
   }
 
-  const handleResizeStart = (e: React.MouseEvent, flight: Flight, handle: "top" | "bottom") => {
-    e.stopPropagation()
-    setResizingFlight({ flight, handle })
-    setResizeStartY(e.clientY)
-    setResizeStartDuration(flight.duration || 60)
-    setResizeStartTime(flight.scheduledTime)
-    setTempResizeDuration(flight.duration || 60)
-    setTempResizeTime(flight.scheduledTime)
-  }
-
-  const handleResizeMove = (e: React.MouseEvent) => {
-    if (!resizingFlight) return
-    e.preventDefault()
-
-    const deltaY = e.clientY - resizeStartY
-    const pixelsPerMinute = 80 / 60
-    const deltaMinutes = snapToQuarterHour(deltaY / pixelsPerMinute)
-
-    const { flight, handle } = resizingFlight
-
-    if (handle === "bottom") {
-      const newDuration = Math.max(45, resizeStartDuration + deltaMinutes)
-      setTempResizeDuration(newDuration)
-    } else {
-      // When resizing from top, adjust start time and duration to keep bottom fixed
-      const proposedDuration = resizeStartDuration - deltaMinutes
-      const newDuration = Math.max(45, proposedDuration)
-
-      // Calculate how much we can actually move the start time
-      const actualDurationChange = resizeStartDuration - newDuration
-
-      const [hours, minutes] = resizeStartTime.split(":").map(Number)
-      const startMinutes = hours * 60 + minutes
-      const newStartMinutes = startMinutes + actualDurationChange
-
-      const newHours = Math.floor(newStartMinutes / 60)
-      const newMins = newStartMinutes % 60
-      const newTime = `${newHours.toString().padStart(2, "0")}:${newMins.toString().padStart(2, "0")}`
-
-      setTempResizeTime(newTime)
-      setTempResizeDuration(newDuration)
-    }
-  }
-
-  const handleResizeEnd = () => {
-    if (resizingFlight) {
-      const { flight, handle } = resizingFlight
-      const changed = tempResizeDuration !== resizeStartDuration || tempResizeTime !== resizeStartTime
-
-      if (changed) {
-        // Only save to DB if size/position actually changed
-        onEditFlight({
-          ...flight,
-          duration: tempResizeDuration,
-          scheduledTime: tempResizeTime,
-        })
-      }
-    }
-    setResizingFlight(null)
-    setTempResizeDuration(0)
-    setTempResizeTime("")
-  }
+  // Resize handlers removed - no longer needed without duration field
 
   const handleSlotHover = (day: string, time: string) => {
     // Clear any existing timeout
@@ -335,15 +310,24 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
 
   const handleCreateFlightAtSlot = (day: string, time: string, type: "arrival" | "departure") => {
     // Create a new flight object with the clicked time and date
+    const timestamp = `${day}T${time}:00`
+
     const newFlight: Partial<Flight> = {
-      scheduledDate: day,
-      scheduledTime: time,
-      duration: 60, // Default 1 hour
       type,
       tailNumber: "",
-      flightNumber: "",
       aircraftType: "",
       status: "scheduled",
+    }
+
+    // Set the appropriate timestamp based on type
+    if (type === "arrival") {
+      newFlight.arrivalTime = timestamp
+      // For arrivals, we still need a departure_time (required by DB), set it 45 min after arrival
+      const arrivalDate = new Date(timestamp)
+      arrivalDate.setMinutes(arrivalDate.getMinutes() + 45)
+      newFlight.departureTime = arrivalDate.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:mm
+    } else {
+      newFlight.departureTime = timestamp
     }
 
     // Open the edit dialog with this new flight
@@ -357,14 +341,10 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
       if (draggedFlight) {
         handleFlightDragMove(e as any)
       }
-      if (resizingFlight) {
-        handleResizeMove(e as any)
-      }
     }
 
     const handleGlobalMouseUpForDrag = () => {
       if (draggedFlight) handleFlightDragEnd()
-      if (resizingFlight) handleResizeEnd()
     }
 
     window.addEventListener("mousemove", handleGlobalMouseMove)
@@ -374,7 +354,7 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
       window.removeEventListener("mousemove", handleGlobalMouseMove)
       window.removeEventListener("mouseup", handleGlobalMouseUpForDrag)
     }
-  }, [draggedFlight, resizingFlight, dragStartY, dragStartTime, dragStartX, dragStartDate, resizeStartY, resizeStartDuration, resizeStartTime, tempDragTime, tempDragDate, tempResizeDuration, tempResizeTime, onEditFlight])
+  }, [draggedFlight, dragStartY, dragStartTime, dragStartX, dragStartDate, tempDragTime, tempDragDate, onEditFlight])
 
   return (
     <div className="space-y-6">
@@ -463,12 +443,18 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
               </div>
 
               {weekDays.map((day, dayIndex) => {
-                const dayString = day.toISOString().split("T")[0]
+                // Get day string in local timezone to match flight dates
+                const year = day.getFullYear()
+                const month = String(day.getMonth() + 1).padStart(2, '0')
+                const dayNum = String(day.getDate()).padStart(2, '0')
+                const dayString = `${year}-${month}-${dayNum}`
+
                 const dayFlights = filteredFlights.filter((flight) => {
-                  // If this flight is being dragged, use the temp drag date, otherwise use actual date
+                  // If this flight is being dragged, use the temp drag date, otherwise extract from timestamp
                   const flightDate = draggedFlight?.id === flight.id
                     ? tempDragDate
-                    : (flight.scheduledDate || new Date().toISOString().split("T")[0])
+                    : getDateFromTimestamp(getPrimaryTimestamp(flight))
+
                   return flightDate === dayString
                 })
 
@@ -512,16 +498,16 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
 
                     <div className="absolute inset-0 p-1 pointer-events-none">
                       {dayFlights.map((flight) => {
-                        // Use temp values during drag/resize, otherwise use actual values
+                        // Use temp values during drag, otherwise use actual values
                         const isDragging = draggedFlight?.id === flight.id
-                        const isResizing = resizingFlight?.flight.id === flight.id
 
-                        const displayTime = isDragging ? tempDragTime : (isResizing ? tempResizeTime : flight.scheduledTime)
-                        const displayDuration = isResizing ? tempResizeDuration : (flight.duration || 60)
+                        const displayTime = isDragging
+                          ? tempDragTime
+                          : getTimeFromTimestamp(getPrimaryTimestamp(flight))
 
                         const topPosition = getFlightPosition(displayTime)
                         const pixelsPerMinute = 80 / 60
-                        const height = displayDuration * pixelsPerMinute
+                        const height = Math.max(45, flight.duration) * pixelsPerMinute // Use calculated duration with 45 min minimum
 
                         return (
                           <div
@@ -534,14 +520,6 @@ export function CalendarWeekView({ theme, flights, onEditFlight, filters }: Cale
                             }}
                             onMouseDown={(e) => handleFlightDragStart(e, flight)}
                           >
-                            <div
-                              className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-current/30 hover:bg-current/50 transition-all"
-                              onMouseDown={(e) => handleResizeStart(e, flight, "top")}
-                            />
-                            <div
-                              className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize opacity-0 group-hover:opacity-100 bg-current/30 hover:bg-current/50 transition-all"
-                              onMouseDown={(e) => handleResizeStart(e, flight, "bottom")}
-                            />
 
                             <div className="flex items-start gap-2 h-full">
                               {flight.type === "arrival" ? (

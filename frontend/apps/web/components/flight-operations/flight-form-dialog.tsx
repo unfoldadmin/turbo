@@ -51,24 +51,33 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
     status: "scheduled",
     services: [],
     source: "line-department",
-    scheduledDate: new Date().toISOString().split('T')[0], // Default to today
   })
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]) // Separate date state
   const [arrivalTime, setArrivalTime] = useState("")
   const [departureTime, setDepartureTime] = useState("")
   const [isEditingAircraftType, setIsEditingAircraftType] = useState(false)
 
   useEffect(() => {
     if (initialData) {
-      setFormData({
-        ...initialData,
-        scheduledDate: initialData.scheduledDate || new Date().toISOString().split('T')[0]
-      })
-      // Initialize arrival and departure times from initial data
-      if (initialData.type === "arrival" || initialData.type === "quick_turn" || initialData.type === "overnight" || initialData.type === "long_term") {
-        setArrivalTime(initialData.scheduledTime || "")
+      setFormData(initialData)
+
+      // Extract date and times from timestamps
+      if (initialData.arrivalTime) {
+        const arrivalDate = new Date(initialData.arrivalTime)
+        setDate(arrivalDate.toISOString().split('T')[0])
+        const hours = arrivalDate.getHours().toString().padStart(2, '0')
+        const minutes = arrivalDate.getMinutes().toString().padStart(2, '0')
+        setArrivalTime(`${hours}:${minutes}`)
       }
-      if (initialData.type === "departure" || initialData.type === "quick_turn" || initialData.type === "overnight" || initialData.type === "long_term") {
-        setDepartureTime(initialData.scheduledTime || "")
+      if (initialData.departureTime) {
+        const departureDate = new Date(initialData.departureTime)
+        // Only set date if we don't have arrival time
+        if (!initialData.arrivalTime) {
+          setDate(departureDate.toISOString().split('T')[0])
+        }
+        const hours = departureDate.getHours().toString().padStart(2, '0')
+        const minutes = departureDate.getMinutes().toString().padStart(2, '0')
+        setDepartureTime(`${hours}:${minutes}`)
       }
     } else {
       setFormData({
@@ -76,8 +85,8 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
         status: "scheduled",
         services: [],
         source: "line-department",
-        scheduledDate: new Date().toISOString().split('T')[0],
       })
+      setDate(new Date().toISOString().split('T')[0])
       setArrivalTime("")
       setDepartureTime("")
     }
@@ -122,12 +131,22 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Determine which time to use as scheduledTime based on flight type
-    let scheduledTime = ""
-    if (formData.type === "arrival" || formData.type === "quick_turn" || formData.type === "overnight" || formData.type === "long_term") {
-      scheduledTime = arrivalTime
-    } else if (formData.type === "departure") {
-      scheduledTime = departureTime
+    // Construct timestamps from date and time values
+    const arrivalTimestamp = arrivalTime ? `${date}T${arrivalTime}:00` : undefined
+    const departureTimestamp = departureTime ? `${date}T${departureTime}:00` : undefined
+
+    // Validate: must have at least one timestamp, and departure is required
+    if (!departureTimestamp && !arrivalTimestamp) {
+      alert("Please provide at least one time (arrival or departure)")
+      return
+    }
+
+    // For arrivals without departure time, set departure 45 minutes after arrival (required by DB)
+    let finalDepartureTimestamp = departureTimestamp
+    if (!finalDepartureTimestamp && arrivalTimestamp) {
+      const arrivalDate = new Date(arrivalTimestamp)
+      arrivalDate.setMinutes(arrivalDate.getMinutes() + 45)
+      finalDepartureTimestamp = arrivalDate.toISOString().slice(0, 16) // Format: YYYY-MM-DDTHH:mm
     }
 
     const flight: Flight = {
@@ -136,9 +155,8 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
       aircraftType: formData.aircraftType || "",
       type: formData.type as Flight["type"],
       status: formData.status as Flight["status"],
-      scheduledTime,
-      scheduledDate: formData.scheduledDate,
-      actualTime: formData.actualTime,
+      arrivalTime: arrivalTimestamp,
+      departureTime: finalDepartureTimestamp!, // Required by DB
       origin: formData.origin,
       destination: formData.destination,
       contactName: formData.contactName,
@@ -146,6 +164,8 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
       services: formData.services || [],
       notes: formData.notes,
       source: formData.source || "line-department",
+      duration: 45, // Will be calculated by the type conversion function
+      createdBy: initialData?.createdBy || { initials: "USR", name: "User", department: "System" },
       createdAt: initialData?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -243,14 +263,14 @@ export function FlightFormDialog({ open, onOpenChange, onSubmit, initialData, th
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="scheduledDate" className="text-card-foreground">
+            <Label htmlFor="date" className="text-card-foreground">
               Date *
             </Label>
             <Input
-              id="scheduledDate"
+              id="date"
               type="date"
-              value={formData.scheduledDate || ""}
-              onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
               required
               className="bg-background border-border text-foreground"
             />

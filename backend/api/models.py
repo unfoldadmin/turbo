@@ -8,11 +8,12 @@ class User(AbstractUser):
 
     ROLE_CHOICES = [
         ("admin", "Admin"),
-        ("user", "User"),
+        ("line", "Line Department"),
+        ("frontdesk", "Front Desk"),
     ]
 
     role = models.CharField(
-        _("Role"), max_length=10, choices=ROLE_CHOICES, default="user"
+        _("Role"), max_length=20, choices=ROLE_CHOICES, default="line"
     )
     phone_number = models.CharField(_("Phone Number"), max_length=20, blank=True)
     employee_id = models.CharField(
@@ -29,6 +30,26 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email if self.email else self.username
+
+    def get_initials(self):
+        """Get user initials from first and last name"""
+        if self.first_name and self.last_name:
+            return f"{self.first_name[0]}{self.last_name[0]}".upper()
+        elif self.first_name:
+            return self.first_name[0].upper()
+        elif self.username:
+            return self.username[:2].upper()
+        return "??"
+
+    def get_department(self):
+        """Get department name from role"""
+        if self.role == "line":
+            return "Line Department"
+        elif self.role == "frontdesk":
+            return "Front Desk"
+        elif self.role == "admin":
+            return "Administration"
+        return "Unknown"
 
 
 class FuelTank(models.Model):
@@ -92,7 +113,8 @@ class Aircraft(models.Model):
     """Aircraft registry"""
 
     tail_number = models.CharField(_("Tail Number"), max_length=20, primary_key=True)
-    aircraft_type = models.CharField(_("Aircraft Type"), max_length=50)
+    aircraft_type_icao = models.CharField(_("Aircraft Type (ICAO)"), max_length=10)
+    aircraft_type_display = models.CharField(_("Aircraft Type (Display)"), max_length=100)
     airline_icao = models.CharField(_("Airline ICAO"), max_length=10, blank=True)
     fleet_id = models.CharField(_("Fleet ID"), max_length=50, blank=True)
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
@@ -104,7 +126,7 @@ class Aircraft(models.Model):
         verbose_name_plural = _("Aircraft")
 
     def __str__(self):
-        return f"{self.tail_number} ({self.aircraft_type})"
+        return f"{self.tail_number} ({self.aircraft_type_display})"
 
 
 class TerminalGate(models.Model):
@@ -129,6 +151,37 @@ class TerminalGate(models.Model):
         return f"Terminal {self.terminal_num} - Gate {self.gate_number}"
 
 
+class ParkingLocation(models.Model):
+    """Parking locations for aircraft (hangars, terminal, ramps, tie-downs)"""
+
+    LOCATION_TYPE_CHOICES = [
+        ("hangar", "Hangar"),
+        ("terminal", "Terminal"),
+        ("ramp", "Ramp"),
+        ("tiedown", "Tie-Down"),
+        ("other", "Other"),
+    ]
+
+    location_name = models.CharField(_("Location Name"), max_length=100, unique=True)
+    location_type = models.CharField(
+        _("Location Type"), max_length=50, choices=LOCATION_TYPE_CHOICES
+    )
+    display_order = models.IntegerField(_("Display Order"), default=0)
+    is_active = models.BooleanField(_("Is Active"), default=True)
+    notes = models.TextField(_("Notes"), blank=True)
+    created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
+    modified_at = models.DateTimeField(_("Modified At"), auto_now=True)
+
+    class Meta:
+        db_table = "parking_location"
+        verbose_name = _("Parking Location")
+        verbose_name_plural = _("Parking Locations")
+        ordering = ["display_order", "location_name"]
+
+    def __str__(self):
+        return self.location_name
+
+
 class Flight(models.Model):
     """Flight information and tracking"""
 
@@ -138,31 +191,61 @@ class Flight(models.Model):
         ("departed", "Departed"),
         ("cancelled", "Cancelled"),
         ("delayed", "Delayed"),
+        ("planned", "Planned"),
     ]
 
-    flight_number = models.CharField(_("Flight Number"), max_length=20)
+    SOURCE_CHOICES = [
+        ("qt", "QuickTurn"),
+        ("front-desk", "Front Desk"),
+        ("line-department", "Line Department"),
+        ("google-calendar", "Google Calendar"),
+    ]
+
+    # Fields in database column order
     aircraft = models.ForeignKey(
         Aircraft,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
+        on_delete=models.RESTRICT,
         related_name="flights",
         verbose_name=_("Aircraft"),
+        db_column="aircraft_id",
     )
-    gate = models.ForeignKey(
-        TerminalGate,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="flights",
-        verbose_name=_("Gate"),
-    )
+    call_sign = models.CharField(_("Call Sign / Flight Number"), max_length=20, null=True, blank=True)
     arrival_time = models.DateTimeField(_("Arrival Time"), null=True, blank=True)
     departure_time = models.DateTimeField(_("Departure Time"))
     flight_status = models.CharField(
         _("Flight Status"), max_length=20, choices=STATUS_CHOICES, default="scheduled"
     )
-    destination = models.CharField(_("Destination"), max_length=100, blank=True)
+    origin = models.CharField(_("Origin"), max_length=100, blank=True)
+    destination = models.CharField(_("Destination"), max_length=100)
+    contact_name = models.CharField(_("Contact Name"), max_length=255, blank=True)
+    contact_notes = models.TextField(_("Contact Notes"), blank=True)
+    services = models.JSONField(_("Services"), default=list, blank=True)
+    fuel_order_notes = models.TextField(_("Fuel Order Notes"), blank=True)
+    passenger_count = models.IntegerField(_("Passenger Count"), null=True, blank=True)
+    notes = models.TextField(_("Notes"), blank=True)
+    location = models.ForeignKey(
+        ParkingLocation,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="flights",
+        verbose_name=_("Parking Location"),
+        db_column="location_id",
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.RESTRICT,
+        default=1,
+        related_name="created_flights",
+        verbose_name=_("Created By"),
+        db_column="created_by_id",
+    )
+    created_by_source = models.CharField(
+        _("Created By Source"),
+        max_length=20,
+        choices=SOURCE_CHOICES,
+        default="line-department",
+    )
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     modified_at = models.DateTimeField(_("Modified At"), auto_now=True)
 
@@ -173,7 +256,8 @@ class Flight(models.Model):
         ordering = ["-departure_time"]
 
     def __str__(self):
-        return f"{self.flight_number} - {self.departure_time}"
+        display = self.call_sign or self.aircraft.tail_number
+        return f"{display} - {self.departure_time}"
 
 
 class Fueler(models.Model):

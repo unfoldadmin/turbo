@@ -146,12 +146,12 @@ class TerminalGateViewSet(viewsets.ModelViewSet):
 class FlightViewSet(viewsets.ModelViewSet):
     """ViewSet for flights with filtering by status and date"""
 
-    queryset = Flight.objects.select_related("aircraft", "gate").all()
+    queryset = Flight.objects.select_related("aircraft", "location").all()
     permission_classes = [AllowAnyReadOnly]  # DEV: Allow unauthenticated reads
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["flight_number", "destination"]
-    filterset_fields = ["flight_status", "aircraft", "gate"]
-    ordering_fields = ["departure_time", "arrival_time", "flight_number"]
+    search_fields = ["call_sign", "destination"]
+    filterset_fields = ["flight_status", "aircraft", "location"]
+    ordering_fields = ["departure_time", "arrival_time", "call_sign"]
     ordering = ["-departure_time"]
 
     def get_serializer_class(self):

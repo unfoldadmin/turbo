@@ -16,12 +16,9 @@ export interface Flight {
   aircraftType: string // derived from aircraft table
   callSign?: string // call_sign
 
-  // Timing
-  arrivalTime?: string // arrival_time
-  departureTime?: string // departure_time
-  scheduledTime: string // computed from arrival_time or departure_time based on type
-  scheduledDate?: string // ISO date string (YYYY-MM-DD), extracted from times
-  actualTime?: string // not yet in backend
+  // Timing (direct from database - no derived fields)
+  arrivalTime?: string // arrival_time (ISO timestamp)
+  departureTime: string // departure_time (ISO timestamp, NOT NULL)
 
   // Flight details
   type: FlightType // derived from arrival_time and departure_time presence
@@ -41,6 +38,7 @@ export interface Flight {
 
   // Location and metadata
   locationId?: number // location_id
+  duration: number // calculated from arrival_time and departure_time (min 45 minutes)
 
   // Source tracking (always present, defaults to line-department and admin user)
   source: FlightSource // created_by_source (NOT NULL, default: 'line-department')
@@ -86,6 +84,18 @@ export function mapStatusToBackend(status: FlightStatus): FlightStatusEnum {
   }
 }
 
+// Calculate duration in minutes from arrival and departure times
+function calculateDuration(arrivalTime?: string, departureTime?: string): number {
+  if (arrivalTime && departureTime) {
+    const arrival = new Date(arrivalTime)
+    const departure = new Date(departureTime)
+    const durationMs = departure.getTime() - arrival.getTime()
+    const durationMinutes = Math.floor(durationMs / (1000 * 60))
+    return Math.max(45, durationMinutes) // Minimum 45 minutes
+  }
+  return 45 // Default 45 minutes for single-time flights
+}
+
 // Convert backend API flight to component flight
 export function apiFlightToComponentFlight(apiFlight: FlightList): Flight {
   // Determine flight type based on which times are set
@@ -102,10 +112,8 @@ export function apiFlightToComponentFlight(apiFlight: FlightList): Flight {
     type = "departure"
   }
 
-  // Use the primary scheduled time based on type
-  const scheduledTimeStr = type === "departure" ? apiFlight.departure_time : apiFlight.arrival_time
-  const scheduledDate = scheduledTimeStr ? new Date(scheduledTimeStr).toISOString().split("T")[0] : undefined
-  const scheduledTime = scheduledTimeStr ? new Date(scheduledTimeStr).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false }) : ""
+  // Calculate duration from arrival and departure times
+  const duration = calculateDuration(apiFlight.arrival_time, apiFlight.departure_time)
 
   // Extract creator info (always present, defaults to admin if not provided)
   const createdByInitials = (apiFlight as any).created_by_initials || "ADM"
@@ -123,17 +131,17 @@ export function apiFlightToComponentFlight(apiFlight: FlightList): Flight {
     type,
     tailNumber: apiFlight.aircraft || "",
     aircraftType: (apiFlight as any).aircraft_type_display || "",
+    arrivalTime: apiFlight.arrival_time,
+    departureTime: apiFlight.departure_time!,
     origin: apiFlight.origin || (hasArrival ? apiFlight.destination : undefined),
     destination: apiFlight.destination,
-    scheduledTime,
-    scheduledDate,
-    actualTime: undefined, // Could be added to backend model
     status: mapFlightStatus(apiFlight.flight_status),
     contactName: (apiFlight as any).contact_name || undefined,
     contactNotes: (apiFlight as any).contact_notes || undefined,
     passengers: (apiFlight as any).passenger_count || undefined,
     services: (apiFlight as any).services || [],
     notes: (apiFlight as any).notes || undefined,
+    duration, // Calculated from arrival and departure times
     source: ((apiFlight as any).created_by_source as FlightSource) || "qt",
     createdBy,
     createdAt: apiFlight.created_at,
@@ -144,12 +152,6 @@ export function apiFlightToComponentFlight(apiFlight: FlightList): Flight {
 // Convert component flight to backend create/update request
 export function componentFlightToApiRequest(flight: Partial<Flight>): Record<string, any> {
   const result: Record<string, any> = {}
-
-  // Combine scheduledDate and scheduledTime into ISO string
-  let datetime: string | undefined
-  if (flight.scheduledDate && flight.scheduledTime) {
-    datetime = `${flight.scheduledDate}T${flight.scheduledTime}:00`
-  }
 
   // IMPORTANT: Don't modify flight_number or aircraft on updates
   // Only include these for creates, and use tailNumber as aircraft FK
@@ -166,26 +168,13 @@ export function componentFlightToApiRequest(flight: Partial<Flight>): Record<str
     result.origin = flight.origin
   }
 
-  // Set arrival_time and/or departure_time based on flight type
-  if (datetime) {
-    switch (flight.type) {
-      case "arrival":
-        result.arrival_time = datetime
-        result.departure_time = null
-        break
-      case "departure":
-        result.departure_time = datetime
-        result.arrival_time = null
-        break
-      case "quick_turn":
-      case "overnight":
-      case "long_term":
-        // For these types, both times should be set
-        // Use the scheduled time as arrival and departure (can be edited separately)
-        result.arrival_time = datetime
-        result.departure_time = datetime
-        break
-    }
+  // Pass through arrival_time and departure_time directly
+  if (flight.arrivalTime !== undefined) {
+    result.arrival_time = flight.arrivalTime
+  }
+
+  if (flight.departureTime !== undefined) {
+    result.departure_time = flight.departureTime
   }
 
   if (flight.status !== undefined) {

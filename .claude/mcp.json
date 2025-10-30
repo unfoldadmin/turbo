@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "next-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-nextjs"
+      ]
+    },
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-supabase"
+      ]
+    },
+    "docker": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-docker"
+      ]
+    },
+    "linear": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@linear/mcp-server-linear"
+      ]
+    }
+  }
+}

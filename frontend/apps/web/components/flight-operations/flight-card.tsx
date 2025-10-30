@@ -40,9 +40,35 @@ import {
   ArrowLeftRight,
 } from "lucide-react"
 import { cn } from "@frontend/ui/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FlightFormDialog } from "./flight-form-dialog"
 import type { Flight } from "./types"
+
+// Calculate time remaining until a timestamp
+function getTimeRemaining(timestamp: string): { text: string; isUrgent: boolean } {
+  const now = new Date()
+  const target = new Date(timestamp)
+  const diffMs = target.getTime() - now.getTime()
+  const diffMinutes = Math.floor(diffMs / (1000 * 60))
+
+  if (diffMinutes < 0) {
+    return { text: "", isUrgent: false } // Past events don't show countdown
+  }
+
+  if (diffMinutes < 60) {
+    return { text: `in ${diffMinutes}m`, isUrgent: true }
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60)
+  const remainingMinutes = diffMinutes % 60
+
+  if (diffHours < 24) {
+    return { text: `in ${diffHours}h ${remainingMinutes}m`, isUrgent: false }
+  }
+
+  const diffDays = Math.floor(diffHours / 24)
+  return { text: `in ${diffDays}d`, isUrgent: false }
+}
 
 interface FlightCardProps {
   flight: Flight
@@ -90,10 +116,26 @@ export function FlightCard({ flight, theme, onEdit, onDelete, isLinked, linkColo
   const [passengerCount, setPassengerCount] = useState(flight.passengers?.toString() || "")
   const [localServices, setLocalServices] = useState<string[]>(flight.services)
   const [localNotes, setLocalNotes] = useState(flight.notes || "")
+  const [countdown, setCountdown] = useState<{ text: string; isUrgent: boolean }>({ text: "", isUrgent: false })
 
   const status = statusConfig[flight.status]
   const isArrival = flight.type === "arrival" || flight.type === "quick_turn" || flight.type === "overnight" || flight.type === "long_term"
   const isDeparture = flight.type === "departure" || flight.type === "quick_turn" || flight.type === "overnight" || flight.type === "long_term"
+
+  // Update countdown every minute
+  useEffect(() => {
+    const updateCountdown = () => {
+      const primaryTimestamp = isArrival ? flight.arrivalTime : flight.departureTime
+      if (primaryTimestamp) {
+        setCountdown(getTimeRemaining(primaryTimestamp))
+      }
+    }
+
+    updateCountdown() // Initial update
+    const interval = setInterval(updateCountdown, 60000) // Update every minute
+
+    return () => clearInterval(interval)
+  }, [flight.arrivalTime, flight.departureTime, isArrival])
 
   const toggleService = (service: string) => {
     setLocalServices(prev =>
@@ -111,13 +153,15 @@ export function FlightCard({ flight, theme, onEdit, onDelete, isLinked, linkColo
     setIsEditingServices(false)
   }
 
-  // Format date and time for display
-  const formatDateTime = (time: string, date?: string) => {
-    if (!date) return time
-    const d = new Date(date)
+  // Format timestamp for display
+  const formatTimestamp = (timestamp?: string) => {
+    if (!timestamp) return ""
+    const d = new Date(timestamp)
     const month = (d.getMonth() + 1).toString().padStart(2, '0')
     const day = d.getDate().toString().padStart(2, '0')
-    return `${month}/${day} ${time}`
+    const hours = d.getHours().toString().padStart(2, '0')
+    const minutes = d.getMinutes().toString().padStart(2, '0')
+    return `${month}/${day} ${hours}:${minutes}`
   }
 
   return (
@@ -179,21 +223,6 @@ export function FlightCard({ flight, theme, onEdit, onDelete, isLinked, linkColo
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
-
-          {/* Time - with date */}
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-muted-foreground">{isArrival ? "ETA:" : "ETD:"}</span>
-            <span className="font-bold font-mono text-foreground">
-              {formatDateTime(flight.scheduledTime, flight.scheduledDate)}
-            </span>
-            {flight.actualTime && (
-              <>
-                <span className="text-muted-foreground text-xs">Actual:</span>
-                <span className="font-bold text-green-500 font-mono text-xs">{flight.actualTime}</span>
-              </>
-            )}
           </div>
 
           {/* Origin/Destination */}
@@ -375,8 +404,23 @@ export function FlightCard({ flight, theme, onEdit, onDelete, isLinked, linkColo
             </div>
           )}
 
-          {/* Creator and Source Badges */}
-          <div className="flex justify-end items-center gap-1.5 pt-1.5">
+          {/* Time Display with Countdown - Above divider, left of badges */}
+          <div className="flex items-center justify-between pt-1.5 border-t border-border">
+            <div className="flex items-center gap-2 text-sm">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">{isArrival ? "ETA:" : "ETD:"}</span>
+              <span className="font-bold font-mono text-foreground">
+                {formatTimestamp(isArrival ? flight.arrivalTime : flight.departureTime)}
+              </span>
+              {countdown.text && (
+                <span className={cn("text-xs font-medium", countdown.isUrgent ? "text-red-500" : "text-muted-foreground")}>
+                  {countdown.text}
+                </span>
+              )}
+            </div>
+
+            {/* Creator and Source Badges - Right side */}
+            <div className="flex items-center gap-1.5">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -395,6 +439,7 @@ export function FlightCard({ flight, theme, onEdit, onDelete, isLinked, linkColo
             <Badge variant="secondary" className="text-[10px] uppercase tracking-wider font-bold px-1.5 py-0">
               {flight.source === "qt" ? "QT" : flight.source === "front-desk" ? "FD" : flight.source === "line-department" ? "LD" : "GC"}
             </Badge>
+            </div>
           </div>
 
           {/* Actions */}
