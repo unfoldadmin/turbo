@@ -1,25 +1,89 @@
-/* generated using openapi-typescript-codegen -- do no edit */
+/* generated using openapi-typescript-codegen -- do not edit */
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export { ApiClient } from './ApiClient'
+export { ApiClient } from './ApiClient';
 
-export { ApiError } from './core/ApiError'
-export { BaseHttpRequest } from './core/BaseHttpRequest'
-export { CancelablePromise, CancelError } from './core/CancelablePromise'
-export { OpenAPI } from './core/OpenAPI'
-export type { OpenAPIConfig } from './core/OpenAPI'
+export { ApiError } from './core/ApiError';
+export { BaseHttpRequest } from './core/BaseHttpRequest';
+export { CancelablePromise, CancelError } from './core/CancelablePromise';
+export { OpenAPI } from './core/OpenAPI';
+export type { OpenAPIConfig } from './core/OpenAPI';
 
-export type { PatchedUserCurrent } from './models/PatchedUserCurrent'
-export type { TokenObtainPair } from './models/TokenObtainPair'
-export type { TokenRefresh } from './models/TokenRefresh'
-export type { UserChangePassword } from './models/UserChangePassword'
-export type { UserChangePasswordError } from './models/UserChangePasswordError'
-export type { UserCreate } from './models/UserCreate'
-export type { UserCreateError } from './models/UserCreateError'
-export type { UserCurrent } from './models/UserCurrent'
-export type { UserCurrentError } from './models/UserCurrentError'
+export type { Aircraft } from './models/Aircraft';
+export type { AircraftRequest } from './models/AircraftRequest';
+export type { FlightDetail } from './models/FlightDetail';
+export type { FlightList } from './models/FlightList';
+export type { FlightListRequest } from './models/FlightListRequest';
+export { FlightStatusEnum } from './models/FlightStatusEnum';
+export type { Fueler } from './models/Fueler';
+export type { FuelerAssignment } from './models/FuelerAssignment';
+export type { FuelerRequest } from './models/FuelerRequest';
+export type { FuelerTraining } from './models/FuelerTraining';
+export type { FuelerTrainingRequest } from './models/FuelerTrainingRequest';
+export type { FuelerWithCertifications } from './models/FuelerWithCertifications';
+export type { FuelTank } from './models/FuelTank';
+export type { FuelTankRequest } from './models/FuelTankRequest';
+export type { FuelTankWithLatestReading } from './models/FuelTankWithLatestReading';
+export type { FuelTransactionCreate } from './models/FuelTransactionCreate';
+export type { FuelTransactionCreateRequest } from './models/FuelTransactionCreateRequest';
+export type { FuelTransactionDetail } from './models/FuelTransactionDetail';
+export type { FuelTransactionList } from './models/FuelTransactionList';
+export type { FuelTransactionListRequest } from './models/FuelTransactionListRequest';
+export { FuelTypeEnum } from './models/FuelTypeEnum';
+export type { PaginatedAircraftList } from './models/PaginatedAircraftList';
+export type { PaginatedFlightListList } from './models/PaginatedFlightListList';
+export type { PaginatedFuelerList } from './models/PaginatedFuelerList';
+export type { PaginatedFuelerTrainingList } from './models/PaginatedFuelerTrainingList';
+export type { PaginatedFuelTankWithLatestReadingList } from './models/PaginatedFuelTankWithLatestReadingList';
+export type { PaginatedFuelTransactionListList } from './models/PaginatedFuelTransactionListList';
+export type { PaginatedTankLevelReadingList } from './models/PaginatedTankLevelReadingList';
+export type { PaginatedTerminalGateList } from './models/PaginatedTerminalGateList';
+export type { PaginatedTrainingList } from './models/PaginatedTrainingList';
+export type { PaginatedUserListList } from './models/PaginatedUserListList';
+export type { PatchedAircraftRequest } from './models/PatchedAircraftRequest';
+export type { PatchedFlightListRequest } from './models/PatchedFlightListRequest';
+export type { PatchedFuelerRequest } from './models/PatchedFuelerRequest';
+export type { PatchedFuelerTrainingRequest } from './models/PatchedFuelerTrainingRequest';
+export type { PatchedFuelTankRequest } from './models/PatchedFuelTankRequest';
+export type { PatchedFuelTransactionListRequest } from './models/PatchedFuelTransactionListRequest';
+export type { PatchedTerminalGateRequest } from './models/PatchedTerminalGateRequest';
+export type { PatchedTrainingRequest } from './models/PatchedTrainingRequest';
+export type { PatchedUserCurrentRequest } from './models/PatchedUserCurrentRequest';
+export type { PatchedUserListRequest } from './models/PatchedUserListRequest';
+export { ProgressEnum } from './models/ProgressEnum';
+export { QtSyncStatusEnum } from './models/QtSyncStatusEnum';
+export { RoleEnum } from './models/RoleEnum';
+export { StatusEnum } from './models/StatusEnum';
+export type { TankLevelReading } from './models/TankLevelReading';
+export type { TerminalGate } from './models/TerminalGate';
+export type { TerminalGateRequest } from './models/TerminalGateRequest';
+export type { TokenObtainPair } from './models/TokenObtainPair';
+export type { TokenObtainPairRequest } from './models/TokenObtainPairRequest';
+export type { TokenRefresh } from './models/TokenRefresh';
+export type { TokenRefreshRequest } from './models/TokenRefreshRequest';
+export type { Training } from './models/Training';
+export type { TrainingRequest } from './models/TrainingRequest';
+export type { UserChangePasswordError } from './models/UserChangePasswordError';
+export type { UserChangePasswordRequest } from './models/UserChangePasswordRequest';
+export type { UserCreate } from './models/UserCreate';
+export type { UserCreateError } from './models/UserCreateError';
+export type { UserCreateRequest } from './models/UserCreateRequest';
+export type { UserCurrent } from './models/UserCurrent';
+export type { UserCurrentError } from './models/UserCurrentError';
+export type { UserCurrentRequest } from './models/UserCurrentRequest';
+export type { UserList } from './models/UserList';
+export type { UserListRequest } from './models/UserListRequest';
 
-export { SchemaService } from './services/SchemaService'
-export { TokenService } from './services/TokenService'
-export { UsersService } from './services/UsersService'
+export { AdminService } from './services/AdminService';
+export { AircraftService } from './services/AircraftService';
+export { AuthService } from './services/AuthService';
+export { FlightsService } from './services/FlightsService';
+export { FuelerCertificationsService } from './services/FuelerCertificationsService';
+export { FuelersService } from './services/FuelersService';
+export { GatesService } from './services/GatesService';
+export { TankReadingsService } from './services/TankReadingsService';
+export { TanksService } from './services/TanksService';
+export { TrainingsService } from './services/TrainingsService';
+export { TransactionsService } from './services/TransactionsService';
+export { UsersService } from './services/UsersService';

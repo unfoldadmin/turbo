@@ -367,3 +367,128 @@ class FuelerAssignment(models.Model):
 
     def __str__(self):
         return f"{self.fueler.fueler_name} -> {self.transaction.ticket_number}"
+
+
+class Equipment(models.Model):
+    """Ground support equipment inventory"""
+
+    STATUS_CHOICES = [
+        ("available", "Available"),
+        ("in_use", "In Use"),
+        ("maintenance", "Maintenance"),
+        ("out_of_service", "Out of Service"),
+    ]
+
+    EQUIPMENT_TYPE_CHOICES = [
+        ("fuel_truck", "Fuel Truck"),
+        ("tug", "Tug"),
+        ("gpu", "Ground Power Unit"),
+        ("air_start", "Air Start Unit"),
+        ("belt_loader", "Belt Loader"),
+        ("stairs", "Passenger Stairs"),
+        ("lavatory_service", "Lavatory Service"),
+        ("water_service", "Water Service"),
+        ("other", "Other"),
+    ]
+
+    equipment_id = models.CharField(_("Equipment ID"), max_length=50, unique=True)
+    equipment_name = models.CharField(_("Equipment Name"), max_length=200)
+    equipment_type = models.CharField(
+        _("Equipment Type"), max_length=50, choices=EQUIPMENT_TYPE_CHOICES
+    )
+    manufacturer = models.CharField(_("Manufacturer"), max_length=100, blank=True)
+    model = models.CharField(_("Model"), max_length=100, blank=True)
+    serial_number = models.CharField(_("Serial Number"), max_length=100, blank=True)
+    status = models.CharField(
+        _("Status"), max_length=20, choices=STATUS_CHOICES, default="available"
+    )
+    location = models.CharField(_("Location"), max_length=200, blank=True)
+    notes = models.TextField(_("Notes"), blank=True)
+    last_maintenance_date = models.DateField(
+        _("Last Maintenance Date"), null=True, blank=True
+    )
+    next_maintenance_date = models.DateField(
+        _("Next Maintenance Date"), null=True, blank=True
+    )
+    created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
+    modified_at = models.DateTimeField(_("Modified At"), auto_now=True)
+
+    class Meta:
+        db_table = "equipment"
+        verbose_name = _("Equipment")
+        verbose_name_plural = _("Equipment")
+        ordering = ["equipment_id"]
+
+    def __str__(self):
+        return f"{self.equipment_id} - {self.equipment_name}"
+
+
+class LineSchedule(models.Model):
+    """Line service schedule and assignments"""
+
+    STATUS_CHOICES = [
+        ("scheduled", "Scheduled"),
+        ("in_progress", "In Progress"),
+        ("completed", "Completed"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    SERVICE_TYPE_CHOICES = [
+        ("arrival_service", "Arrival Service"),
+        ("departure_service", "Departure Service"),
+        ("turnaround", "Turnaround Service"),
+        ("overnight", "Overnight Service"),
+    ]
+
+    flight = models.ForeignKey(
+        Flight,
+        on_delete=models.CASCADE,
+        related_name="line_schedules",
+        verbose_name=_("Flight"),
+        null=True,
+        blank=True,
+    )
+    service_type = models.CharField(
+        _("Service Type"), max_length=50, choices=SERVICE_TYPE_CHOICES
+    )
+    scheduled_time = models.DateTimeField(_("Scheduled Time"))
+    actual_start_time = models.DateTimeField(
+        _("Actual Start Time"), null=True, blank=True
+    )
+    actual_end_time = models.DateTimeField(_("Actual End Time"), null=True, blank=True)
+    status = models.CharField(
+        _("Status"), max_length=20, choices=STATUS_CHOICES, default="scheduled"
+    )
+    assigned_personnel = models.ManyToManyField(
+        User,
+        related_name="line_schedule_assignments",
+        verbose_name=_("Assigned Personnel"),
+        blank=True,
+    )
+    equipment_used = models.ManyToManyField(
+        Equipment,
+        related_name="line_schedules",
+        verbose_name=_("Equipment Used"),
+        blank=True,
+    )
+    gate = models.ForeignKey(
+        TerminalGate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="line_schedules",
+        verbose_name=_("Gate"),
+    )
+    notes = models.TextField(_("Notes"), blank=True)
+    created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
+    modified_at = models.DateTimeField(_("Modified At"), auto_now=True)
+
+    class Meta:
+        db_table = "line_schedule"
+        verbose_name = _("Line Schedule")
+        verbose_name_plural = _("Line Schedules")
+        ordering = ["-scheduled_time"]
+
+    def __str__(self):
+        flight_info = f" - {self.flight.flight_number}" if self.flight else ""
+        return f"{self.service_type} @ {self.scheduled_time}{flight_info}"

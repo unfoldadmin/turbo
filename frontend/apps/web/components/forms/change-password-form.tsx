@@ -14,7 +14,7 @@ import type { z } from 'zod'
 
 export type ChangePasswordFormSchema = z.infer<typeof changePasswordFormSchema>
 
-export function ChangePaswordForm({
+export function ChangePasswordForm({
   onSubmitHandler
 }: {
   onSubmitHandler: typeof changePasswordAction

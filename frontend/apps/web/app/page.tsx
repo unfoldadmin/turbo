@@ -1,18 +1,23 @@
 "use client"
-import { FlightBoard } from "@frontend/ui/components/flight-board"
-import { CalendarWeekView } from "@frontend/ui/components/calendar-week-view"
-import { CompactToolbar } from "@frontend/ui/components/compact-toolbar"
-import { FlightFormDialog } from "@frontend/ui/components/flight-form-dialog"
-import { useState } from "react"
-import { Sun, Moon } from "lucide-react"
-import { Button } from "@frontend/ui/components/ui/button"
-import { mockFlights } from "@frontend/ui/lib/mock-data"
-import type { Flight, FlightFilters } from "@frontend/ui/lib/types"
 
-export default function Home() {
-  const [theme, setTheme] = useState<"dark" | "light">("dark")
-  const [flights, setFlights] = useState<Flight[]>(mockFlights)
-  const [view, setView] = useState("split")
+import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useFlights } from "@/hooks/use-flights"
+import { FlightBoard } from "@/components/flight-operations/flight-board"
+import { CalendarWeekView } from "@/components/flight-operations/calendar-week-view"
+import { CompactToolbar } from "@/components/flight-operations/compact-toolbar"
+import { FlightFormDialog } from "@/components/flight-operations/flight-form-dialog"
+import type { Flight, FlightFilters } from "@/components/flight-operations/types"
+import { useTheme } from "@/components/navigation-wrapper"
+import { ErrorMessage } from "@frontend/ui/messages/error-message"
+
+export default function FlightOperationsPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const { flights, loading, error, createFlight, updateFlight, deleteFlight } = useFlights({ today: true })
+  const [view, setView] = useState<"split" | "calendar" | "arrivals" | "departures">("split")
+  const { theme } = useTheme()
   const [filters, setFilters] = useState<FlightFilters>({
     search: "",
     status: "all",
@@ -21,95 +26,142 @@ export default function Home() {
   })
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
 
-  const handleAddFlight = (flight: Flight) => {
-    setFlights([...flights, flight])
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+    }
+  }, [status, router])
+
+  // Load view preference from localStorage on mount
+  useEffect(() => {
+    const savedView = localStorage.getItem("flightViewPreference")
+    if (savedView === "split" || savedView === "calendar" || savedView === "arrivals" || savedView === "departures") {
+      setView(savedView as "split" | "calendar" | "arrivals" | "departures")
+    }
+  }, [])
+
+  // Save view preference to localStorage when it changes
+  const handleViewChange = (newView: string) => {
+    const validView = newView as "split" | "calendar" | "arrivals" | "departures"
+    setView(validView)
+    localStorage.setItem("flightViewPreference", validView)
   }
 
-  const handleEditFlight = (updatedFlight: Flight) => {
-    setFlights(flights.map((f) => (f.id === updatedFlight.id ? updatedFlight : f)))
+  const handleAddFlight = async (flight: Flight) => {
+    try {
+      await createFlight(flight)
+    } catch (err) {
+      console.error("Failed to create flight:", err)
+    }
   }
 
-  const handleDeleteFlight = (id: string) => {
-    setFlights(flights.filter((f) => f.id !== id))
+  const handleEditFlight = async (flight: Flight) => {
+    console.log("handleEditFlight called with:", flight)
+    try {
+      console.log("Calling updateFlight API with id:", flight.id)
+      const result = await updateFlight(flight.id, flight)
+      console.log("Update result:", result)
+    } catch (err) {
+      console.error("Failed to update flight:", err)
+    }
+  }
+
+  const handleDeleteFlight = async (id: string) => {
+    try {
+      await deleteFlight(id)
+    } catch (err) {
+      console.error("Failed to delete flight:", err)
+    }
+  }
+
+  // Show loading while checking auth
+  if (status === 'loading') {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-lg text-muted-foreground">Loading...</div>
+      </div>
+    )
+  }
+
+  // Don't render if not authenticated (will redirect)
+  if (status === 'unauthenticated') {
+    return null
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-lg text-muted-foreground">Loading flights...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return <ErrorMessage>{error.message}</ErrorMessage>
   }
 
   return (
-    <div className={theme === "dark" ? "dark" : ""}>
-      <main className="min-h-screen bg-background">
-        <div className="container mx-auto p-6">
-          <header className="mb-6 flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-2 text-foreground">Flight Operations Board</h1>
-              <p className="text-muted-foreground">Real-time arrivals and departures tracking</p>
-            </div>
-            <Button variant="outline" size="icon" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-              {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </Button>
-          </header>
+    <div className="space-y-4">
+      <CompactToolbar
+        view={view}
+        theme={theme}
+        onViewChange={handleViewChange}
+        onThemeChange={() => {}}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onAddFlight={() => setIsAddDialogOpen(true)}
+      />
 
-          <CompactToolbar
-            view={view}
-            onViewChange={setView}
-            filters={filters}
-            onFiltersChange={setFilters}
-            onAddFlight={() => setIsAddDialogOpen(true)}
-            theme={theme}
-          />
+      {view === "split" && (
+        <FlightBoard
+          mode="split"
+          theme={theme}
+          flights={flights}
+          onAddFlight={handleAddFlight}
+          onEditFlight={handleEditFlight}
+          onDeleteFlight={handleDeleteFlight}
+          filters={filters}
+        />
+      )}
+      {view === "arrivals" && (
+        <FlightBoard
+          mode="arrivals"
+          theme={theme}
+          flights={flights}
+          onAddFlight={handleAddFlight}
+          onEditFlight={handleEditFlight}
+          onDeleteFlight={handleDeleteFlight}
+          filters={filters}
+        />
+      )}
+      {view === "departures" && (
+        <FlightBoard
+          mode="departures"
+          theme={theme}
+          flights={flights}
+          onAddFlight={handleAddFlight}
+          onEditFlight={handleEditFlight}
+          onDeleteFlight={handleDeleteFlight}
+          filters={filters}
+        />
+      )}
+      {view === "calendar" && (
+        <CalendarWeekView
+          theme={theme}
+          flights={flights}
+          onEditFlight={handleEditFlight}
+          onDeleteFlight={handleDeleteFlight}
+          filters={filters}
+        />
+      )}
 
-          <div className="mt-6">
-            {view === "split" && (
-              <FlightBoard
-                mode="split"
-                theme={theme}
-                flights={flights}
-                onAddFlight={handleAddFlight}
-                onEditFlight={handleEditFlight}
-                onDeleteFlight={handleDeleteFlight}
-                filters={filters}
-              />
-            )}
-            {view === "calendar" && (
-              <CalendarWeekView
-                theme={theme}
-                flights={flights}
-                onAddFlight={handleAddFlight}
-                onEditFlight={handleEditFlight}
-                onDeleteFlight={handleDeleteFlight}
-                filters={filters}
-              />
-            )}
-            {view === "arrivals" && (
-              <FlightBoard
-                mode="arrivals"
-                theme={theme}
-                flights={flights}
-                onAddFlight={handleAddFlight}
-                onEditFlight={handleEditFlight}
-                onDeleteFlight={handleDeleteFlight}
-                filters={filters}
-              />
-            )}
-            {view === "departures" && (
-              <FlightBoard
-                mode="departures"
-                theme={theme}
-                flights={flights}
-                onAddFlight={handleAddFlight}
-                onEditFlight={handleEditFlight}
-                onDeleteFlight={handleDeleteFlight}
-                filters={filters}
-              />
-            )}
-          </div>
-
-          <FlightFormDialog
-            open={isAddDialogOpen}
-            onOpenChange={setIsAddDialogOpen}
-            onSubmit={handleAddFlight}
-            theme={theme}
-          />
-        </div>
-      </main>
+      <FlightFormDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSubmit={handleAddFlight}
+        theme={theme}
+      />
     </div>
   )
 }

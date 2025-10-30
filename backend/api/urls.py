@@ -8,11 +8,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .api import UserViewSet
 from .viewsets import (
     AircraftViewSet,
+    EquipmentViewSet,
     FlightViewSet,
     FuelTankViewSet,
     FuelTransactionViewSet,
     FuelerTrainingViewSet,
     FuelerViewSet,
+    LineScheduleViewSet,
     TankLevelReadingViewSet,
     TerminalGateViewSet,
     TrainingViewSet,
@@ -44,6 +46,10 @@ router.register("trainings", TrainingViewSet, basename="trainings")
 router.register(
     "fueler-certifications", FuelerTrainingViewSet, basename="fueler-certifications"
 )
+
+# Equipment & Line Schedule
+router.register("equipment", EquipmentViewSet, basename="equipment")
+router.register("line-schedules", LineScheduleViewSet, basename="line-schedules")
 
 urlpatterns = [
     # API Documentation

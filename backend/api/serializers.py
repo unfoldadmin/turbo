@@ -9,12 +9,14 @@ from rest_framework import exceptions, serializers
 
 from .models import (
     Aircraft,
+    Equipment,
     Flight,
     FuelTank,
     FuelTransaction,
     Fueler,
     FuelerAssignment,
     FuelerTraining,
+    LineSchedule,
     TankLevelReading,
     TerminalGate,
     Training,
@@ -615,3 +617,112 @@ class FuelTransactionCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data["progress"] = "started"
         return super().create(validated_data)
+
+
+# ============================================================================
+# Equipment Serializers
+# ============================================================================
+
+
+class EquipmentSerializer(serializers.ModelSerializer):
+    """Serializer for equipment inventory"""
+
+    maintenance_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Equipment
+        fields = [
+            "id",
+            "equipment_id",
+            "equipment_name",
+            "equipment_type",
+            "manufacturer",
+            "model",
+            "serial_number",
+            "status",
+            "location",
+            "notes",
+            "last_maintenance_date",
+            "next_maintenance_date",
+            "maintenance_status",
+            "created_at",
+            "modified_at",
+        ]
+        read_only_fields = ["id", "created_at", "modified_at", "maintenance_status"]
+
+    def get_maintenance_status(self, obj):
+        """Return maintenance status based on next maintenance date"""
+        if not obj.next_maintenance_date:
+            return "unknown"
+        days = (obj.next_maintenance_date - date.today()).days
+        if days < 0:
+            return "overdue"
+        if days <= 7:
+            return "due_soon"
+        return "ok"
+
+
+# ============================================================================
+# Line Schedule Serializers
+# ============================================================================
+
+
+class LineScheduleSerializer(serializers.ModelSerializer):
+    """Serializer for line service schedules"""
+
+    flight_number = serializers.CharField(source="flight.flight_number", read_only=True)
+    gate_display = serializers.SerializerMethodField()
+    assigned_personnel_names = serializers.SerializerMethodField()
+    equipment_used_names = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LineSchedule
+        fields = [
+            "id",
+            "flight",
+            "flight_number",
+            "service_type",
+            "scheduled_time",
+            "actual_start_time",
+            "actual_end_time",
+            "status",
+            "assigned_personnel",
+            "assigned_personnel_names",
+            "equipment_used",
+            "equipment_used_names",
+            "gate",
+            "gate_display",
+            "notes",
+            "duration",
+            "created_at",
+            "modified_at",
+        ]
+        read_only_fields = [
+            "id",
+            "created_at",
+            "modified_at",
+            "flight_number",
+            "gate_display",
+            "assigned_personnel_names",
+            "equipment_used_names",
+            "duration",
+        ]
+
+    def get_gate_display(self, obj):
+        if obj.gate:
+            return f"T{obj.gate.terminal_num}-G{obj.gate.gate_number}"
+        return None
+
+    def get_assigned_personnel_names(self, obj):
+        return [user.get_full_name() or user.username for user in obj.assigned_personnel.all()]
+
+    def get_equipment_used_names(self, obj):
+        return [f"{eq.equipment_id} - {eq.equipment_name}" for eq in obj.equipment_used.all()]
+
+    def get_duration(self, obj):
+        """Calculate duration in minutes if both start and end times are set"""
+        if obj.actual_start_time and obj.actual_end_time:
+            delta = obj.actual_end_time - obj.actual_start_time
+            return int(delta.total_seconds() / 60)
+        return None

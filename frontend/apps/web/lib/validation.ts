@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 const loginFormSchema = z.object({
-  username: z.string().min(6),
-  password: z.string().min(8)
+  username: z.string().min(1), // Relaxed for development (was 6)
+  password: z.string().min(1)  // Relaxed for development (was 8)
 })
 
 const registerFormSchema = z

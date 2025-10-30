@@ -49,8 +49,7 @@ const authOptions: AuthOptions = {
       // Refresh token
       if (Date.now() / 1000 > decodeToken(token.access).exp) {
         const apiClient = await getApiClient()
-        const res = await apiClient.token.tokenRefreshCreate({
-          access: token.access,
+        const res = await apiClient.auth.authRefreshCreate({
           refresh: token.refresh
         })
 
@@ -72,28 +71,39 @@ const authOptions: AuthOptions = {
       },
       async authorize(credentials) {
         if (credentials === undefined) {
+          console.log('NextAuth: credentials undefined')
           return null
         }
 
         try {
+          console.log('NextAuth: calling auth token API')
           const apiClient = await getApiClient()
-          const res = await apiClient.token.tokenCreate({
+          const res = await apiClient.auth.authTokenCreate({
             username: credentials.username,
-            password: credentials.password,
-            access: '',
-            refresh: ''
+            password: credentials.password
           })
 
-          return {
-            id: decodeToken(res.access).user_id,
+          console.log('NextAuth: got tokens from API', { hasAccess: !!res.access, hasRefresh: !!res.refresh })
+
+          const decoded = decodeToken(res.access)
+          console.log('NextAuth: decoded token', { userId: decoded.user_id })
+
+          const result = {
+            id: String(decoded.user_id),
             username: credentials.username,
             access: res.access,
             refresh: res.refresh
           }
+
+          console.log('NextAuth: returning user object', { id: result.id, username: result.username })
+          return result
         } catch (error) {
+          console.error('NextAuth: auth error', error)
           if (error instanceof ApiError) {
+            console.error('NextAuth: API error', error.status, error.body)
             return null
           }
+          console.error('NextAuth: unknown error', error)
         }
 
         return null
