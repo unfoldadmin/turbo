@@ -11,7 +11,7 @@ import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class GatesService {
     constructor(public readonly httpRequest: BaseHttpRequest) {}
     /**
-     * ViewSet for terminal gates
+     * ViewSet for terminal gates (DEPRECATED - use ParkingLocationViewSet)
      * @param ordering Which field to use when ordering the results.
      * @param page A page number within the paginated result set.
      * @param search A search term.
@@ -34,7 +34,7 @@ export class GatesService {
         });
     }
     /**
-     * ViewSet for terminal gates
+     * ViewSet for terminal gates (DEPRECATED - use ParkingLocationViewSet)
      * @param requestBody
      * @returns TerminalGate
      * @throws ApiError
@@ -50,7 +50,7 @@ export class GatesService {
         });
     }
     /**
-     * ViewSet for terminal gates
+     * ViewSet for terminal gates (DEPRECATED - use ParkingLocationViewSet)
      * @param id A unique integer value identifying this Terminal Gate.
      * @returns TerminalGate
      * @throws ApiError
@@ -67,7 +67,7 @@ export class GatesService {
         });
     }
     /**
-     * ViewSet for terminal gates
+     * ViewSet for terminal gates (DEPRECATED - use ParkingLocationViewSet)
      * @param id A unique integer value identifying this Terminal Gate.
      * @param requestBody
      * @returns TerminalGate
@@ -88,7 +88,7 @@ export class GatesService {
         });
     }
     /**
-     * ViewSet for terminal gates
+     * ViewSet for terminal gates (DEPRECATED - use ParkingLocationViewSet)
      * @param id A unique integer value identifying this Terminal Gate.
      * @param requestBody
      * @returns TerminalGate
@@ -109,7 +109,7 @@ export class GatesService {
         });
     }
     /**
-     * ViewSet for terminal gates
+     * ViewSet for terminal gates (DEPRECATED - use ParkingLocationViewSet)
      * @param id A unique integer value identifying this Terminal Gate.
      * @returns void
      * @throws ApiError

@@ -39,7 +39,6 @@ export { FuelTypeEnum } from './models/FuelTypeEnum';
 export type { LineSchedule } from './models/LineSchedule';
 export type { LineScheduleRequest } from './models/LineScheduleRequest';
 export { LineScheduleStatusEnum } from './models/LineScheduleStatusEnum';
-export { LocationTypeEnum } from './models/LocationTypeEnum';
 export type { PaginatedAircraftList } from './models/PaginatedAircraftList';
 export type { PaginatedEquipmentList } from './models/PaginatedEquipmentList';
 export type { PaginatedFlightListList } from './models/PaginatedFlightListList';
@@ -48,11 +47,13 @@ export type { PaginatedFuelerTrainingList } from './models/PaginatedFuelerTraini
 export type { PaginatedFuelTankWithLatestReadingList } from './models/PaginatedFuelTankWithLatestReadingList';
 export type { PaginatedFuelTransactionListList } from './models/PaginatedFuelTransactionListList';
 export type { PaginatedLineScheduleList } from './models/PaginatedLineScheduleList';
+export type { PaginatedParkingLocationList } from './models/PaginatedParkingLocationList';
 export type { PaginatedTankLevelReadingList } from './models/PaginatedTankLevelReadingList';
 export type { PaginatedTerminalGateList } from './models/PaginatedTerminalGateList';
 export type { PaginatedTrainingList } from './models/PaginatedTrainingList';
 export type { PaginatedUserListList } from './models/PaginatedUserListList';
 export type { ParkingLocation } from './models/ParkingLocation';
+export type { ParkingLocationRequest } from './models/ParkingLocationRequest';
 export type { PatchedAircraftRequest } from './models/PatchedAircraftRequest';
 export type { PatchedEquipmentRequest } from './models/PatchedEquipmentRequest';
 export type { PatchedFlightListRequest } from './models/PatchedFlightListRequest';
@@ -61,6 +62,7 @@ export type { PatchedFuelerTrainingRequest } from './models/PatchedFuelerTrainin
 export type { PatchedFuelTankRequest } from './models/PatchedFuelTankRequest';
 export type { PatchedFuelTransactionListRequest } from './models/PatchedFuelTransactionListRequest';
 export type { PatchedLineScheduleRequest } from './models/PatchedLineScheduleRequest';
+export type { PatchedParkingLocationRequest } from './models/PatchedParkingLocationRequest';
 export type { PatchedTerminalGateRequest } from './models/PatchedTerminalGateRequest';
 export type { PatchedTrainingRequest } from './models/PatchedTrainingRequest';
 export type { PatchedUserCurrentRequest } from './models/PatchedUserCurrentRequest';
@@ -99,6 +101,7 @@ export { FuelerCertificationsService } from './services/FuelerCertificationsServ
 export { FuelersService } from './services/FuelersService';
 export { GatesService } from './services/GatesService';
 export { LineSchedulesService } from './services/LineSchedulesService';
+export { ParkingLocationsService } from './services/ParkingLocationsService';
 export { TankReadingsService } from './services/TankReadingsService';
 export { TanksService } from './services/TanksService';
 export { TrainingsService } from './services/TrainingsService';

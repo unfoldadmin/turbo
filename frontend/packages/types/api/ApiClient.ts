@@ -14,6 +14,7 @@ import { FuelerCertificationsService } from './services/FuelerCertificationsServ
 import { FuelersService } from './services/FuelersService';
 import { GatesService } from './services/GatesService';
 import { LineSchedulesService } from './services/LineSchedulesService';
+import { ParkingLocationsService } from './services/ParkingLocationsService';
 import { TankReadingsService } from './services/TankReadingsService';
 import { TanksService } from './services/TanksService';
 import { TrainingsService } from './services/TrainingsService';
@@ -30,6 +31,7 @@ export class ApiClient {
     public readonly fuelers: FuelersService;
     public readonly gates: GatesService;
     public readonly lineSchedules: LineSchedulesService;
+    public readonly parkingLocations: ParkingLocationsService;
     public readonly tankReadings: TankReadingsService;
     public readonly tanks: TanksService;
     public readonly trainings: TrainingsService;
@@ -57,6 +59,7 @@ export class ApiClient {
         this.fuelers = new FuelersService(this.request);
         this.gates = new GatesService(this.request);
         this.lineSchedules = new LineSchedulesService(this.request);
+        this.parkingLocations = new ParkingLocationsService(this.request);
         this.tankReadings = new TankReadingsService(this.request);
         this.tanks = new TanksService(this.request);
         this.trainings = new TrainingsService(this.request);

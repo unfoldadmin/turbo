@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -113,8 +114,8 @@ class Aircraft(models.Model):
     """Aircraft registry"""
 
     tail_number = models.CharField(_("Tail Number"), max_length=20, primary_key=True)
-    aircraft_type_icao = models.CharField(_("Aircraft Type (ICAO)"), max_length=10)
-    aircraft_type_display = models.CharField(_("Aircraft Type (Display)"), max_length=100)
+    aircraft_type_icao = models.CharField(_("Aircraft Type (ICAO)"), max_length=10, blank=True, default="")
+    aircraft_type_display = models.CharField(_("Aircraft Type (Display)"), max_length=100, blank=True, default="")
     airline_icao = models.CharField(_("Airline ICAO"), max_length=10, blank=True)
     fleet_id = models.CharField(_("Fleet ID"), max_length=50, blank=True)
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
@@ -152,23 +153,88 @@ class TerminalGate(models.Model):
 
 
 class ParkingLocation(models.Model):
-    """Parking locations for aircraft (hangars, terminal, ramps, tie-downs)"""
+    """
+    Represents a physical parking location for aircraft.
+    Supports terminals, hangars, ramps, tie-downs with optional map coordinates.
+    """
 
-    LOCATION_TYPE_CHOICES = [
-        ("hangar", "Hangar"),
-        ("terminal", "Terminal"),
-        ("ramp", "Ramp"),
-        ("tiedown", "Tie-Down"),
-        ("other", "Other"),
-    ]
-
-    location_name = models.CharField(_("Location Name"), max_length=100, unique=True)
-    location_type = models.CharField(
-        _("Location Type"), max_length=50, choices=LOCATION_TYPE_CHOICES
+    # Validator for location_code format
+    location_code_validator = RegexValidator(
+        regex=r"^[A-Z0-9\-]+$",
+        message="Location code must be uppercase alphanumeric with hyphens only (no spaces)",
+        code="invalid_location_code",
     )
-    display_order = models.IntegerField(_("Display Order"), default=0)
-    is_active = models.BooleanField(_("Is Active"), default=True)
-    notes = models.TextField(_("Notes"), blank=True)
+
+    # Primary identifier - REQUIRED
+    location_code = models.CharField(
+        _("Location Code"),
+        max_length=50,
+        unique=True,
+        validators=[location_code_validator],
+        help_text="Unique code: CAPS, alphanumeric, hyphens only. Examples: T-A1, D-1, BRETZ",
+    )
+
+    # Description
+    description = models.TextField(_("Description"), blank=True, default="")
+
+    # Coordinates for map placement
+    latitude = models.DecimalField(
+        _("Latitude"),
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Latitude coordinate for map display",
+    )
+    longitude = models.DecimalField(
+        _("Longitude"),
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        help_text="Longitude coordinate for map display",
+    )
+
+    # Optional polygon for hangars (store as JSON)
+    # Format: [[lat1, lon1], [lat2, lon2], ...]
+    polygon = models.JSONField(
+        _("Polygon"),
+        null=True,
+        blank=True,
+        help_text="Array of [lat, lon] coordinates defining hangar boundaries",
+    )
+
+    # Airport code
+    airport = models.CharField(
+        _("Airport"), max_length=10, default="MSO", help_text="Airport code: MSO, USFS, etc."
+    )
+
+    # Optional terminal
+    terminal = models.CharField(
+        _("Terminal"),
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Terminal identifier: T, MIN, MAINT, etc.",
+    )
+
+    # Optional gate
+    gate = models.CharField(
+        _("Gate"),
+        max_length=10,
+        blank=True,
+        null=True,
+        help_text="Gate number: A1, A2, B1, B2, etc.",
+    )
+
+    # Display order (0 = inactive, higher = more popular)
+    display_order = models.IntegerField(
+        _("Display Order"),
+        default=0,
+        help_text="0 = inactive/hidden, higher numbers = more popular (shows first in lists)",
+    )
+
+    # Timestamps
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
     modified_at = models.DateTimeField(_("Modified At"), auto_now=True)
 
@@ -176,10 +242,21 @@ class ParkingLocation(models.Model):
         db_table = "parking_location"
         verbose_name = _("Parking Location")
         verbose_name_plural = _("Parking Locations")
-        ordering = ["display_order", "location_name"]
+        ordering = ["-display_order", "location_code"]
+        indexes = [
+            models.Index(fields=["airport", "display_order"]),
+            models.Index(fields=["location_code"]),
+        ]
 
     def __str__(self):
-        return self.location_name
+        if self.description:
+            return f"{self.location_code} - {self.description}"
+        return self.location_code
+
+    @property
+    def is_active(self):
+        """Returns True if location is active (display_order > 0)"""
+        return self.display_order > 0
 
 
 class Flight(models.Model):

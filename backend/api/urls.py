@@ -15,6 +15,7 @@ from .viewsets import (
     FuelerTrainingViewSet,
     FuelerViewSet,
     LineScheduleViewSet,
+    ParkingLocationViewSet,
     TankLevelReadingViewSet,
     TerminalGateViewSet,
     TrainingViewSet,
@@ -32,10 +33,11 @@ router.register("admin/users", UserManagementViewSet, basename="admin-users")
 router.register("tanks", FuelTankViewSet, basename="tanks")
 router.register("tank-readings", TankLevelReadingViewSet, basename="tank-readings")
 
-# Flights & Gates
+# Flights & Parking
 router.register("flights", FlightViewSet, basename="flights")
 router.register("aircraft", AircraftViewSet, basename="aircraft")
-router.register("gates", TerminalGateViewSet, basename="gates")
+router.register("parking-locations", ParkingLocationViewSet, basename="parking-locations")
+router.register("gates", TerminalGateViewSet, basename="gates")  # DEPRECATED
 
 # Fuel Dispatch
 router.register("transactions", FuelTransactionViewSet, basename="transactions")

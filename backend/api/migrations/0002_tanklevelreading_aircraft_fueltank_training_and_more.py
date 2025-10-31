@@ -198,10 +198,34 @@ class Migration(migrations.Migration):
                 'unique_together': {('terminal_num', 'gate_number')},
             },
         ),
+        migrations.CreateModel(
+            name='ParkingLocation',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('location_name', models.CharField(max_length=100, unique=True, verbose_name='Location Name')),
+                ('location_type', models.CharField(choices=[('hangar', 'Hangar'), ('terminal', 'Terminal'), ('ramp', 'Ramp'), ('tiedown', 'Tie-Down'), ('other', 'Other')], max_length=50, verbose_name='Location Type')),
+                ('display_order', models.IntegerField(default=0, verbose_name='Display Order')),
+                ('is_active', models.BooleanField(default=True, verbose_name='Is Active')),
+                ('notes', models.TextField(blank=True, verbose_name='Notes')),
+                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Created At')),
+                ('modified_at', models.DateTimeField(auto_now=True, verbose_name='Modified At')),
+            ],
+            options={
+                'verbose_name': 'Parking Location',
+                'verbose_name_plural': 'Parking Locations',
+                'db_table': 'parking_location',
+                'ordering': ['display_order', 'location_name'],
+            },
+        ),
         migrations.AddField(
             model_name='flight',
             name='gate',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='flights', to='api.terminalgate', verbose_name='Gate'),
+        ),
+        migrations.AddField(
+            model_name='flight',
+            name='location',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='flights', to='api.parkinglocation', verbose_name='Parking Location', db_column='location_id'),
         ),
         migrations.CreateModel(
             name='FuelerAssignment',

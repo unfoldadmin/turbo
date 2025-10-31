@@ -324,19 +324,35 @@ class TerminalGateSerializer(serializers.ModelSerializer):
 class ParkingLocationSerializer(serializers.ModelSerializer):
     """Serializer for parking locations (hangars, terminal, ramps, tie-downs)"""
 
+    is_active = serializers.ReadOnlyField()
+
     class Meta:
         model = ParkingLocation
         fields = [
             "id",
-            "location_name",
-            "location_type",
+            "location_code",
+            "description",
+            "latitude",
+            "longitude",
+            "polygon",
+            "airport",
+            "terminal",
+            "gate",
             "display_order",
             "is_active",
-            "notes",
             "created_at",
             "modified_at",
         ]
-        read_only_fields = ["id", "created_at", "modified_at"]
+        read_only_fields = ["id", "created_at", "modified_at", "is_active"]
+
+    def validate_location_code(self, value):
+        """Ensure location_code is uppercase and properly formatted"""
+        import re
+        if not re.match(r'^[A-Z0-9\-]+$', value):
+            raise serializers.ValidationError(
+                'Location code must be uppercase alphanumeric with hyphens only (no spaces)'
+            )
+        return value
 
 
 # ============================================================================

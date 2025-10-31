@@ -17,6 +17,7 @@ from .models import (
     FuelerAssignment,
     FuelerTraining,
     LineSchedule,
+    ParkingLocation,
     TankLevelReading,
     TerminalGate,
     Training,
@@ -37,6 +38,7 @@ from .serializers import (
     FuelerTrainingSerializer,
     FuelerWithCertificationsSerializer,
     LineScheduleSerializer,
+    ParkingLocationSerializer,
     TankLevelReadingSerializer,
     TerminalGateSerializer,
     TrainingSerializer,
@@ -121,7 +123,7 @@ class AircraftViewSet(viewsets.ModelViewSet):
 
 
 class TerminalGateViewSet(viewsets.ModelViewSet):
-    """ViewSet for terminal gates"""
+    """ViewSet for terminal gates (DEPRECATED - use ParkingLocationViewSet)"""
 
     queryset = TerminalGate.objects.all()
     serializer_class = TerminalGateSerializer
@@ -131,6 +133,61 @@ class TerminalGateViewSet(viewsets.ModelViewSet):
     filterset_fields = ["terminal_num"]
     ordering_fields = ["display_order", "terminal_num", "gate_number"]
     ordering = ["display_order", "terminal_num", "gate_number"]
+
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
+
+
+class ParkingLocationViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing parking locations.
+
+    list: Get all parking locations (active by default)
+    retrieve: Get specific parking location
+    create: Create new parking location
+    update: Update parking location
+    destroy: Soft delete (set display_order to 0)
+    """
+    queryset = ParkingLocation.objects.all()
+    serializer_class = ParkingLocationSerializer
+    permission_classes = [AllowAnyReadOnly]  # DEV: Allow unauthenticated reads
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['location_code', 'description', 'terminal', 'gate']
+    filterset_fields = ['airport', 'terminal', 'gate', 'display_order']
+    ordering_fields = ['display_order', 'location_code', 'created_at']
+    ordering = ['-display_order', 'location_code']
+
+    def get_queryset(self):
+        """Filter to active locations by default, unless ?include_inactive=true"""
+        queryset = super().get_queryset()
+        include_inactive = self.request.query_params.get('include_inactive', 'false').lower() == 'true'
+
+        if not include_inactive:
+            queryset = queryset.filter(display_order__gt=0)
+
+        return queryset
+
+    def perform_destroy(self, instance):
+        """Soft delete by setting display_order to 0 instead of actual deletion"""
+        instance.display_order = 0
+        instance.save()
+
+    @action(detail=False, methods=['get'])
+    def active(self, request):
+        """Get only active parking locations"""
+        active_locations = self.queryset.filter(display_order__gt=0)
+        serializer = self.get_serializer(active_locations, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def by_airport(self, request):
+        """Group parking locations by airport"""
+        airport = request.query_params.get('airport', 'MSO')
+        locations = self.queryset.filter(airport=airport, display_order__gt=0)
+        serializer = self.get_serializer(locations, many=True)
+        return Response(serializer.data)
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:

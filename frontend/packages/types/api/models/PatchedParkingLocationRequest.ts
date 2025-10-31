@@ -5,12 +5,11 @@
 /**
  * Serializer for parking locations (hangars, terminal, ramps, tie-downs)
  */
-export type ParkingLocation = {
-    readonly id: number;
+export type PatchedParkingLocationRequest = {
     /**
      * Unique code: CAPS, alphanumeric, hyphens only. Examples: T-A1, D-1, BRETZ
      */
-    location_code: string;
+    location_code?: string;
     description?: string;
     /**
      * Latitude coordinate for map display
@@ -40,8 +39,5 @@ export type ParkingLocation = {
      * 0 = inactive/hidden, higher numbers = more popular (shows first in lists)
      */
     display_order?: number;
-    readonly is_active: string;
-    readonly created_at: string;
-    readonly modified_at: string;
 };
 

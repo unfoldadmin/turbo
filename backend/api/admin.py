@@ -13,6 +13,7 @@ from .models import (
     Fueler,
     FuelerAssignment,
     FuelerTraining,
+    ParkingLocation,
     TankLevelReading,
     TerminalGate,
     Training,
@@ -89,6 +90,7 @@ class AircraftAdmin(ModelAdmin):
 
 @admin.register(TerminalGate)
 class TerminalGateAdmin(ModelAdmin):
+    """DEPRECATED - Use ParkingLocationAdmin instead"""
     list_display = [
         "terminal_num",
         "gate_number",
@@ -99,6 +101,40 @@ class TerminalGateAdmin(ModelAdmin):
     list_filter = ["terminal_num"]
     search_fields = ["terminal_num", "gate_number", "terminal_id"]
     ordering = ["display_order", "terminal_num", "gate_number"]
+
+
+@admin.register(ParkingLocation)
+class ParkingLocationAdmin(ModelAdmin):
+    list_display = [
+        "location_code",
+        "description",
+        "airport",
+        "terminal",
+        "gate",
+        "display_order",
+        "is_active",
+    ]
+    list_filter = ["airport", "terminal", "display_order"]
+    search_fields = ["location_code", "description", "terminal", "gate"]
+    ordering = ["-display_order", "location_code"]
+
+    fieldsets = (
+        ("Basic Information", {
+            "fields": ("location_code", "description", "display_order")
+        }),
+        ("Location Details", {
+            "fields": ("airport", "terminal", "gate")
+        }),
+        ("Geographic Data", {
+            "fields": ("latitude", "longitude", "polygon"),
+            "classes": ("collapse",),
+        }),
+        ("Timestamps", {
+            "fields": ("created_at", "modified_at"),
+            "classes": ("collapse",),
+        }),
+    )
+    readonly_fields = ["created_at", "modified_at"]
 
 
 @admin.register(Flight)
