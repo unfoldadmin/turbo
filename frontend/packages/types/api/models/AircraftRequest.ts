@@ -9,4 +9,3 @@ export type AircraftRequest = {
     airline_icao?: string;
     fleet_id?: string;
 };
-

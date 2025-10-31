@@ -12,21 +12,25 @@ export async function getFuelTanks(session: Session | null) {
     `${process.env.NEXT_PUBLIC_API_URL}/api/tanks/`,
     {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.accessToken}`
+      }
     }
   )
   if (!response.ok) throw new Error('Failed to fetch fuel tanks')
   return response.json()
 }
 
-export async function getTankReadings(tankId: string, days: number = 7, session: Session | null) {
+export async function getTankReadings(
+  tankId: string,
+  days = 7,
+  session: Session | null
+) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/tanks/${tankId}/readings/?days=${days}`,
     {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.accessToken}`
+      }
     }
   )
   if (!response.ok) throw new Error('Failed to fetch tank readings')
@@ -49,8 +53,8 @@ export async function getFlights(params: {
     `${process.env.NEXT_PUBLIC_API_URL}/api/flights/?${query}`,
     {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.accessToken}`
+      }
     }
   )
   if (!response.ok) throw new Error('Failed to fetch flights')
@@ -71,8 +75,8 @@ export async function getFuelTransactions(params: {
     `${process.env.NEXT_PUBLIC_API_URL}/api/transactions/?${query}`,
     {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.accessToken}`
+      }
     }
   )
   if (!response.ok) throw new Error('Failed to fetch fuel transactions')
@@ -90,9 +94,9 @@ export async function assignFuelerToTransaction(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session?.accessToken}`,
+        Authorization: `Bearer ${session?.accessToken}`
       },
-      body: JSON.stringify({ fueler_id: fuelerId }),
+      body: JSON.stringify({ fueler_id: fuelerId })
     }
   )
   if (!response.ok) throw new Error('Failed to assign fueler')
@@ -110,9 +114,9 @@ export async function updateTransactionProgress(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${session?.accessToken}`,
+        Authorization: `Bearer ${session?.accessToken}`
       },
-      body: JSON.stringify({ progress }),
+      body: JSON.stringify({ progress })
     }
   )
   if (!response.ok) throw new Error('Failed to update transaction progress')
@@ -124,21 +128,24 @@ export async function getFuelers(session: Session | null) {
     `${process.env.NEXT_PUBLIC_API_URL}/api/fuelers/`,
     {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.accessToken}`
+      }
     }
   )
   if (!response.ok) throw new Error('Failed to fetch fuelers')
   return response.json()
 }
 
-export async function getFuelerCertifications(fuelerId: number, session: Session | null) {
+export async function getFuelerCertifications(
+  fuelerId: number,
+  session: Session | null
+) {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/fuelers/${fuelerId}/certifications/`,
     {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.accessToken}`
+      }
     }
   )
   if (!response.ok) throw new Error('Failed to fetch certifications')
@@ -150,8 +157,8 @@ export async function getTrainings(session: Session | null) {
     `${process.env.NEXT_PUBLIC_API_URL}/api/trainings/`,
     {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.accessToken}`
+      }
     }
   )
   if (!response.ok) throw new Error('Failed to fetch trainings')
@@ -172,8 +179,8 @@ export async function getCertifications(params: {
     `${process.env.NEXT_PUBLIC_API_URL}/api/fueler-certifications/?${query}`,
     {
       headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-      },
+        Authorization: `Bearer ${session?.accessToken}`
+      }
     }
   )
   if (!response.ok) throw new Error('Failed to fetch certifications')

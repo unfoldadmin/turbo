@@ -12,4 +12,3 @@ export type FuelerTrainingRequest = {
     expiry_date: string;
     certified_by?: number | null;
 };
-

@@ -5,4 +5,3 @@
 export type TokenRefreshRequest = {
     refresh: string;
 };
-

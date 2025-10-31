@@ -9,4 +9,3 @@ export type PaginatedFlightListList = {
     previous?: string | null;
     results: Array<FlightList>;
 };
-

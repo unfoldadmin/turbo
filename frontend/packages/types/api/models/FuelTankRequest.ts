@@ -16,4 +16,3 @@ export type FuelTankRequest = {
     usable_min_inches: string;
     usable_max_inches: string;
 };
-

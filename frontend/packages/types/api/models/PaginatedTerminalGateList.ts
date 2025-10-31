@@ -9,4 +9,3 @@ export type PaginatedTerminalGateList = {
     previous?: string | null;
     results: Array<TerminalGate>;
 };
-

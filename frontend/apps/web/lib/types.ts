@@ -97,7 +97,13 @@ export interface FuelerTraining {
   certified_by: number | null
   certified_by_name: string
   days_until_expiry: number
-  expiry_status: 'expired' | 'critical' | 'warning' | 'caution' | 'valid' | 'unknown'
+  expiry_status:
+    | 'expired'
+    | 'critical'
+    | 'warning'
+    | 'caution'
+    | 'valid'
+    | 'unknown'
 }
 
 export interface FuelTransaction {

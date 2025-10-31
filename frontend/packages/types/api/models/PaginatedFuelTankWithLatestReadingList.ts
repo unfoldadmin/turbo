@@ -9,4 +9,3 @@ export type PaginatedFuelTankWithLatestReadingList = {
     previous?: string | null;
     results: Array<FuelTankWithLatestReading>;
 };
-

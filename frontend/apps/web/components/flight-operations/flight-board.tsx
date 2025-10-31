@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { useMemo, useState } from "react"
-import { FlightList } from "./flight-list"
-import type { Flight, FlightFilters as FilterType } from "./types"
+import { useMemo, useState } from 'react'
+import { FlightList } from './flight-list'
+import type { FlightFilters as FilterType, Flight } from './types'
 
 interface FlightBoardProps {
-  mode: "split" | "arrivals" | "departures"
-  theme: "dark" | "light"
+  mode: 'split' | 'arrivals' | 'departures'
+  theme: 'dark' | 'light'
   flights: Flight[]
   onAddFlight: (flight: Flight) => void
   onEditFlight: (flight: Flight) => void
@@ -14,7 +14,14 @@ interface FlightBoardProps {
   filters: FilterType
 }
 
-export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight, filters }: FlightBoardProps) {
+export function FlightBoard({
+  mode,
+  theme,
+  flights,
+  onEditFlight,
+  onDeleteFlight,
+  filters
+}: FlightBoardProps) {
   const [hoveredFlightId, setHoveredFlightId] = useState<string | null>(null)
 
   const filteredFlights = useMemo(() => {
@@ -33,13 +40,15 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
       }
 
       // Filter by status
-      if (filters.status !== "all" && flight.status !== filters.status) {
+      if (filters.status !== 'all' && flight.status !== filters.status) {
         return false
       }
 
       // Filter by services
       if (filters.services.length > 0) {
-        const hasAllServices = filters.services.every((service) => flight.services.includes(service))
+        const hasAllServices = filters.services.every((service) =>
+          flight.services.includes(service)
+        )
         if (!hasAllServices) return false
       }
 
@@ -48,21 +57,29 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
   }, [filters, flights])
 
   // Arrivals: Show arrival and quick_turn flights
-  const arrivals = filteredFlights.filter((f) =>
-    f.type === "arrival" || f.type === "quick_turn" || f.type === "overnight" || f.type === "long_term"
+  const arrivals = filteredFlights.filter(
+    (f) =>
+      f.type === 'arrival' ||
+      f.type === 'quick_turn' ||
+      f.type === 'overnight' ||
+      f.type === 'long_term'
   )
   // Departures: Show departure and quick_turn flights
-  const departures = filteredFlights.filter((f) =>
-    f.type === "departure" || f.type === "quick_turn" || f.type === "overnight" || f.type === "long_term"
+  const departures = filteredFlights.filter(
+    (f) =>
+      f.type === 'departure' ||
+      f.type === 'quick_turn' ||
+      f.type === 'overnight' ||
+      f.type === 'long_term'
   )
 
   // Identify linked flights (appear in both arrivals and departures)
   const linkedFlightIds = useMemo(() => {
-    const arrivalIds = new Set(arrivals.map(f => f.id))
-    const departureIds = new Set(departures.map(f => f.id))
+    const arrivalIds = new Set(arrivals.map((f) => f.id))
+    const departureIds = new Set(departures.map((f) => f.id))
     const linked = new Set<string>()
 
-    arrivalIds.forEach(id => {
+    arrivalIds.forEach((id) => {
       if (departureIds.has(id)) {
         linked.add(id)
       }
@@ -73,14 +90,14 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
 
   // Assign colors to linked flights (rotating through a palette)
   const linkColors = [
-    "border-l-emerald-500/60", // emerald
-    "border-l-sky-500/60",     // sky blue
-    "border-l-violet-500/60",  // violet
-    "border-l-rose-500/60",    // rose
-    "border-l-amber-500/60",   // amber
-    "border-l-cyan-500/60",    // cyan
-    "border-l-pink-500/60",    // pink
-    "border-l-lime-500/60",    // lime
+    'border-l-emerald-500/60', // emerald
+    'border-l-sky-500/60', // sky blue
+    'border-l-violet-500/60', // violet
+    'border-l-rose-500/60', // rose
+    'border-l-amber-500/60', // amber
+    'border-l-cyan-500/60', // cyan
+    'border-l-pink-500/60', // pink
+    'border-l-lime-500/60' // lime
   ]
 
   const flightLinkColors = useMemo(() => {
@@ -93,13 +110,15 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
 
   return (
     <div className="space-y-6">
-      {mode === "split" ? (
+      {mode === 'split' ? (
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3 pb-3 border-b border-border">
               <div className="w-2 h-2 rounded-full bg-success" />
               <h2 className="text-2xl font-bold text-foreground">Arrivals</h2>
-              <span className="text-sm text-muted-foreground">({arrivals.length})</span>
+              <span className="text-sm text-muted-foreground">
+                ({arrivals.length})
+              </span>
             </div>
             <FlightList
               flights={arrivals}
@@ -118,7 +137,9 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
             <div className="flex items-center gap-3 pb-3 border-b border-border">
               <div className="w-2 h-2 rounded-full bg-accent" />
               <h2 className="text-2xl font-bold text-foreground">Departures</h2>
-              <span className="text-sm text-muted-foreground">({departures.length})</span>
+              <span className="text-sm text-muted-foreground">
+                ({departures.length})
+              </span>
             </div>
             <FlightList
               flights={departures}
@@ -133,12 +154,14 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
             />
           </div>
         </div>
-      ) : mode === "arrivals" ? (
+      ) : mode === 'arrivals' ? (
         <div className="space-y-4">
           <div className="flex items-center gap-3 pb-3 border-b border-border">
             <div className="w-2 h-2 rounded-full bg-success" />
             <h2 className="text-2xl font-bold text-foreground">Arrivals</h2>
-            <span className="text-sm text-muted-foreground">({arrivals.length})</span>
+            <span className="text-sm text-muted-foreground">
+              ({arrivals.length})
+            </span>
           </div>
           <FlightList
             flights={arrivals}
@@ -157,7 +180,9 @@ export function FlightBoard({ mode, theme, flights, onEditFlight, onDeleteFlight
           <div className="flex items-center gap-3 pb-3 border-b border-border">
             <div className="w-2 h-2 rounded-full bg-accent" />
             <h2 className="text-2xl font-bold text-foreground">Departures</h2>
-            <span className="text-sm text-muted-foreground">({departures.length})</span>
+            <span className="text-sm text-muted-foreground">
+              ({departures.length})
+            </span>
           </div>
           <FlightList
             flights={departures}

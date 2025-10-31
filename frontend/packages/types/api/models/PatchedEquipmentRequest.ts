@@ -20,4 +20,3 @@ export type PatchedEquipmentRequest = {
     last_maintenance_date?: string | null;
     next_maintenance_date?: string | null;
 };
-

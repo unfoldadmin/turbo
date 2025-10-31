@@ -12,4 +12,3 @@ export type FuelerRequest = {
     handheld_name?: string;
     status?: StatusA3eEnum;
 };
-

@@ -16,7 +16,7 @@ function decodeToken(token: string): {
 const authOptions: AuthOptions = {
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days (matches refresh token lifetime)
+    maxAge: 30 * 24 * 60 * 60 // 30 days (matches refresh token lifetime)
   },
   pages: {
     signIn: '/login'
@@ -52,7 +52,7 @@ const authOptions: AuthOptions = {
       const nowSeconds = Date.now() / 1000
       const bufferSeconds = 5 * 60 // 5 minutes before expiry
 
-      if (nowSeconds > (accessToken.exp - bufferSeconds)) {
+      if (nowSeconds > accessToken.exp - bufferSeconds) {
         try {
           const apiClient = await getApiClient()
           const res = await apiClient.auth.authRefreshCreate({
@@ -98,7 +98,10 @@ const authOptions: AuthOptions = {
             password: credentials.password
           })
 
-          console.log('NextAuth: got tokens from API', { hasAccess: !!res.access, hasRefresh: !!res.refresh })
+          console.log('NextAuth: got tokens from API', {
+            hasAccess: !!res.access,
+            hasRefresh: !!res.refresh
+          })
 
           const decoded = decodeToken(res.access)
           console.log('NextAuth: decoded token', { userId: decoded.user_id })
@@ -110,7 +113,10 @@ const authOptions: AuthOptions = {
             refresh: res.refresh
           }
 
-          console.log('NextAuth: returning user object', { id: result.id, username: result.username })
+          console.log('NextAuth: returning user object', {
+            id: result.id,
+            username: result.username
+          })
           return result
         } catch (error) {
           console.error('NextAuth: auth error', error)

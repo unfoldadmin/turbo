@@ -1,29 +1,41 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useTheme } from "@/components/navigation-wrapper"
-import { Button } from "@frontend/ui/components/ui/button"
-import { Card } from "@frontend/ui/components/ui/card"
-import { Badge } from "@frontend/ui/components/ui/badge"
-import { useTransactions } from "@/hooks/use-transactions"
-import { TransactionFormDialog } from "@/components/fuel-dispatch/transaction-form-dialog"
-import type { FuelTransactionDetail, FuelTransactionCreateRequest } from "@frontend/types/api"
-import { SuccessMessage } from "@frontend/ui/messages/success-message"
-import { ErrorMessage } from "@frontend/ui/messages/error-message"
-import { getApiClient } from "@/lib/api"
+import { TransactionFormDialog } from '@/components/fuel-dispatch/transaction-form-dialog'
+import { useTheme } from '@/components/navigation-wrapper'
+import { useTransactions } from '@/hooks/use-transactions'
+import { getApiClient } from '@/lib/api'
+import type {
+  FuelTransactionCreateRequest,
+  FuelTransactionDetail
+} from '@frontend/types/api'
+import { Badge } from '@frontend/ui/components/ui/badge'
+import { Button } from '@frontend/ui/components/ui/button'
+import { Card } from '@frontend/ui/components/ui/card'
+import { ErrorMessage } from '@frontend/ui/messages/error-message'
+import { SuccessMessage } from '@frontend/ui/messages/success-message'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function FuelDispatchPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { theme } = useTheme()
-  const { transactions, loading, error, createTransaction, updateTransaction, deleteTransaction, refetch } = useTransactions()
+  const {
+    transactions,
+    loading,
+    error,
+    createTransaction,
+    updateTransaction,
+    deleteTransaction,
+    refetch
+  } = useTransactions()
   const [fuelers, setFuelers] = useState([])
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingTransaction, setEditingTransaction] = useState<FuelTransactionDetail | null>(null)
-  const [successMessage, setSuccessMessage] = useState("")
-  const [errorMessage, setErrorMessage] = useState("")
+  const [editingTransaction, setEditingTransaction] =
+    useState<FuelTransactionDetail | null>(null)
+  const [successMessage, setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -43,18 +55,20 @@ export default function FuelDispatchPage() {
       const response = await client.fuelers.fuelersList()
       setFuelers(response.results || [])
     } catch (err) {
-      console.error("Failed to fetch fuelers:", err)
+      console.error('Failed to fetch fuelers:', err)
     }
   }
 
-  const handleCreateTransaction = async (data: FuelTransactionCreateRequest) => {
+  const handleCreateTransaction = async (
+    data: FuelTransactionCreateRequest
+  ) => {
     try {
       await createTransaction(data)
-      setSuccessMessage("Transaction created successfully")
-      setTimeout(() => setSuccessMessage(""), 3000)
+      setSuccessMessage('Transaction created successfully')
+      setTimeout(() => setSuccessMessage(''), 3000)
     } catch (err) {
-      setErrorMessage("Failed to create transaction")
-      setTimeout(() => setErrorMessage(""), 3000)
+      setErrorMessage('Failed to create transaction')
+      setTimeout(() => setErrorMessage(''), 3000)
       throw err
     }
   }
@@ -64,29 +78,31 @@ export default function FuelDispatchPage() {
     setDialogOpen(true)
   }
 
-  const handleUpdateTransaction = async (data: FuelTransactionCreateRequest) => {
+  const handleUpdateTransaction = async (
+    data: FuelTransactionCreateRequest
+  ) => {
     if (!editingTransaction) return
     try {
       await updateTransaction(editingTransaction.id, data)
-      setSuccessMessage("Transaction updated successfully")
-      setTimeout(() => setSuccessMessage(""), 3000)
+      setSuccessMessage('Transaction updated successfully')
+      setTimeout(() => setSuccessMessage(''), 3000)
       setEditingTransaction(null)
     } catch (err) {
-      setErrorMessage("Failed to update transaction")
-      setTimeout(() => setErrorMessage(""), 3000)
+      setErrorMessage('Failed to update transaction')
+      setTimeout(() => setErrorMessage(''), 3000)
       throw err
     }
   }
 
   const handleDeleteTransaction = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this transaction?")) return
+    if (!confirm('Are you sure you want to delete this transaction?')) return
     try {
       await deleteTransaction(id)
-      setSuccessMessage("Transaction deleted successfully")
-      setTimeout(() => setSuccessMessage(""), 3000)
+      setSuccessMessage('Transaction deleted successfully')
+      setTimeout(() => setSuccessMessage(''), 3000)
     } catch (err) {
-      setErrorMessage("Failed to delete transaction")
-      setTimeout(() => setErrorMessage(""), 3000)
+      setErrorMessage('Failed to delete transaction')
+      setTimeout(() => setErrorMessage(''), 3000)
     }
   }
 
@@ -107,9 +123,15 @@ export default function FuelDispatchPage() {
     return null
   }
 
-  const unassignedTx = transactions.filter((t: any) => !t.fueler_assignments || t.fueler_assignments.length === 0)
-  const inProgressTx = transactions.filter((t: any) => t.progress === 'in_progress')
-  const completedTx = transactions.filter((t: any) => t.progress === 'completed')
+  const unassignedTx = transactions.filter(
+    (t: any) => !t.fueler_assignments || t.fueler_assignments.length === 0
+  )
+  const inProgressTx = transactions.filter(
+    (t: any) => t.progress === 'in_progress'
+  )
+  const completedTx = transactions.filter(
+    (t: any) => t.progress === 'completed'
+  )
 
   const getProgressBadge = (progress: string) => {
     switch (progress) {
@@ -158,7 +180,9 @@ export default function FuelDispatchPage() {
       {errorMessage && <ErrorMessage message={errorMessage} />}
       {error && (
         <Card className="bg-destructive/10 border-destructive/20 p-4">
-          <p className="text-sm text-destructive">Failed to load dispatch data</p>
+          <p className="text-sm text-destructive">
+            Failed to load dispatch data
+          </p>
         </Card>
       )}
 
@@ -166,33 +190,54 @@ export default function FuelDispatchPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         transaction={editingTransaction}
-        onSubmit={editingTransaction ? handleUpdateTransaction : handleCreateTransaction}
+        onSubmit={
+          editingTransaction ? handleUpdateTransaction : handleCreateTransaction
+        }
       />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <Card className="p-6 bg-card border-border">
-          <div className="text-sm font-medium text-muted-foreground">Unassigned</div>
-          <div className="mt-2 text-3xl font-bold text-warning">{unassignedTx.length}</div>
-          <div className="mt-2 text-xs text-muted-foreground">Needs fueler assignment</div>
+          <div className="text-sm font-medium text-muted-foreground">
+            Unassigned
+          </div>
+          <div className="mt-2 text-3xl font-bold text-warning">
+            {unassignedTx.length}
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Needs fueler assignment
+          </div>
         </Card>
 
         <Card className="p-6 bg-card border-border">
-          <div className="text-sm font-medium text-muted-foreground">In Progress</div>
-          <div className="mt-2 text-3xl font-bold text-accent">{inProgressTx.length}</div>
-          <div className="mt-2 text-xs text-muted-foreground">Currently fueling</div>
+          <div className="text-sm font-medium text-muted-foreground">
+            In Progress
+          </div>
+          <div className="mt-2 text-3xl font-bold text-accent">
+            {inProgressTx.length}
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Currently fueling
+          </div>
         </Card>
 
         <Card className="p-6 bg-card border-border">
-          <div className="text-sm font-medium text-muted-foreground">Completed Today</div>
-          <div className="mt-2 text-3xl font-bold text-success">{completedTx.length}</div>
-          <div className="mt-2 text-xs text-muted-foreground">Finished transactions</div>
+          <div className="text-sm font-medium text-muted-foreground">
+            Completed Today
+          </div>
+          <div className="mt-2 text-3xl font-bold text-success">
+            {completedTx.length}
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Finished transactions
+          </div>
         </Card>
       </div>
 
       <Card className="bg-card border-border">
         <div className="px-6 py-5">
           <h2 className="text-lg font-semibold text-foreground">
-            Active Fuelers ({fuelers.filter((f: any) => f.status === 'active').length})
+            Active Fuelers (
+            {fuelers.filter((f: any) => f.status === 'active').length})
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {fuelers
@@ -202,7 +247,9 @@ export default function FuelDispatchPage() {
                   key={fueler.id}
                   className="p-3 bg-muted/20 border-border hover:border-primary/50 hover:shadow-sm transition-all cursor-pointer"
                 >
-                  <div className="text-sm font-medium text-foreground">{fueler.fueler_name}</div>
+                  <div className="text-sm font-medium text-foreground">
+                    {fueler.fueler_name}
+                  </div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     {fueler.handheld_name || 'No handheld'}
                   </div>
@@ -214,7 +261,9 @@ export default function FuelDispatchPage() {
 
       <Card className="bg-card border-border">
         <div className="px-6 py-5 border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground">Recent Transactions</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            Recent Transactions
+          </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-border">
@@ -253,7 +302,10 @@ export default function FuelDispatchPage() {
                     {transaction.flight_details?.callsign || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                    {parseFloat(transaction.quantity_gallons).toLocaleString()} gal
+                    {Number.parseFloat(
+                      transaction.quantity_gallons
+                    ).toLocaleString()}{' '}
+                    gal
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Badge className={getProgressBadge(transaction.progress)}>
@@ -263,12 +315,18 @@ export default function FuelDispatchPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                     {transaction.fueler_assignments?.length > 0 ? (
                       <div className="flex flex-col space-y-1">
-                        {transaction.fueler_assignments.map((assignment: any, idx: number) => (
-                          <span key={idx} className="text-xs">{assignment.fueler_name || 'Unknown'}</span>
-                        ))}
+                        {transaction.fueler_assignments.map(
+                          (assignment: any, idx: number) => (
+                            <span key={idx} className="text-xs">
+                              {assignment.fueler_name || 'Unknown'}
+                            </span>
+                          )
+                        )}
                       </div>
                     ) : (
-                      <span className="text-warning font-medium">Unassigned</span>
+                      <span className="text-warning font-medium">
+                        Unassigned
+                      </span>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

@@ -91,13 +91,13 @@ TEMPLATES = [
 #     }
 # }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': environ.get('SUPABASE_DB_NAME', 'postgres'),
-        'USER': environ.get('SUPABASE_DB_USER', 'postgres'),
-        'PASSWORD': environ.get('SUPABASE_DB_PASSWORD'),
-        'HOST': environ.get('SUPABASE_DB_HOST'),
-        'PORT': environ.get('SUPABASE_DB_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": environ.get("SUPABASE_DB_NAME", "postgres"),
+        "USER": environ.get("SUPABASE_DB_USER", "postgres"),
+        "PASSWORD": environ.get("SUPABASE_DB_PASSWORD"),
+        "HOST": environ.get("SUPABASE_DB_HOST"),
+        "PORT": environ.get("SUPABASE_DB_PORT", "5432"),
     }
 }
 

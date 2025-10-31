@@ -12,4 +12,3 @@ export type TankLevelReading = {
     readonly recorded_at: string;
     readonly created_at: string;
 };
-

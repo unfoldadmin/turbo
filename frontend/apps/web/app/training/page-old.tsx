@@ -1,8 +1,8 @@
-import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getCertifications, getFuelers } from '@/lib/fbo-api'
-import type { FuelerTraining, Fueler } from '@/lib/types'
+import type { Fueler, FuelerTraining } from '@/lib/types'
 import { ErrorMessage } from '@frontend/ui/messages/error-message'
+import { getServerSession } from 'next-auth'
 
 export const revalidate = 60 // Revalidate every minute
 
@@ -13,9 +13,9 @@ export default async function TrainingPage() {
   let error = null
 
   try {
-    [certifications, fuelers] = await Promise.all([
+    ;[certifications, fuelers] = await Promise.all([
       getCertifications({ session }),
-      getFuelers(session),
+      getFuelers(session)
     ])
   } catch (err) {
     console.error('Failed to fetch training data:', err)
@@ -23,10 +23,18 @@ export default async function TrainingPage() {
   }
 
   // Group certifications by expiry status
-  const expiredCerts = certifications.filter((c) => c.expiry_status === 'expired')
-  const criticalCerts = certifications.filter((c) => c.expiry_status === 'critical')
-  const warningCerts = certifications.filter((c) => c.expiry_status === 'warning')
-  const cautionCerts = certifications.filter((c) => c.expiry_status === 'caution')
+  const expiredCerts = certifications.filter(
+    (c) => c.expiry_status === 'expired'
+  )
+  const criticalCerts = certifications.filter(
+    (c) => c.expiry_status === 'critical'
+  )
+  const warningCerts = certifications.filter(
+    (c) => c.expiry_status === 'warning'
+  )
+  const cautionCerts = certifications.filter(
+    (c) => c.expiry_status === 'caution'
+  )
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -49,7 +57,7 @@ export default async function TrainingPage() {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
+      day: 'numeric'
     })
   }
 
@@ -58,7 +66,9 @@ export default async function TrainingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Training Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Training Management
+          </h1>
           <p className="mt-2 text-sm text-gray-600">
             Track fueler certifications and training status
           </p>

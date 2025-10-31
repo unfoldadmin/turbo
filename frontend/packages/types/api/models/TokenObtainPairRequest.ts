@@ -6,4 +6,3 @@ export type TokenObtainPairRequest = {
     username: string;
     password: string;
 };
-

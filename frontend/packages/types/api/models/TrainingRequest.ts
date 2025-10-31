@@ -14,4 +14,3 @@ export type TrainingRequest = {
      */
     aircraft_type?: string | null;
 };
-

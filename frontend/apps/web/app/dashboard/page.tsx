@@ -1,12 +1,12 @@
-import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import Link from 'next/link'
 import {
-  getFuelTanks,
-  getFlights,
-  getFuelTransactions,
   getCertifications,
+  getFlights,
+  getFuelTanks,
+  getFuelTransactions
 } from '@/lib/fbo-api'
+import { getServerSession } from 'next-auth'
+import Link from 'next/link'
 
 async function getDashboardData(session: any) {
   try {
@@ -14,7 +14,7 @@ async function getDashboardData(session: any) {
       getFuelTanks(session),
       getFlights({ today: true, session }),
       getFuelTransactions({ unassigned: true, session }),
-      getCertifications({ status: 'expiring_soon', days: 7, session }),
+      getCertifications({ status: 'expiring_soon', days: 7, session })
     ])
 
     return { tanks, flights, transactions, certifications }
@@ -24,7 +24,7 @@ async function getDashboardData(session: any) {
       tanks: [],
       flights: [],
       transactions: [],
-      certifications: [],
+      certifications: []
     }
   }
 }
@@ -90,12 +90,16 @@ export default async function DashboardPage() {
                       </span>
                     )}
                     {warningTanks > 0 && (
-                      <span className={`${criticalTanks > 0 ? 'ml-2' : ''} text-yellow-600 font-medium`}>
+                      <span
+                        className={`${criticalTanks > 0 ? 'ml-2' : ''} text-yellow-600 font-medium`}
+                      >
                         {warningTanks} Warning
                       </span>
                     )}
                     {criticalTanks === 0 && warningTanks === 0 && (
-                      <span className="text-green-600 font-medium">All Good</span>
+                      <span className="text-green-600 font-medium">
+                        All Good
+                      </span>
                     )}
                   </dd>
                 </dl>
@@ -212,9 +216,7 @@ export default async function DashboardPage() {
                   <dd className="mt-1 text-3xl font-semibold text-gray-900">
                     {expiringCertifications}
                   </dd>
-                  <dd className="mt-1 text-sm text-gray-600">
-                    Within 7 days
-                  </dd>
+                  <dd className="mt-1 text-sm text-gray-600">Within 7 days</dd>
                 </dl>
               </div>
             </div>
@@ -252,9 +254,7 @@ export default async function DashboardPage() {
       {/* Recent Activity Placeholder */}
       <div className="rounded-lg bg-white shadow">
         <div className="px-6 py-5">
-          <h2 className="text-lg font-medium text-gray-900">
-            Recent Activity
-          </h2>
+          <h2 className="text-lg font-medium text-gray-900">Recent Activity</h2>
           <div className="mt-4">
             <p className="text-sm text-gray-600">
               Activity tracking coming soon...

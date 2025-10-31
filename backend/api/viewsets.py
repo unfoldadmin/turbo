@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 from django.contrib.auth import get_user_model
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Prefetch
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -11,11 +11,11 @@ from .models import (
     Aircraft,
     Equipment,
     Flight,
-    FuelTank,
-    FuelTransaction,
     Fueler,
     FuelerAssignment,
     FuelerTraining,
+    FuelTank,
+    FuelTransaction,
     LineSchedule,
     ParkingLocation,
     TankLevelReading,
@@ -28,15 +28,15 @@ from .serializers import (
     EquipmentSerializer,
     FlightDetailSerializer,
     FlightListSerializer,
+    FuelerAssignmentSerializer,
+    FuelerSerializer,
+    FuelerTrainingSerializer,
+    FuelerWithCertificationsSerializer,
     FuelTankSerializer,
     FuelTankWithLatestReadingSerializer,
     FuelTransactionCreateSerializer,
     FuelTransactionDetailSerializer,
     FuelTransactionListSerializer,
-    FuelerAssignmentSerializer,
-    FuelerSerializer,
-    FuelerTrainingSerializer,
-    FuelerWithCertificationsSerializer,
     LineScheduleSerializer,
     ParkingLocationSerializer,
     TankLevelReadingSerializer,
@@ -150,19 +150,22 @@ class ParkingLocationViewSet(viewsets.ModelViewSet):
     update: Update parking location
     destroy: Soft delete (set display_order to 0)
     """
+
     queryset = ParkingLocation.objects.all()
     serializer_class = ParkingLocationSerializer
     permission_classes = [AllowAnyReadOnly]  # DEV: Allow unauthenticated reads
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['location_code', 'description', 'terminal', 'gate']
-    filterset_fields = ['airport', 'terminal', 'gate', 'display_order']
-    ordering_fields = ['display_order', 'location_code', 'created_at']
-    ordering = ['-display_order', 'location_code']
+    search_fields = ["location_code", "description", "terminal", "gate"]
+    filterset_fields = ["airport", "terminal", "gate", "display_order"]
+    ordering_fields = ["display_order", "location_code", "created_at"]
+    ordering = ["-display_order", "location_code"]
 
     def get_queryset(self):
         """Filter to active locations by default, unless ?include_inactive=true"""
         queryset = super().get_queryset()
-        include_inactive = self.request.query_params.get('include_inactive', 'false').lower() == 'true'
+        include_inactive = (
+            self.request.query_params.get("include_inactive", "false").lower() == "true"
+        )
 
         if not include_inactive:
             queryset = queryset.filter(display_order__gt=0)
@@ -174,17 +177,17 @@ class ParkingLocationViewSet(viewsets.ModelViewSet):
         instance.display_order = 0
         instance.save()
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def active(self, request):
         """Get only active parking locations"""
         active_locations = self.queryset.filter(display_order__gt=0)
         serializer = self.get_serializer(active_locations, many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def by_airport(self, request):
         """Group parking locations by airport"""
-        airport = request.query_params.get('airport', 'MSO')
+        airport = request.query_params.get("airport", "MSO")
         locations = self.queryset.filter(airport=airport, display_order__gt=0)
         serializer = self.get_serializer(locations, many=True)
         return Response(serializer.data)
@@ -231,15 +234,16 @@ class FlightViewSet(viewsets.ModelViewSet):
         # Filter for today's flights
         if self.request.query_params.get("today") == "true":
             today = date.today()
-            queryset = queryset.filter(
-                departure_time__date=today
-            ) | queryset.filter(arrival_time__date=today)
+            queryset = queryset.filter(departure_time__date=today) | queryset.filter(
+                arrival_time__date=today
+            )
 
         return queryset
 
     def update(self, request, *args, **kwargs):
         """Override to add debug logging"""
         import json
+
         print(f"PATCH /api/flights/{kwargs.get('pk')}/ - Request data:")
         print(json.dumps(request.data, indent=2, default=str))
         try:
@@ -251,6 +255,7 @@ class FlightViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         """Override to add debug logging"""
         import json
+
         print(f"PATCH /api/flights/{kwargs.get('pk')}/ - Request data:")
         print(json.dumps(request.data, indent=2, default=str))
         try:
@@ -520,9 +525,20 @@ class EquipmentViewSet(viewsets.ModelViewSet):
     serializer_class = EquipmentSerializer
     permission_classes = [AllowAnyReadOnly]  # DEV: Allow unauthenticated reads
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["equipment_id", "equipment_name", "equipment_type", "manufacturer", "model"]
+    search_fields = [
+        "equipment_id",
+        "equipment_name",
+        "equipment_type",
+        "manufacturer",
+        "model",
+    ]
     filterset_fields = ["equipment_type", "status"]
-    ordering_fields = ["equipment_id", "equipment_name", "status", "next_maintenance_date"]
+    ordering_fields = [
+        "equipment_id",
+        "equipment_name",
+        "status",
+        "next_maintenance_date",
+    ]
     ordering = ["equipment_id"]
 
     def get_queryset(self):

@@ -1,12 +1,27 @@
-import type { FlightList } from "@frontend/types/api"
-import { FlightStatusEnum } from "@frontend/types/api"
+import type { FlightList } from '@frontend/types/api'
+import { FlightStatusEnum } from '@frontend/types/api'
 
 // Component types (from v0)
-export type FlightType = "arrival" | "departure" | "quick_turn" | "overnight" | "long_term"
+export type FlightType =
+  | 'arrival'
+  | 'departure'
+  | 'quick_turn'
+  | 'overnight'
+  | 'long_term'
 
-export type FlightStatus = "scheduled" | "en-route" | "arrived" | "departed" | "delayed" | "cancelled"
+export type FlightStatus =
+  | 'scheduled'
+  | 'en-route'
+  | 'arrived'
+  | 'departed'
+  | 'delayed'
+  | 'cancelled'
 
-export type FlightSource = "qt" | "front-desk" | "line-department" | "google-calendar"
+export type FlightSource =
+  | 'qt'
+  | 'front-desk'
+  | 'line-department'
+  | 'google-calendar'
 
 // Flight interface - fields ordered to match database schema
 export interface Flight {
@@ -42,7 +57,8 @@ export interface Flight {
 
   // Source tracking (always present, defaults to line-department and admin user)
   source: FlightSource // created_by_source (NOT NULL, default: 'line-department')
-  createdBy: { // derived from created_by_id (NOT NULL, default: 1 = admin)
+  createdBy: {
+    // derived from created_by_id (NOT NULL, default: 1 = admin)
     initials: string
     name: string
     department: string
@@ -55,37 +71,52 @@ export interface Flight {
 
 export interface FlightFilters {
   search: string
-  status: FlightStatus | "all"
-  dateRange: "today" | "tomorrow" | "week" | "all"
+  status: FlightStatus | 'all'
+  dateRange: 'today' | 'tomorrow' | 'week' | 'all'
   services: string[]
 }
 
 // Map backend flight status to component status
 function mapFlightStatus(status?: FlightStatusEnum): FlightStatus {
   switch (status) {
-    case FlightStatusEnum.SCHEDULED: return "scheduled"
-    case FlightStatusEnum.ARRIVED: return "arrived"
-    case FlightStatusEnum.DEPARTED: return "departed"
-    case FlightStatusEnum.DELAYED: return "delayed"
-    case FlightStatusEnum.CANCELLED: return "cancelled"
-    default: return "scheduled"
+    case FlightStatusEnum.SCHEDULED:
+      return 'scheduled'
+    case FlightStatusEnum.ARRIVED:
+      return 'arrived'
+    case FlightStatusEnum.DEPARTED:
+      return 'departed'
+    case FlightStatusEnum.DELAYED:
+      return 'delayed'
+    case FlightStatusEnum.CANCELLED:
+      return 'cancelled'
+    default:
+      return 'scheduled'
   }
 }
 
 // Map component status back to backend status
 export function mapStatusToBackend(status: FlightStatus): FlightStatusEnum {
   switch (status) {
-    case "scheduled": return FlightStatusEnum.SCHEDULED
-    case "en-route": return FlightStatusEnum.SCHEDULED // Backend doesn't have en-route, use scheduled
-    case "arrived": return FlightStatusEnum.ARRIVED
-    case "departed": return FlightStatusEnum.DEPARTED
-    case "delayed": return FlightStatusEnum.DELAYED
-    case "cancelled": return FlightStatusEnum.CANCELLED
+    case 'scheduled':
+      return FlightStatusEnum.SCHEDULED
+    case 'en-route':
+      return FlightStatusEnum.SCHEDULED // Backend doesn't have en-route, use scheduled
+    case 'arrived':
+      return FlightStatusEnum.ARRIVED
+    case 'departed':
+      return FlightStatusEnum.DEPARTED
+    case 'delayed':
+      return FlightStatusEnum.DELAYED
+    case 'cancelled':
+      return FlightStatusEnum.CANCELLED
   }
 }
 
 // Calculate duration in minutes from arrival and departure times
-function calculateDuration(arrivalTime?: string, departureTime?: string): number {
+function calculateDuration(
+  arrivalTime?: string,
+  departureTime?: string
+): number {
   if (arrivalTime && departureTime) {
     const arrival = new Date(arrivalTime)
     const departure = new Date(departureTime)
@@ -105,20 +136,23 @@ export function apiFlightToComponentFlight(apiFlight: FlightList): Flight {
   let type: FlightType
   if (hasArrival && hasDeparture) {
     // Has both times - it's a quick turn
-    type = "quick_turn"
+    type = 'quick_turn'
   } else if (hasArrival) {
-    type = "arrival"
+    type = 'arrival'
   } else {
-    type = "departure"
+    type = 'departure'
   }
 
   // Calculate duration from arrival and departure times
-  const duration = calculateDuration(apiFlight.arrival_time, apiFlight.departure_time)
+  const duration = calculateDuration(
+    apiFlight.arrival_time,
+    apiFlight.departure_time
+  )
 
   // Extract creator info (always present, defaults to admin if not provided)
-  const createdByInitials = (apiFlight as any).created_by_initials || "ADM"
-  const createdByName = (apiFlight as any).created_by_name || "Admin"
-  const createdByDept = (apiFlight as any).created_by_department || "System"
+  const createdByInitials = (apiFlight as any).created_by_initials || 'ADM'
+  const createdByName = (apiFlight as any).created_by_name || 'Admin'
+  const createdByDept = (apiFlight as any).created_by_department || 'System'
 
   const createdBy = {
     initials: createdByInitials,
@@ -129,11 +163,12 @@ export function apiFlightToComponentFlight(apiFlight: FlightList): Flight {
   return {
     id: String(apiFlight.id),
     type,
-    tailNumber: apiFlight.aircraft || "",
-    aircraftType: (apiFlight as any).aircraft_type_display || "",
+    tailNumber: apiFlight.aircraft || '',
+    aircraftType: (apiFlight as any).aircraft_type_display || '',
     arrivalTime: apiFlight.arrival_time,
     departureTime: apiFlight.departure_time!,
-    origin: apiFlight.origin || (hasArrival ? apiFlight.destination : undefined),
+    origin:
+      apiFlight.origin || (hasArrival ? apiFlight.destination : undefined),
     destination: apiFlight.destination,
     status: mapFlightStatus(apiFlight.flight_status),
     contactName: (apiFlight as any).contact_name || undefined,
@@ -142,15 +177,17 @@ export function apiFlightToComponentFlight(apiFlight: FlightList): Flight {
     services: (apiFlight as any).services || [],
     notes: (apiFlight as any).notes || undefined,
     duration, // Calculated from arrival and departure times
-    source: ((apiFlight as any).created_by_source as FlightSource) || "qt",
+    source: ((apiFlight as any).created_by_source as FlightSource) || 'qt',
     createdBy,
     createdAt: apiFlight.created_at,
-    updatedAt: (apiFlight as any).modified_at || apiFlight.created_at,
+    updatedAt: (apiFlight as any).modified_at || apiFlight.created_at
   }
 }
 
 // Convert component flight to backend create/update request
-export function componentFlightToApiRequest(flight: Partial<Flight>): Record<string, any> {
+export function componentFlightToApiRequest(
+  flight: Partial<Flight>
+): Record<string, any> {
   const result: Record<string, any> = {}
 
   // IMPORTANT: Don't modify flight_number or aircraft on updates
@@ -213,7 +250,7 @@ export function componentFlightToApiRequest(flight: Partial<Flight>): Record<str
   }
 
   // Filter out any undefined/null values
-  Object.keys(result).forEach(key => {
+  Object.keys(result).forEach((key) => {
     if (result[key] === undefined || result[key] === null) {
       delete result[key]
     }

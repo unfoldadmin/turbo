@@ -19,4 +19,3 @@ export type LineScheduleRequest = {
     gate?: number | null;
     notes?: string;
 };
-

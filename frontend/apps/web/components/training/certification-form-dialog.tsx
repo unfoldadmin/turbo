@@ -1,25 +1,30 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@frontend/ui/components/ui/dialog"
-import { Button } from "@frontend/ui/components/ui/button"
-import { Input } from "@frontend/ui/components/ui/input"
-import { Label } from "@frontend/ui/components/ui/label"
+import type {
+  Fueler,
+  FuelerTraining,
+  FuelerTrainingRequest,
+  Training
+} from '@frontend/types/api'
+import { Button } from '@frontend/ui/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@frontend/ui/components/ui/dialog'
+import { Input } from '@frontend/ui/components/ui/input'
+import { Label } from '@frontend/ui/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@frontend/ui/components/ui/select"
-import type {
-  FuelerTraining,
-  FuelerTrainingRequest,
-  Fueler,
-  Training,
-} from "@frontend/types/api"
-import { getApiClient } from "../../lib/api"
+  SelectValue
+} from '@frontend/ui/components/ui/select'
+import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+import { getApiClient } from '../../lib/api'
 
 interface CertificationFormDialogProps {
   open: boolean
@@ -32,7 +37,7 @@ export function CertificationFormDialog({
   open,
   onOpenChange,
   certification,
-  onSubmit,
+  onSubmit
 }: CertificationFormDialogProps) {
   const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
@@ -41,9 +46,9 @@ export function CertificationFormDialog({
   const [formData, setFormData] = useState<FuelerTrainingRequest>({
     fueler: 0,
     training: 0,
-    completed_date: "",
-    expiry_date: "",
-    certified_by: null,
+    completed_date: '',
+    expiry_date: '',
+    certified_by: null
   })
 
   // Fetch fuelers and training types when dialog opens
@@ -58,12 +63,12 @@ export function CertificationFormDialog({
       const client = await getApiClient(session)
       const [fuelersResponse, trainingsResponse] = await Promise.all([
         client.fuelers.fuelersList(),
-        client.trainings.trainingsList(),
+        client.trainings.trainingsList()
       ])
       setFuelers(fuelersResponse.results || [])
       setTrainings(trainingsResponse.results || [])
     } catch (err) {
-      console.error("Failed to fetch dropdown data:", err)
+      console.error('Failed to fetch dropdown data:', err)
     }
   }
 
@@ -74,15 +79,15 @@ export function CertificationFormDialog({
         training: certification.training,
         completed_date: certification.completed_date,
         expiry_date: certification.expiry_date,
-        certified_by: certification.certified_by,
+        certified_by: certification.certified_by
       })
     } else {
       setFormData({
         fueler: 0,
         training: 0,
-        completed_date: "",
-        expiry_date: "",
-        certified_by: null,
+        completed_date: '',
+        expiry_date: '',
+        certified_by: null
       })
     }
   }, [certification, open])
@@ -94,7 +99,7 @@ export function CertificationFormDialog({
       await onSubmit(formData)
       onOpenChange(false)
     } catch (error) {
-      console.error("Failed to save certification:", error)
+      console.error('Failed to save certification:', error)
     } finally {
       setLoading(false)
     }
@@ -105,7 +110,7 @@ export function CertificationFormDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {certification ? "Edit Certification" : "Create Certification"}
+            {certification ? 'Edit Certification' : 'Create Certification'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -114,7 +119,7 @@ export function CertificationFormDialog({
             <Select
               value={formData.fueler.toString()}
               onValueChange={(value) =>
-                setFormData({ ...formData, fueler: parseInt(value) })
+                setFormData({ ...formData, fueler: Number.parseInt(value) })
               }
             >
               <SelectTrigger>
@@ -135,7 +140,7 @@ export function CertificationFormDialog({
             <Select
               value={formData.training.toString()}
               onValueChange={(value) =>
-                setFormData({ ...formData, training: parseInt(value) })
+                setFormData({ ...formData, training: Number.parseInt(value) })
               }
             >
               <SelectTrigger>
@@ -188,8 +193,13 @@ export function CertificationFormDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || formData.fueler === 0 || formData.training === 0}>
-              {loading ? "Saving..." : certification ? "Update" : "Create"}
+            <Button
+              type="submit"
+              disabled={
+                loading || formData.fueler === 0 || formData.training === 0
+              }
+            >
+              {loading ? 'Saving...' : certification ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>

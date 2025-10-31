@@ -9,4 +9,3 @@ export type PaginatedFuelerList = {
     previous?: string | null;
     results: Array<Fueler>;
 };
-

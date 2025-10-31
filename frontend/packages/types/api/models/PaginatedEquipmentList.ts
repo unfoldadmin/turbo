@@ -9,4 +9,3 @@ export type PaginatedEquipmentList = {
     previous?: string | null;
     results: Array<Equipment>;
 };
-

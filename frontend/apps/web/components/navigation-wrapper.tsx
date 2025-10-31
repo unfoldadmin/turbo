@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, createContext, useContext, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { Navigation } from './navigation'
 
 const ThemeContext = createContext<{
@@ -9,7 +9,7 @@ const ThemeContext = createContext<{
   setTheme: (theme: 'dark' | 'light') => void
 }>({
   theme: 'dark',
-  setTheme: () => {},
+  setTheme: () => {}
 })
 
 export function useTheme() {
@@ -37,14 +37,26 @@ export function NavigationWrapper({ children }: { children: React.ReactNode }) {
   }
 
   // Hide navigation on auth pages
-  const isAuthPage = pathname?.startsWith('/login') || pathname?.startsWith('/signup') || pathname?.startsWith('/forgot-password')
+  const isAuthPage =
+    pathname?.startsWith('/login') ||
+    pathname?.startsWith('/signup') ||
+    pathname?.startsWith('/forgot-password')
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: handleThemeChange }}>
-      <main className={theme === 'dark' ? 'dark' : ''} style={{ visibility: mounted ? 'visible' : 'hidden' }}>
+      <main
+        className={theme === 'dark' ? 'dark' : ''}
+        style={{ visibility: mounted ? 'visible' : 'hidden' }}
+      >
         <div className="min-h-screen bg-background">
-          {!isAuthPage && <Navigation theme={theme} onThemeChange={handleThemeChange} />}
-          <div className={isAuthPage ? '' : 'mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8'}>
+          {!isAuthPage && (
+            <Navigation theme={theme} onThemeChange={handleThemeChange} />
+          )}
+          <div
+            className={
+              isAuthPage ? '' : 'mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8'
+            }
+          >
             {children}
           </div>
         </div>

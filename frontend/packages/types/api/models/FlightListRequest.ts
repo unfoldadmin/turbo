@@ -24,4 +24,3 @@ export type FlightListRequest = {
     contact_notes?: string;
     created_by_source?: CreatedBySourceEnum;
 };
-

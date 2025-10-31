@@ -1,23 +1,28 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@frontend/ui/components/ui/dialog"
-import { Button } from "@frontend/ui/components/ui/button"
-import { Input } from "@frontend/ui/components/ui/input"
-import { Label } from "@frontend/ui/components/ui/label"
+import type {
+  FuelTransactionCreateRequest,
+  FuelTransactionDetail,
+  ProgressEnum
+} from '@frontend/types/api'
+import { Button } from '@frontend/ui/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@frontend/ui/components/ui/dialog'
+import { Input } from '@frontend/ui/components/ui/input'
+import { Label } from '@frontend/ui/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@frontend/ui/components/ui/select"
-import type {
-  FuelTransactionDetail,
-  FuelTransactionCreateRequest,
-  ProgressEnum,
-} from "@frontend/types/api"
-import { useFlights } from "../../hooks/use-flights"
+  SelectValue
+} from '@frontend/ui/components/ui/select'
+import { useEffect, useState } from 'react'
+import { useFlights } from '../../hooks/use-flights'
 
 interface TransactionFormDialogProps {
   open: boolean
@@ -30,17 +35,17 @@ export function TransactionFormDialog({
   open,
   onOpenChange,
   transaction,
-  onSubmit,
+  onSubmit
 }: TransactionFormDialogProps) {
   const { flights } = useFlights()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState<FuelTransactionCreateRequest>({
-    ticket_number: "",
+    ticket_number: '',
     flight: null,
-    quantity_gallons: "",
-    quantity_lbs: "",
-    density: "",
-    charge_flags: null,
+    quantity_gallons: '',
+    quantity_lbs: '',
+    density: '',
+    charge_flags: null
   })
 
   useEffect(() => {
@@ -51,16 +56,16 @@ export function TransactionFormDialog({
         quantity_gallons: transaction.quantity_gallons,
         quantity_lbs: transaction.quantity_lbs,
         density: transaction.density,
-        charge_flags: transaction.charge_flags,
+        charge_flags: transaction.charge_flags
       })
     } else {
       setFormData({
-        ticket_number: "",
+        ticket_number: '',
         flight: null,
-        quantity_gallons: "",
-        quantity_lbs: "",
-        density: "",
-        charge_flags: null,
+        quantity_gallons: '',
+        quantity_lbs: '',
+        density: '',
+        charge_flags: null
       })
     }
   }, [transaction, open])
@@ -72,7 +77,7 @@ export function TransactionFormDialog({
       await onSubmit(formData)
       onOpenChange(false)
     } catch (error) {
-      console.error("Failed to save transaction:", error)
+      console.error('Failed to save transaction:', error)
     } finally {
       setLoading(false)
     }
@@ -81,12 +86,12 @@ export function TransactionFormDialog({
   // Auto-calculate density when gallons and lbs are provided
   useEffect(() => {
     if (formData.quantity_gallons && formData.quantity_lbs) {
-      const gallons = parseFloat(formData.quantity_gallons)
-      const lbs = parseFloat(formData.quantity_lbs)
+      const gallons = Number.parseFloat(formData.quantity_gallons)
+      const lbs = Number.parseFloat(formData.quantity_lbs)
       if (!isNaN(gallons) && !isNaN(lbs) && gallons > 0) {
         const calculatedDensity = (lbs / gallons).toFixed(4)
         if (formData.density !== calculatedDensity) {
-          setFormData(prev => ({ ...prev, density: calculatedDensity }))
+          setFormData((prev) => ({ ...prev, density: calculatedDensity }))
         }
       }
     }
@@ -97,7 +102,7 @@ export function TransactionFormDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {transaction ? "Edit Transaction" : "Create Transaction"}
+            {transaction ? 'Edit Transaction' : 'Create Transaction'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -117,11 +122,11 @@ export function TransactionFormDialog({
           <div className="space-y-2">
             <Label htmlFor="flight">Flight (Optional)</Label>
             <Select
-              value={formData.flight?.toString() || "none"}
+              value={formData.flight?.toString() || 'none'}
               onValueChange={(value) =>
                 setFormData({
                   ...formData,
-                  flight: value === "none" ? null : parseInt(value),
+                  flight: value === 'none' ? null : Number.parseInt(value)
                 })
               }
             >
@@ -200,7 +205,7 @@ export function TransactionFormDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : transaction ? "Update" : "Create"}
+              {loading ? 'Saving...' : transaction ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>

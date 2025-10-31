@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 export default function FlightOperationsDayView() {
   return (
@@ -17,7 +17,8 @@ export default function FlightOperationsDayView() {
           Day View - Under Construction
         </h3>
         <p className="text-gray-600 mb-4">
-          This will be a QT-style day view showing all flights for the current day in a compact format.
+          This will be a QT-style day view showing all flights for the current
+          day in a compact format.
         </p>
         <p className="text-sm text-gray-500">
           See TODO.md for development roadmap

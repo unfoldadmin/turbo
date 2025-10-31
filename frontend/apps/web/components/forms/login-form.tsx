@@ -1,18 +1,25 @@
 'use client'
 
 import { loginFormSchema } from '@/lib/validation'
+import { Button } from '@frontend/ui/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@frontend/ui/components/ui/card'
+import { Input } from '@frontend/ui/components/ui/input'
+import { Label } from '@frontend/ui/components/ui/label'
 import { ErrorMessage } from '@frontend/ui/messages/error-message'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Plane } from 'lucide-react'
 import { signIn } from 'next-auth/react'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import type { z } from 'zod'
-import { Button } from '@frontend/ui/components/ui/button'
-import { Input } from '@frontend/ui/components/ui/input'
-import { Label } from '@frontend/ui/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@frontend/ui/components/ui/card'
-import { Plane } from 'lucide-react'
-import Link from 'next/link'
 
 type LoginFormSchema = z.infer<typeof loginFormSchema>
 
@@ -40,7 +47,9 @@ export function LoginForm() {
               <Plane className="w-8 h-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-card-foreground">Welcome Back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-card-foreground">
+            Welcome Back
+          </CardTitle>
           <CardDescription className="text-muted-foreground">
             Sign in to access your flight operations dashboard
           </CardDescription>
@@ -66,7 +75,9 @@ export function LoginForm() {
                 className="bg-background border-border text-foreground"
               />
               {formState.errors.username && (
-                <p className="text-sm text-destructive">{formState.errors.username.message}</p>
+                <p className="text-sm text-destructive">
+                  {formState.errors.username.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -74,7 +85,10 @@ export function LoginForm() {
                 <Label htmlFor="password" className="text-card-foreground">
                   Password
                 </Label>
-                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -86,12 +100,17 @@ export function LoginForm() {
                 className="bg-background border-border text-foreground"
               />
               {formState.errors.password && (
-                <p className="text-sm text-destructive">{formState.errors.password.message}</p>
+                <p className="text-sm text-destructive">
+                  {formState.errors.password.message}
+                </p>
               )}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pt-6">
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
               Sign In
             </Button>
 
@@ -100,7 +119,9 @@ export function LoginForm() {
                 <span className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Quick Dev Login</span>
+                <span className="bg-card px-2 text-muted-foreground">
+                  Quick Dev Login
+                </span>
               </div>
             </div>
 
@@ -109,7 +130,13 @@ export function LoginForm() {
                 type="button"
                 variant="outline"
                 className="flex-1"
-                onClick={() => signIn('credentials', { username: 'admin', password: 'admin', callbackUrl: '/' })}
+                onClick={() =>
+                  signIn('credentials', {
+                    username: 'admin',
+                    password: 'admin',
+                    callbackUrl: '/'
+                  })
+                }
               >
                 Log in as Admin
               </Button>
@@ -117,15 +144,24 @@ export function LoginForm() {
                 type="button"
                 variant="outline"
                 className="flex-1"
-                onClick={() => signIn('credentials', { username: 'user', password: 'user', callbackUrl: '/' })}
+                onClick={() =>
+                  signIn('credentials', {
+                    username: 'user',
+                    password: 'user',
+                    callbackUrl: '/'
+                  })
+                }
               >
                 Log in as User
               </Button>
             </div>
 
             <p className="text-sm text-center text-muted-foreground">
-              Don't have an account?{" "}
-              <Link href="/register" className="text-primary hover:underline font-medium">
+              Don't have an account?{' '}
+              <Link
+                href="/register"
+                className="text-primary hover:underline font-medium"
+              >
                 Sign up
               </Link>
             </p>

@@ -1,9 +1,9 @@
-import { getServerSession } from 'next-auth'
+import { TankDisplay } from '@/components/tank-display'
 import { authOptions } from '@/lib/auth'
 import { getFuelTanks } from '@/lib/fbo-api'
-import { TankDisplay } from '@/components/tank-display'
 import type { FuelTank } from '@/lib/types'
 import { ErrorMessage } from '@frontend/ui/messages/error-message'
+import { getServerSession } from 'next-auth'
 
 export const revalidate = 30 // Revalidate every 30 seconds
 
@@ -67,7 +67,9 @@ export default async function FuelFarmPage() {
               </svg>
             </div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-green-900">{goodCount}</div>
+              <div className="text-2xl font-bold text-green-900">
+                {goodCount}
+              </div>
               <div className="text-sm text-green-700">Good Status</div>
             </div>
           </div>
@@ -91,7 +93,9 @@ export default async function FuelFarmPage() {
               </svg>
             </div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-yellow-900">{warningCount}</div>
+              <div className="text-2xl font-bold text-yellow-900">
+                {warningCount}
+              </div>
               <div className="text-sm text-yellow-700">Warning</div>
             </div>
           </div>
@@ -115,7 +119,9 @@ export default async function FuelFarmPage() {
               </svg>
             </div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-red-900">{criticalCount}</div>
+              <div className="text-2xl font-bold text-red-900">
+                {criticalCount}
+              </div>
               <div className="text-sm text-red-700">Critical</div>
             </div>
           </div>
@@ -166,7 +172,9 @@ export default async function FuelFarmPage() {
               d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
             />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No tanks found</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">
+            No tanks found
+          </h3>
           <p className="mt-1 text-sm text-gray-500">
             Run the seed command to create fuel tanks.
           </p>

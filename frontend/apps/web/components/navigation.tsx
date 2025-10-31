@@ -1,10 +1,10 @@
 'use client'
 
+import { Button } from '@frontend/ui/components/ui/button'
+import { Moon, Sun } from 'lucide-react'
+import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
-import { Sun, Moon } from 'lucide-react'
-import { Button } from '@frontend/ui/components/ui/button'
 
 const navigation = [
   { name: 'Flight Ops', href: '/' },
@@ -12,7 +12,7 @@ const navigation = [
   { name: 'Fuel Farm', href: '/fuel-farm' },
   { name: 'Equipment', href: '/equipment' },
   { name: 'Line Schedule', href: '/line-schedule' },
-  { name: 'Training', href: '/training' },
+  { name: 'Training', href: '/training' }
 ]
 
 interface NavigationProps {
@@ -54,7 +54,9 @@ export function Navigation({ theme = 'dark', onThemeChange }: NavigationProps) {
               <Button
                 variant="outline"
                 size="icon"
-                onClick={() => onThemeChange(theme === 'dark' ? 'light' : 'dark')}
+                onClick={() =>
+                  onThemeChange(theme === 'dark' ? 'light' : 'dark')
+                }
               >
                 {theme === 'dark' ? (
                   <Sun className="h-5 w-5 text-yellow-400" />

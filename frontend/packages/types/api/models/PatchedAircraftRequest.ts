@@ -9,4 +9,3 @@ export type PatchedAircraftRequest = {
     airline_icao?: string;
     fleet_id?: string;
 };
-

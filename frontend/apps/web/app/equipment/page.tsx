@@ -1,9 +1,9 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useTheme } from "@/components/navigation-wrapper"
+import { useTheme } from '@/components/navigation-wrapper'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export default function EquipmentPage() {
   const { data: session, status } = useSession()
@@ -31,7 +31,7 @@ export default function EquipmentPage() {
       // TODO: Implement API call when backend migrations are run
       setEquipment([])
     } catch (err) {
-      console.error("Failed to fetch equipment:", err)
+      console.error('Failed to fetch equipment:', err)
       setError(err)
     } finally {
       setLoading(false)
@@ -41,7 +41,9 @@ export default function EquipmentPage() {
   if (status === 'loading' || loading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-lg text-muted-foreground">Loading equipment...</div>
+        <div className="text-lg text-muted-foreground">
+          Loading equipment...
+        </div>
       </div>
     )
   }
@@ -66,17 +68,25 @@ export default function EquipmentPage() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-lg bg-card px-4 py-5 shadow-sm border border-border">
-          <div className="text-sm font-medium text-muted-foreground">Total Equipment</div>
-          <div className="mt-2 text-3xl font-bold text-foreground">{equipment.length}</div>
+          <div className="text-sm font-medium text-muted-foreground">
+            Total Equipment
+          </div>
+          <div className="mt-2 text-3xl font-bold text-foreground">
+            {equipment.length}
+          </div>
         </div>
         <div className="rounded-lg bg-card px-4 py-5 shadow-sm border border-border">
-          <div className="text-sm font-medium text-muted-foreground">Available</div>
+          <div className="text-sm font-medium text-muted-foreground">
+            Available
+          </div>
           <div className="mt-2 text-3xl font-bold text-success">
             {equipment.filter((e: any) => e.status === 'available').length}
           </div>
         </div>
         <div className="rounded-lg bg-card px-4 py-5 shadow-sm border border-border">
-          <div className="text-sm font-medium text-muted-foreground">Maintenance</div>
+          <div className="text-sm font-medium text-muted-foreground">
+            Maintenance
+          </div>
           <div className="mt-2 text-3xl font-bold text-warning">
             {equipment.filter((e: any) => e.status === 'maintenance').length}
           </div>
@@ -85,11 +95,14 @@ export default function EquipmentPage() {
 
       <div className="rounded-lg bg-card shadow border border-border">
         <div className="px-6 py-5 border-b border-border">
-          <h2 className="text-lg font-semibold text-foreground">Equipment Inventory</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            Equipment Inventory
+          </h2>
         </div>
         <div className="p-8 text-center">
           <div className="text-muted-foreground">
-            Equipment module coming soon. Backend models created, pending database migrations.
+            Equipment module coming soon. Backend models created, pending
+            database migrations.
           </div>
         </div>
       </div>

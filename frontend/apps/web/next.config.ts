@@ -1,5 +1,5 @@
-import type { NextConfig } from 'next'
 import path from 'path'
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -10,10 +10,10 @@ const nextConfig: NextConfig = {
       ...config.resolve.alias,
       '@/components': path.resolve(__dirname, '../../packages/ui/components'),
       '@/lib': path.resolve(__dirname, '../../packages/ui/lib'),
-      '@/hooks': path.resolve(__dirname, '../../packages/ui/hooks'),
+      '@/hooks': path.resolve(__dirname, '../../packages/ui/hooks')
     }
     return config
-  },
+  }
 }
 
 export default nextConfig

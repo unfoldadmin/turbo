@@ -7,4 +7,3 @@ export type UserCurrentError = {
     first_name?: Array<string>;
     last_name?: Array<string>;
 };
-

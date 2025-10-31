@@ -23,4 +23,3 @@ export type UserList = {
     is_active?: boolean;
     readonly date_joined: string;
 };
-

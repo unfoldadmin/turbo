@@ -1,24 +1,28 @@
-"use client"
+'use client'
 
-import { useFlights } from "@/hooks/use-flights"
-import { FlightBoard } from "@/components/flight-operations/flight-board"
-import type { Flight, FlightFilters } from "@/components/flight-operations/types"
-import { useState } from "react"
+import { FlightBoard } from '@/components/flight-operations/flight-board'
+import type {
+  Flight,
+  FlightFilters
+} from '@/components/flight-operations/types'
+import { useFlights } from '@/hooks/use-flights'
+import { useState } from 'react'
 
 export default function SplitViewPage() {
-  const { flights, loading, error, createFlight, updateFlight, deleteFlight } = useFlights({ today: true })
+  const { flights, loading, error, createFlight, updateFlight, deleteFlight } =
+    useFlights({ today: true })
   const [filters, setFilters] = useState<FlightFilters>({
-    search: "",
-    status: "all",
-    dateRange: "today",
-    services: [],
+    search: '',
+    status: 'all',
+    dateRange: 'today',
+    services: []
   })
 
   const handleEditFlight = async (flight: Flight) => {
     try {
       await updateFlight(flight.id, flight)
     } catch (err) {
-      console.error("Failed to update flight:", err)
+      console.error('Failed to update flight:', err)
     }
   }
 
@@ -26,7 +30,7 @@ export default function SplitViewPage() {
     try {
       await deleteFlight(id)
     } catch (err) {
-      console.error("Failed to delete flight:", err)
+      console.error('Failed to delete flight:', err)
     }
   }
 
@@ -34,12 +38,14 @@ export default function SplitViewPage() {
     try {
       await createFlight(flight)
     } catch (err) {
-      console.error("Failed to create flight:", err)
+      console.error('Failed to create flight:', err)
     }
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-96">Loading...</div>
+    return (
+      <div className="flex items-center justify-center h-96">Loading...</div>
+    )
   }
 
   if (error) {

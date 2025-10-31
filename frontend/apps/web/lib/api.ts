@@ -8,8 +8,8 @@ export async function getApiClient(session?: Session | null) {
   // Server-side: use Docker service name
   // Client-side: use localhost
   const baseUrl = isServer
-    ? (process.env.API_URL || 'http://api:8000')
-    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000')
+    ? process.env.API_URL || 'http://api:8000'
+    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
   return new ApiClient({
     BASE: baseUrl,

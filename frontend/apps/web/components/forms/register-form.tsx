@@ -6,15 +6,22 @@ import type {
 } from '@/actions/register-action'
 import { fieldApiError } from '@/lib/forms'
 import { registerFormSchema } from '@/lib/validation'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn } from 'next-auth/react'
-import { useForm } from 'react-hook-form'
 import { Button } from '@frontend/ui/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@frontend/ui/components/ui/card'
 import { Input } from '@frontend/ui/components/ui/input'
 import { Label } from '@frontend/ui/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@frontend/ui/components/ui/card'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Plane } from 'lucide-react'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
+import { useForm } from 'react-hook-form'
 
 export function RegisterForm({
   onSubmitHandler
@@ -33,8 +40,12 @@ export function RegisterForm({
               <Plane className="w-8 h-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-card-foreground">Create Account</CardTitle>
-          <CardDescription className="text-muted-foreground">Join our flight operations platform</CardDescription>
+          <CardTitle className="text-2xl font-bold text-card-foreground">
+            Create Account
+          </CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Join our flight operations platform
+          </CardDescription>
         </CardHeader>
 
         <form
@@ -63,7 +74,9 @@ export function RegisterForm({
                 className="bg-background border-border text-foreground"
               />
               {formState.errors.username && (
-                <p className="text-sm text-destructive">{formState.errors.username.message}</p>
+                <p className="text-sm text-destructive">
+                  {formState.errors.username.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -78,7 +91,9 @@ export function RegisterForm({
                 className="bg-background border-border text-foreground"
               />
               {formState.errors.password && (
-                <p className="text-sm text-destructive">{formState.errors.password.message}</p>
+                <p className="text-sm text-destructive">
+                  {formState.errors.password.message}
+                </p>
               )}
             </div>
             <div className="space-y-2">
@@ -93,17 +108,25 @@ export function RegisterForm({
                 className="bg-background border-border text-foreground"
               />
               {formState.errors.passwordRetype && (
-                <p className="text-sm text-destructive">{formState.errors.passwordRetype.message}</p>
+                <p className="text-sm text-destructive">
+                  {formState.errors.passwordRetype.message}
+                </p>
               )}
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 pt-6">
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button
+              type="submit"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
               Create Account
             </Button>
             <p className="text-sm text-center text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/login" className="text-primary hover:underline font-medium">
+              Already have an account?{' '}
+              <Link
+                href="/login"
+                className="text-primary hover:underline font-medium"
+              >
                 Sign in
               </Link>
             </p>

@@ -1,9 +1,9 @@
-import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getFuelTransactions, getFuelers } from '@/lib/fbo-api'
 import type { FuelTransaction, Fueler } from '@/lib/types'
-import Link from 'next/link'
 import { ErrorMessage } from '@frontend/ui/messages/error-message'
+import { getServerSession } from 'next-auth'
+import Link from 'next/link'
 
 export const revalidate = 15 // Revalidate every 15 seconds
 
@@ -14,9 +14,9 @@ export default async function DispatchPage() {
   let error = null
 
   try {
-    [transactions, fuelers] = await Promise.all([
+    ;[transactions, fuelers] = await Promise.all([
       getFuelTransactions({ session }),
-      getFuelers(session),
+      getFuelers(session)
     ])
   } catch (err) {
     console.error('Failed to fetch dispatch data:', err)
@@ -27,9 +27,7 @@ export default async function DispatchPage() {
   const unassignedTx = transactions.filter(
     (t) => t.assigned_fuelers.length === 0
   )
-  const inProgressTx = transactions.filter(
-    (t) => t.progress === 'in_progress'
-  )
+  const inProgressTx = transactions.filter((t) => t.progress === 'in_progress')
   const completedTx = transactions.filter((t) => t.progress === 'completed')
 
   const getProgressBadge = (progress: string) => {
@@ -63,9 +61,7 @@ export default async function DispatchPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Fuel Dispatch
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">Fuel Dispatch</h1>
           <p className="mt-2 text-sm text-gray-600">
             Manage fuel transactions and fueler assignments
           </p>
@@ -81,9 +77,7 @@ export default async function DispatchPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div className="rounded-lg bg-white shadow p-6">
-          <div className="text-sm font-medium text-gray-500">
-            Unassigned
-          </div>
+          <div className="text-sm font-medium text-gray-500">Unassigned</div>
           <div className="mt-2 text-3xl font-bold text-yellow-600">
             {unassignedTx.length}
           </div>
@@ -93,15 +87,11 @@ export default async function DispatchPage() {
         </div>
 
         <div className="rounded-lg bg-white shadow p-6">
-          <div className="text-sm font-medium text-gray-500">
-            In Progress
-          </div>
+          <div className="text-sm font-medium text-gray-500">In Progress</div>
           <div className="mt-2 text-3xl font-bold text-blue-600">
             {inProgressTx.length}
           </div>
-          <div className="mt-2 text-xs text-gray-600">
-            Currently fueling
-          </div>
+          <div className="mt-2 text-xs text-gray-600">Currently fueling</div>
         </div>
 
         <div className="rounded-lg bg-white shadow p-6">
@@ -121,7 +111,8 @@ export default async function DispatchPage() {
       <div className="rounded-lg bg-white shadow">
         <div className="px-6 py-5">
           <h2 className="text-lg font-semibold text-gray-900">
-            Active Fuelers ({fuelers.filter((f) => f.status === 'active').length})
+            Active Fuelers (
+            {fuelers.filter((f) => f.status === 'active').length})
           </h2>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {fuelers

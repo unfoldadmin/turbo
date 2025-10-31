@@ -19,4 +19,3 @@ export type PatchedLineScheduleRequest = {
     gate?: number | null;
     notes?: string;
 };
-

@@ -8,11 +8,11 @@ from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationFo
 from .models import (
     Aircraft,
     Flight,
-    FuelTank,
-    FuelTransaction,
     Fueler,
     FuelerAssignment,
     FuelerTraining,
+    FuelTank,
+    FuelTransaction,
     ParkingLocation,
     TankLevelReading,
     TerminalGate,
@@ -83,14 +83,26 @@ class TankLevelReadingAdmin(ModelAdmin):
 
 @admin.register(Aircraft)
 class AircraftAdmin(ModelAdmin):
-    list_display = ["tail_number", "aircraft_type_display", "aircraft_type_icao", "airline_icao", "fleet_id"]
+    list_display = [
+        "tail_number",
+        "aircraft_type_display",
+        "aircraft_type_icao",
+        "airline_icao",
+        "fleet_id",
+    ]
     list_filter = ["aircraft_type_icao", "airline_icao"]
-    search_fields = ["tail_number", "aircraft_type_display", "aircraft_type_icao", "airline_icao"]
+    search_fields = [
+        "tail_number",
+        "aircraft_type_display",
+        "aircraft_type_icao",
+        "airline_icao",
+    ]
 
 
 @admin.register(TerminalGate)
 class TerminalGateAdmin(ModelAdmin):
     """DEPRECATED - Use ParkingLocationAdmin instead"""
+
     list_display = [
         "terminal_num",
         "gate_number",
@@ -119,20 +131,25 @@ class ParkingLocationAdmin(ModelAdmin):
     ordering = ["-display_order", "location_code"]
 
     fieldsets = (
-        ("Basic Information", {
-            "fields": ("location_code", "description", "display_order")
-        }),
-        ("Location Details", {
-            "fields": ("airport", "terminal", "gate")
-        }),
-        ("Geographic Data", {
-            "fields": ("latitude", "longitude", "polygon"),
-            "classes": ("collapse",),
-        }),
-        ("Timestamps", {
-            "fields": ("created_at", "modified_at"),
-            "classes": ("collapse",),
-        }),
+        (
+            "Basic Information",
+            {"fields": ("location_code", "description", "display_order")},
+        ),
+        ("Location Details", {"fields": ("airport", "terminal", "gate")}),
+        (
+            "Geographic Data",
+            {
+                "fields": ("latitude", "longitude", "polygon"),
+                "classes": ("collapse",),
+            },
+        ),
+        (
+            "Timestamps",
+            {
+                "fields": ("created_at", "modified_at"),
+                "classes": ("collapse",),
+            },
+        ),
     )
     readonly_fields = ["created_at", "modified_at"]
 

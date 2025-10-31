@@ -40,4 +40,3 @@ export type ParkingLocationRequest = {
      */
     display_order?: number;
 };
-

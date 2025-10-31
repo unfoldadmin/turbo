@@ -63,7 +63,9 @@ class FuelTank(models.Model):
 
     tank_id = models.CharField(_("Tank ID"), max_length=10, primary_key=True)
     tank_name = models.CharField(_("Tank Name"), max_length=100)
-    fuel_type = models.CharField(_("Fuel Type"), max_length=10, choices=FUEL_TYPE_CHOICES)
+    fuel_type = models.CharField(
+        _("Fuel Type"), max_length=10, choices=FUEL_TYPE_CHOICES
+    )
     capacity_gallons = models.DecimalField(
         _("Capacity (Gallons)"), max_digits=10, decimal_places=2
     )
@@ -114,8 +116,12 @@ class Aircraft(models.Model):
     """Aircraft registry"""
 
     tail_number = models.CharField(_("Tail Number"), max_length=20, primary_key=True)
-    aircraft_type_icao = models.CharField(_("Aircraft Type (ICAO)"), max_length=10, blank=True, default="")
-    aircraft_type_display = models.CharField(_("Aircraft Type (Display)"), max_length=100, blank=True, default="")
+    aircraft_type_icao = models.CharField(
+        _("Aircraft Type (ICAO)"), max_length=10, blank=True, default=""
+    )
+    aircraft_type_display = models.CharField(
+        _("Aircraft Type (Display)"), max_length=100, blank=True, default=""
+    )
     airline_icao = models.CharField(_("Airline ICAO"), max_length=10, blank=True)
     fleet_id = models.CharField(_("Fleet ID"), max_length=50, blank=True)
     created_at = models.DateTimeField(_("Created At"), auto_now_add=True)
@@ -206,7 +212,10 @@ class ParkingLocation(models.Model):
 
     # Airport code
     airport = models.CharField(
-        _("Airport"), max_length=10, default="MSO", help_text="Airport code: MSO, USFS, etc."
+        _("Airport"),
+        max_length=10,
+        default="MSO",
+        help_text="Airport code: MSO, USFS, etc.",
     )
 
     # Optional terminal
@@ -286,7 +295,9 @@ class Flight(models.Model):
         verbose_name=_("Aircraft"),
         db_column="aircraft_id",
     )
-    call_sign = models.CharField(_("Call Sign / Flight Number"), max_length=20, null=True, blank=True)
+    call_sign = models.CharField(
+        _("Call Sign / Flight Number"), max_length=20, null=True, blank=True
+    )
     arrival_time = models.DateTimeField(_("Arrival Time"), null=True, blank=True)
     departure_time = models.DateTimeField(_("Departure Time"))
     flight_status = models.CharField(
@@ -353,7 +364,10 @@ class Fueler(models.Model):
     )
     fueler_name = models.CharField(_("Fueler Name"), max_length=100)
     handheld_name = models.CharField(
-        _("Handheld Name"), max_length=50, blank=True, help_text=_("Name used on handheld devices")
+        _("Handheld Name"),
+        max_length=50,
+        blank=True,
+        help_text=_("Name used on handheld devices"),
     )
     status = models.CharField(
         _("Status"), max_length=10, choices=STATUS_CHOICES, default="active"
@@ -471,9 +485,7 @@ class FuelTransaction(models.Model):
     progress = models.CharField(
         _("Progress"), max_length=20, choices=PROGRESS_CHOICES, default="started"
     )
-    charge_flags = models.JSONField(
-        _("Charge Flags"), default=dict, blank=True
-    )
+    charge_flags = models.JSONField(_("Charge Flags"), default=dict, blank=True)
     assigned_at = models.DateTimeField(_("Assigned At"), null=True, blank=True)
     completed_at = models.DateTimeField(_("Completed At"), null=True, blank=True)
     qt_dispatch_id = models.CharField(

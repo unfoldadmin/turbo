@@ -7,4 +7,3 @@ export type UserChangePasswordRequest = {
     password_new: string;
     password_retype: string;
 };
-

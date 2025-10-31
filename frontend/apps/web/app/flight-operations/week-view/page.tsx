@@ -1,27 +1,32 @@
-"use client"
+'use client'
 
-import { useFlights } from "@/hooks/use-flights"
-import { CalendarWeekView } from "@/components/flight-operations/calendar-week-view"
-import type { Flight, FlightFilters } from "@/components/flight-operations/types"
-import { useState } from "react"
+import { CalendarWeekView } from '@/components/flight-operations/calendar-week-view'
+import type {
+  Flight,
+  FlightFilters
+} from '@/components/flight-operations/types'
+import { useFlights } from '@/hooks/use-flights'
+import { useState } from 'react'
 
 export default function WeekViewPage() {
-  const { flights, loading, error, updateFlight, deleteFlight } = useFlights({ today: true })
+  const { flights, loading, error, updateFlight, deleteFlight } = useFlights({
+    today: true
+  })
   const [filters, setFilters] = useState<FlightFilters>({
-    search: "",
-    status: "all",
-    dateRange: "today",
-    services: [],
+    search: '',
+    status: 'all',
+    dateRange: 'today',
+    services: []
   })
 
   const handleEditFlight = async (flight: Flight) => {
-    console.log("handleEditFlight called with:", flight)
+    console.log('handleEditFlight called with:', flight)
     try {
-      console.log("Calling updateFlight API with id:", flight.id)
+      console.log('Calling updateFlight API with id:', flight.id)
       const result = await updateFlight(flight.id, flight)
-      console.log("Update result:", result)
+      console.log('Update result:', result)
     } catch (err) {
-      console.error("Failed to update flight:", err)
+      console.error('Failed to update flight:', err)
     }
   }
 
@@ -29,12 +34,14 @@ export default function WeekViewPage() {
     try {
       await deleteFlight(id)
     } catch (err) {
-      console.error("Failed to delete flight:", err)
+      console.error('Failed to delete flight:', err)
     }
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-96">Loading...</div>
+    return (
+      <div className="flex items-center justify-center h-96">Loading...</div>
+    )
   }
 
   if (error) {

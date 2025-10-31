@@ -19,4 +19,3 @@ export type FuelerTraining = {
     readonly expiry_status: string;
     readonly created_at: string;
 };
-

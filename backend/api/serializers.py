@@ -11,11 +11,11 @@ from .models import (
     Aircraft,
     Equipment,
     Flight,
-    FuelTank,
-    FuelTransaction,
     Fueler,
     FuelerAssignment,
     FuelerTraining,
+    FuelTank,
+    FuelTransaction,
     LineSchedule,
     ParkingLocation,
     TankLevelReading,
@@ -348,9 +348,10 @@ class ParkingLocationSerializer(serializers.ModelSerializer):
     def validate_location_code(self, value):
         """Ensure location_code is uppercase and properly formatted"""
         import re
-        if not re.match(r'^[A-Z0-9\-]+$', value):
+
+        if not re.match(r"^[A-Z0-9\-]+$", value):
             raise serializers.ValidationError(
-                'Location code must be uppercase alphanumeric with hyphens only (no spaces)'
+                "Location code must be uppercase alphanumeric with hyphens only (no spaces)"
             )
         return value
 
@@ -363,12 +364,22 @@ class ParkingLocationSerializer(serializers.ModelSerializer):
 class FlightListSerializer(serializers.ModelSerializer):
     """Serializer for flight list view with nested data"""
 
-    aircraft_type_icao = serializers.CharField(source="aircraft.aircraft_type_icao", read_only=True)
-    aircraft_type_display = serializers.CharField(source="aircraft.aircraft_type_display", read_only=True)
+    aircraft_type_icao = serializers.CharField(
+        source="aircraft.aircraft_type_icao", read_only=True
+    )
+    aircraft_type_display = serializers.CharField(
+        source="aircraft.aircraft_type_display", read_only=True
+    )
     location_display = serializers.SerializerMethodField()
-    created_by_initials = serializers.CharField(source="created_by.get_initials", read_only=True)
-    created_by_name = serializers.CharField(source="created_by.get_full_name", read_only=True)
-    created_by_department = serializers.CharField(source="created_by.get_department", read_only=True)
+    created_by_initials = serializers.CharField(
+        source="created_by.get_initials", read_only=True
+    )
+    created_by_name = serializers.CharField(
+        source="created_by.get_full_name", read_only=True
+    )
+    created_by_department = serializers.CharField(
+        source="created_by.get_department", read_only=True
+    )
 
     class Meta:
         model = Flight
@@ -398,7 +409,17 @@ class FlightListSerializer(serializers.ModelSerializer):
             "created_at",
             "modified_at",
         ]
-        read_only_fields = ["id", "created_at", "modified_at", "aircraft_type_icao", "aircraft_type_display", "location_display", "created_by_initials", "created_by_name", "created_by_department"]
+        read_only_fields = [
+            "id",
+            "created_at",
+            "modified_at",
+            "aircraft_type_icao",
+            "aircraft_type_display",
+            "location_display",
+            "created_by_initials",
+            "created_by_name",
+            "created_by_department",
+        ]
 
     def get_location_display(self, obj):
         if obj.location:
@@ -498,7 +519,9 @@ class FuelerTrainingSerializer(serializers.ModelSerializer):
     """Fueler training certification with expiry warnings"""
 
     fueler_name = serializers.CharField(source="fueler.fueler_name", read_only=True)
-    training_name = serializers.CharField(source="training.training_name", read_only=True)
+    training_name = serializers.CharField(
+        source="training.training_name", read_only=True
+    )
     certified_by_name = serializers.CharField(
         source="certified_by.get_full_name", read_only=True
     )
@@ -779,10 +802,16 @@ class LineScheduleSerializer(serializers.ModelSerializer):
         return None
 
     def get_assigned_personnel_names(self, obj):
-        return [user.get_full_name() or user.username for user in obj.assigned_personnel.all()]
+        return [
+            user.get_full_name() or user.username
+            for user in obj.assigned_personnel.all()
+        ]
 
     def get_equipment_used_names(self, obj):
-        return [f"{eq.equipment_id} - {eq.equipment_name}" for eq in obj.equipment_used.all()]
+        return [
+            f"{eq.equipment_id} - {eq.equipment_name}"
+            for eq in obj.equipment_used.all()
+        ]
 
     def get_duration(self, obj):
         """Calculate duration in minutes if both start and end times are set"""

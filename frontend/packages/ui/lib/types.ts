@@ -1,8 +1,14 @@
-export type FlightType = "arrival" | "departure"
+export type FlightType = 'arrival' | 'departure'
 
-export type FlightStatus = "scheduled" | "en-route" | "arrived" | "departed" | "delayed" | "cancelled"
+export type FlightStatus =
+  | 'scheduled'
+  | 'en-route'
+  | 'arrived'
+  | 'departed'
+  | 'delayed'
+  | 'cancelled'
 
-export type FlightSource = "qt" | "calendar" | "manual"
+export type FlightSource = 'qt' | 'calendar' | 'manual'
 
 export interface Flight {
   id: string
@@ -27,7 +33,7 @@ export interface Flight {
 
 export interface FlightFilters {
   search: string
-  status: FlightStatus | "all"
-  dateRange: "today" | "tomorrow" | "week" | "all"
+  status: FlightStatus | 'all'
+  dateRange: 'today' | 'tomorrow' | 'week' | 'all'
   services: string[]
 }

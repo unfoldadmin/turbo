@@ -1,10 +1,10 @@
-import { FlightCard } from "./flight-card"
-import type { Flight } from "./types"
+import { FlightCard } from './flight-card'
+import type { Flight } from './types'
 
 interface FlightListProps {
   flights: Flight[]
-  type: "arrival" | "departure"
-  theme: "dark" | "light"
+  type: 'arrival' | 'departure'
+  theme: 'dark' | 'light'
   onEditFlight: (flight: Flight) => void
   onDeleteFlight: (id: string) => void
   linkedFlightIds?: Set<string>
@@ -27,7 +27,7 @@ export function FlightList({
   if (flights.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        No {type === "arrival" ? "arrivals" : "departures"} found
+        No {type === 'arrival' ? 'arrivals' : 'departures'} found
       </div>
     )
   }

@@ -16,4 +16,3 @@ export type UserCurrentRequest = {
     employee_id?: string | null;
     is_active_fueler?: boolean;
 };
-

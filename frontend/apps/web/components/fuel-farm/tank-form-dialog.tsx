@@ -1,22 +1,27 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@frontend/ui/components/ui/dialog"
-import { Button } from "@frontend/ui/components/ui/button"
-import { Input } from "@frontend/ui/components/ui/input"
-import { Label } from "@frontend/ui/components/ui/label"
+import type {
+  FuelTankRequest,
+  FuelTankWithLatestReading
+} from '@frontend/types/api'
+import { FuelTypeEnum } from '@frontend/types/api'
+import { Button } from '@frontend/ui/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@frontend/ui/components/ui/dialog'
+import { Input } from '@frontend/ui/components/ui/input'
+import { Label } from '@frontend/ui/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@frontend/ui/components/ui/select"
-import type {
-  FuelTankWithLatestReading,
-  FuelTankRequest,
-} from "@frontend/types/api"
-import { FuelTypeEnum } from "@frontend/types/api"
+  SelectValue
+} from '@frontend/ui/components/ui/select'
+import { useEffect, useState } from 'react'
 
 interface TankFormDialogProps {
   open: boolean
@@ -29,18 +34,18 @@ export function TankFormDialog({
   open,
   onOpenChange,
   tank,
-  onSubmit,
+  onSubmit
 }: TankFormDialogProps) {
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState<FuelTankRequest>({
-    tank_id: "",
-    tank_name: "",
+    tank_id: '',
+    tank_name: '',
     fuel_type: FuelTypeEnum.JET_A,
-    capacity_gallons: "",
-    min_level_inches: "",
-    max_level_inches: "",
-    usable_min_inches: "",
-    usable_max_inches: "",
+    capacity_gallons: '',
+    min_level_inches: '',
+    max_level_inches: '',
+    usable_min_inches: '',
+    usable_max_inches: ''
   })
 
   useEffect(() => {
@@ -53,18 +58,18 @@ export function TankFormDialog({
         min_level_inches: tank.min_level_inches,
         max_level_inches: tank.max_level_inches,
         usable_min_inches: tank.usable_min_inches,
-        usable_max_inches: tank.usable_max_inches,
+        usable_max_inches: tank.usable_max_inches
       })
     } else {
       setFormData({
-        tank_id: "",
-        tank_name: "",
+        tank_id: '',
+        tank_name: '',
         fuel_type: FuelTypeEnum.JET_A,
-        capacity_gallons: "",
-        min_level_inches: "",
-        max_level_inches: "",
-        usable_min_inches: "",
-        usable_max_inches: "",
+        capacity_gallons: '',
+        min_level_inches: '',
+        max_level_inches: '',
+        usable_min_inches: '',
+        usable_max_inches: ''
       })
     }
   }, [tank, open])
@@ -76,7 +81,7 @@ export function TankFormDialog({
       await onSubmit(formData)
       onOpenChange(false)
     } catch (error) {
-      console.error("Failed to save tank:", error)
+      console.error('Failed to save tank:', error)
     } finally {
       setLoading(false)
     }
@@ -86,9 +91,7 @@ export function TankFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {tank ? "Edit Tank" : "Create Tank"}
-          </DialogTitle>
+          <DialogTitle>{tank ? 'Edit Tank' : 'Create Tank'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -132,7 +135,7 @@ export function TankFormDialog({
               onValueChange={(value) =>
                 setFormData({
                   ...formData,
-                  fuel_type: value as FuelTypeEnum,
+                  fuel_type: value as FuelTypeEnum
                 })
               }
             >
@@ -202,7 +205,10 @@ export function TankFormDialog({
                 step="0.01"
                 value={formData.usable_min_inches}
                 onChange={(e) =>
-                  setFormData({ ...formData, usable_min_inches: e.target.value })
+                  setFormData({
+                    ...formData,
+                    usable_min_inches: e.target.value
+                  })
                 }
                 required
                 placeholder="0.00"
@@ -217,7 +223,10 @@ export function TankFormDialog({
                 step="0.01"
                 value={formData.usable_max_inches}
                 onChange={(e) =>
-                  setFormData({ ...formData, usable_max_inches: e.target.value })
+                  setFormData({
+                    ...formData,
+                    usable_max_inches: e.target.value
+                  })
                 }
                 required
                 placeholder="0.00"
@@ -235,7 +244,7 @@ export function TankFormDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : tank ? "Update" : "Create"}
+              {loading ? 'Saving...' : tank ? 'Update' : 'Create'}
             </Button>
           </div>
         </form>

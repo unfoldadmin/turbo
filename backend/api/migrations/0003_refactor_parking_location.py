@@ -4,9 +4,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('api', '0002_tanklevelreading_aircraft_fueltank_training_and_more'),
+        ("api", "0002_tanklevelreading_aircraft_fueltank_training_and_more"),
     ]
 
     operations = [
@@ -71,6 +70,6 @@ class Migration(migrations.Migration):
 
             DROP INDEX IF EXISTS api_parking_airport_idx;
             DROP INDEX IF EXISTS api_parking_location_idx;
-            """
+            """,
         ),
     ]

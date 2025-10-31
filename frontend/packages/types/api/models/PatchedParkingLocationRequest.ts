@@ -40,4 +40,3 @@ export type PatchedParkingLocationRequest = {
      */
     display_order?: number;
 };
-
