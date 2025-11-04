@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres
+    image: postgres:17
     expose:
       - "5432"
     ports:

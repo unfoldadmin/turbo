@@ -8,7 +8,7 @@ import type {
 } from 'react-hook-form'
 import { twMerge } from 'tailwind-merge'
 
-export function TextField({
+export function TextField<T extends FieldValues = FieldValues>({
   type,
   label,
   placeholder,
@@ -19,7 +19,7 @@ export function TextField({
   label: string
   placeholder?: string
   register: UseFormRegisterReturn
-  formState: FormState<FieldValues>
+  formState: FormState<T>
 }): React.ReactElement {
   const hasError = formState.errors[register.name]
 
