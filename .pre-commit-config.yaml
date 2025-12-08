@@ -10,7 +10,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.2
+    rev: v0.14.8
     hooks:
       - id: ruff
         args:
@@ -23,7 +23,7 @@ repos:
         stages: [commit-msg]
         args: []
   - repo: https://github.com/biomejs/pre-commit
-    rev: v2.3.1
+    rev: v2.3.8
     hooks:
       - id: biome-check
         additional_dependencies:
