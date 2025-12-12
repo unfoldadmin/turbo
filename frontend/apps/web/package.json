@@ -12,7 +12,7 @@
     "@frontend/types": "workspace:^",
     "@frontend/ui": "workspace:^",
     "@hookform/resolvers": "^3.9.1",
-    "next": "^16.0.7",
+    "next": "^16.0.10",
     "next-auth": "^4.24.13",
     "react-hook-form": "^7.54.2",
     "zod": "^3.24.1"
